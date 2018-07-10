@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Incrementalism"
+title:  "On Incrementalism"
 date:   2018-07-11 12:11:07 -0700
 categories: jekyll update
 ---
