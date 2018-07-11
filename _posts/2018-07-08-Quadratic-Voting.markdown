@@ -2,7 +2,7 @@
 layout: post
 title:  "On-Chain Governance and Quadratic Voting"
 date:   2018-07-10 12:11:07 -0700
-categories: jekyll update
+categories: voting
 ---
 Different societies, regardless of political or economical system, face common issues such as increasing income inequality, political corruption, and monopolization of industries largely for the benefit of wealthy elites. These issues have prompted feelings of frustration and ideas of correction from the commons who suffer most from these zero-sum games. The response consists of backlash and abandonment of the technologies that brought up the problems, but this would cause further issues with much of what is essential for modern society to function while worsening the original problems that sparked this response. Many brilliant minds have been working collectively on alternatives of governance to mitigate the chances of a political or financial elite from attaining too much influence on a particular system by adapting markets and technology to fundamentally decentralize power from the centralized authorities.
 

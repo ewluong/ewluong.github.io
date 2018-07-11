@@ -2,7 +2,7 @@
 layout: post
 title:  "Dualism Against the Natural Laws"
 date:   2017-05-28 12:11:07 -0700
-categories: jekyll update
+categories: dualism
 ---
 
 In Descartes’ Meditations on First Philosophy, his philosophy on the mind established a conclusion that the mind and the body are two separate entities that work intricately with one another to form who we are as human. He reaches this through explaining how the body is something that can be extended but does not think, and the mind is something else that cannot be extended into the physical world and can foster imagination and free thought. Because the nature of the mind is fundamentally different from that of the body, he concludes that the mind can exist without the body. This creates a dualism where the interaction of the two entities, mind and body, is unsolved, creating a new problem as to what the mind actually is. However, this cannot be true, since if the mind was its own entity apart from body, it would violate many of the natural and physical laws of our world.

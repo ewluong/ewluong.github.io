@@ -2,7 +2,7 @@
 layout: post
 title:  "On Incrementalism"
 date:   2018-07-11 12:11:07 -0700
-categories: jekyll update
+categories: innovation
 ---
 
 In the fast paced world of the Silicon Valley, there's a never-ending idea that innovation happens quick. Companies sprout out of nowhere with brilliant ideas, hoping to reconstruct the very industries that have been around for much longer. This isn't just in the high-tech industry. People in healthcare, politics, and education all look for ways to become the next overnight success. However, what most fail to realize in modern times is that things like this don't just happen in a flash. Sure it may be exciting to imagine that one idea could drastically change the fabric of our society, but throughout history, almost everything that has advanced has occurred through marginal gains. Little by little, the gradual incremental gains, is what resembles progress in the broader scope of things. I'm sure people haven't forgotten, but this incrementalism seems to have been concealed by the faint prospect of the infrequent.

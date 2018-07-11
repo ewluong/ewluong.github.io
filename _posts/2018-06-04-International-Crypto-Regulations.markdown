@@ -1,8 +1,8 @@
 ---
 layout: post
 title:  "International Cryptocurrency Regulations"
-date:   2018-07-08 12:11:07 -0700
-categories: jekyll update
+date:   2018-06-04 12:11:07 -0700
+categories: crypto
 ---
 Over the past few months, the entire cryptocurrency scene has been on the edge of their seats awaiting more established regulations from national governments. This uncertainty has left many institutional investors doubtful about putting their money in speculation. Some countries such as India outright banned financial institutions from dealing with cryptocurrency exchanges, and some large organizations such as Facebook and Google banned cryptocurrency ads on their platform. However, recently the tide has been changing as more and more countries have begun to accept the prevalence of crypto.
 
