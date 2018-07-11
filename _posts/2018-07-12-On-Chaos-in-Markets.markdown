@@ -19,6 +19,25 @@ With the lack of precedent to study with the cryptocurrency market, it’s confu
 
 Another model constantly used to simulate markets is the random walk model, which attempts to depict the randomness and unpredictability of markets. This model is structured behind three foundational claims. The first is the martingale condition, which hinges the best guess for tomorrow’s price on today’s price. The second is that future prices are independent of previous prices. The third is that a compilation of price changes in order from least to greatest would produce a mild bell-curve distribution. However, there has been plentiful evidence by a majority of economists that short-term dependence is real. If the market rises more in a certain time period (say a few months), the market will most likely fall even further in the next correction. This demonstrates the “momentum” effect and a power law. Although different stocks and cryptocurrencies obey power laws to different powers, some may diverge randomly according to gaussian distribution but many would end up not. This directly refutes the idea of independence. On the other hand, the bell curve has never been adequate as a model. The daily index movements of the Dow Jones spread out with far edges that dilate too high, and although according to theory, the chance of the index swinging more than 7 percent is once in 300,000 years, there were 48 such occurrences in the 20th century alone.
 
+Albeit, the alternative framework that Mandelbrot suggests using Power Laws/Cauchy Distribution has a few flaws in itself when determining asset return variance. In general, asset return variance has higher kurtosis than modeled by log-normality, but adopting a Cauchy distribution would still be an overstatement relative to reality.
+
+Random Walk proposes that returns are demonstrated by a normal process:
+
+R ~ N(w, d)
+
+Cauchy proposes that returns are demonstrated by the quotient of two normal processes:
+
+R ~ N(w1, d1) / N(w2, d2)
+
+Scaled random walk model can be demonstrated by a normal process multiplied with an exponential distribution, F(I), that reflects the liquidity intensity:
+
+R ~ N(w, d) * F(I)
+
+The Cauchy and Scaled Random Walk Model both contain fat tails, but Cauchy describes a world where mean, variance, correlation or any statistical data can’t be measured on asset price returns. From an ontological perspective, this makes no sense, since in a Cauchy scenario the days that contain major price changes would be the “normal” days. But in reality this is not the case.
+
+Admittedly, it is beyond my scope to understand the happenings of markets to structure a solution. This topic, however, needs to remain in discussions as models are carelessly brought from one environment, to another much less familiar one. Mandelbrot rightly addressed the key issue that most people missed in the random walk model, but more people need to realize the dangers of these traditional methods.
+
+
 Furthermore, the fractal view of the market grants a different perspective of its cyclical nature. Although cyclical, it shouldn’t distract us from the fact that just like the roughness and chaotic nature of clouds, mountains, cauliflowers and ferns, the market might not be as predictable as many traders make it out to be. However, in such a chaotic system, fractal mathematics can tell us that certain events will happen, although the when and to what extent is impossible to predict.
 
 To Mandelbrot, “If you have a large number of price changes, a small number of days are important. The other days, you might as well go to the beach and do nothing”.
