@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "On Incrementalism"
+title:  "On Chaos in Markets"
 date:   2018-07-12 12:11:07 -0700
 categories: markets
 ---
