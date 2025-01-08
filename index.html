@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-scheme="orange"><!-- Default scheme is orange -->
+<html lang="en" data-scheme="orange">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -36,7 +36,7 @@
   <!-- Home Section (Dodecagon in center) -->
   <section id="home" class="section home-section">
     <h1 class="section-header">Hey there, I'm Eric!</h1>
-    <p class="tagline">Truth seeker chasing the wind.</p>
+    <p class="tagline">Just a truth seeker chasing the wind.</p>
 
     <!-- Dodecagon Canvas in the center -->
     <canvas 
@@ -56,16 +56,15 @@
 
   <!-- About Section (with boxes around icons + text) -->
   <section id="about" class="section about-section">
-    <h1 class="section-header">A little bit about me</h1>
+    <h1 class="section-header">About Me</h1>
     <div class="about-grid">
-      <!-- Work: Vanguard & Lifo.ai -->
+      <!-- Example Work Item -->
       <div class="about-item">
         <img src="images/work.jpg" alt="Work Icon" class="about-icon" />
         <p>
           <strong>Work Experience:</strong> 
-          My journey includes roles at Vanguard and Lifo.ai. 
-          I've tackled financial models, data analytics strategies, and 
-          helped streamline business development.
+          My journey includes roles at Vanguard and Lifo.ai, where I've tackled financial models, data analytics strategies,
+          and helped streamline business development.
         </p>
       </div>
 
@@ -74,8 +73,7 @@
         <img src="images/bitcoin.jpg" alt="Crypto Icon" class="about-icon" />
         <p>
           <strong>SPI Energy:</strong>
-          Delved into cryptocurrency miner solutions, aiding strategic 
-          decision-making with data analysis. Learned about the 
+          Delved into cryptocurrency miner solutions, aiding strategic decision-making with data analysis. Learned about the 
           evolving energy market and blockchain tech.
         </p>
       </div>
@@ -87,8 +85,7 @@
           <strong>Favorite Reads:</strong>
           "There Is No Antimemetics Division," 
           "Hitchhiker’s Guide to the Galaxy," 
-          and "Strangers from a Different Shore" 
-          fuel my imagination and expand my worldview.
+          and "Strangers from a Different Shore" fuel my imagination and expand my worldview.
         </p>
       </div>
 
@@ -123,12 +120,32 @@
           UC Berkeley ML & AI Certificate.
         </p>
       </div>
+
+      <!-- NEW: Tennis: tennis.jpg -->
+      <div class="about-item">
+        <img src="images/tennis.jpg" alt="Tennis Icon" class="about-icon" />
+        <p>
+          <strong>Tennis Passion:</strong>
+          I've played tennis my whole life and still train regularly. It's taught me discipline, strategy, and
+          the value of continuous improvement.
+        </p>
+      </div>
+
+      <!-- NEW: Music: music.jpg -->
+      <div class="about-item">
+        <img src="images/music.jpg" alt="Music Icon" class="about-icon" />
+        <p>
+          <strong>Music & Production:</strong>
+          After a lifetime of playing piano and guitar, I dove into music production. 
+          I love experimenting with beats and melodies—peek the SoundCloud link in the corner!
+        </p>
+      </div>
     </div>
   </section>
 
   <!-- Projects Section -->
   <section id="projects" class="section projects-section">
-    <h1 class="section-header">Projects</h1>
+    <h1 class="section-header">My Projects</h1>
     <p>Check out some of my favorite projects below.</p>
     
     <div class="project-cards" id="project-cards">
@@ -237,7 +254,7 @@
   <!-- Blog Section -->
   <section id="blog" class="section blog-section">
     <h1 class="section-header">Blog</h1>
-    <p>Welcome to my blog! Hover over a post to see a glitch effect. Click to open a typewriter modal.</p>
+    <p>My thoughts on anything...</p>
 
     <ul class="blog-list">
       <li class="blog-post" data-title="Finding Wonder in a World of Logic" data-content="In today's world, defined by rapid technological advances and a constant stream of information, there lies a curious trend. It's a time where logic and empirical evidence reign supreme, yet there’s an increasing fascination with the mystical and the magical. This isn’t a rejection of science or rational thought; rather, it's a quest for balance and wonder in an age where the line between the miraculous and the mundane is increasingly blurred.
@@ -356,24 +373,35 @@
 
   <!-- Contact Section -->
   <section id="contact" class="section contact-section">
-    <h1 class="section-header">Leave a note</h1>
+    <h1 class="section-header">Contact Me</h1>
     <p>If you'd like to reach out, feel free to drop me a line below.</p>
     <form class="contact-form">
       <label for="name">Name:</label>
       <input type="text" id="name" required />
-
       <label for="email">Email:</label>
       <input type="email" id="email" required />
-
       <label for="message">Message:</label>
       <textarea id="message" rows="5" required></textarea>
-      
       <button type="submit" class="contact-btn">Send Message</button>
     </form>
   </section>
 
-  <!-- 'Minigame' prompt and Dino Game Canvas -->
-  <div id="minigamePrompt" class="mini-game-prompt glitchHover">Minigame</div>
+  <!-- Music button & frame (SoundCloud embedding) -->
+  <div id="musicPrompt" class="toggle-button glitchHover">Music</div>
+  <div id="musicFrame" class="music-frame hidden">
+    <button id="musicClose" class="minimize-btn">Close</button>
+    <iframe 
+      width="300" 
+      height="120" 
+      scrolling="no" 
+      frameborder="no" 
+      allow="autoplay"
+      src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/keewimusic/love-language-spring-mini-mix&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
+    ></iframe>
+  </div>
+
+  <!-- Minigame prompt and Dino Game Canvas -->
+  <div id="minigamePrompt" class="toggle-button glitchHover">Minigame</div>
   <canvas id="miniDinoGame" width="300" height="150" class="hidden"></canvas>
 
   <!-- Link to JS -->
