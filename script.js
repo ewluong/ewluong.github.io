@@ -1,15 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Fixed shape change: currentShapeIndex updated in Intersection Observer. Music + Minigame toggles remain.");
+  console.log("Contact bubble now enlarges to scale(1.4) on hover. Everything else remains.");
 
-  pickAsciiBunnyCatPanda(); 
+  pickAsciiBunnyCatPanda();
   initCanvas();
   initDodecagonCanvas();
-  initSectionObserver(); // <-- We'll fix shape change here
+  initSectionObserver(); // sets data-scheme so hover backgrounds change
   onScrollTypeAscii();
   initBlogPosts();
 
-  initMinigamePrompt();   
-  initMusicPrompt();      
+  initMinigamePrompt();
+  initMusicPrompt();
+  initContactBubble();
 
   window.addEventListener("resize", onResize);
   window.addEventListener("scroll", onScrollTypeAscii);
@@ -18,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 //
 // ======== SCHEMES: ORANGE+BLACK, BLACK+ORANGE ========
 const colorSchemes = [
-  { bg: "#ff5e00", text: "#000000" }, 
+  { bg: "#ff5e00", text: "#000000" },
   { bg: "#000000", text: "#ff5e00" }
 ];
 
@@ -63,9 +64,8 @@ let w, h;
 const numShapes = 8;
 let shapes = [];
 const shapeTypes = ["circle", "square", "triangle"];
-let currentShapeIndex = 0; // updated in IntersectionObserver
+let currentShapeIndex = 0;
 
-// Mouse
 let mouseX = -9999;
 let mouseY = -9999;
 const repelRadius = 100;
@@ -101,8 +101,10 @@ function initCanvas() {
 function onResize() {
   w = window.innerWidth;
   h = window.innerHeight;
-  canvas.width = w;
-  canvas.height = h;
+  if (canvas) {
+    canvas.width = w;
+    canvas.height = h;
+  }
 }
 
 function animateBackground() {
@@ -112,7 +114,6 @@ function animateBackground() {
     shape.breathFactor += 0.02;
     let breathSize = shape.baseSize * (1 + 0.1 * Math.sin(shape.breathFactor));
 
-    // Move shape
     shape.x += shape.vx;
     shape.y += shape.vy;
 
@@ -143,7 +144,7 @@ function animateBackground() {
     }
   });
 
-  // collisions
+  // collision detection
   for (let i = 0; i < shapes.length; i++) {
     for (let j = i + 1; j < shapes.length; j++) {
       resolveCollision(shapes[i], shapes[j]);
@@ -152,7 +153,6 @@ function animateBackground() {
 
   shapes.forEach((shape) => {
     let breathSize = shape.baseSize * (1 + 0.1 * Math.sin(shape.breathFactor));
-    // Use currentShapeIndex to pick the shape type
     drawBackgroundShape(shapeTypes[currentShapeIndex], shape.x, shape.y, breathSize);
   });
 
@@ -187,7 +187,7 @@ function resolveCollision(s1, s2) {
   let r2 = s2.baseSize * (1 + 0.1 * Math.sin(s2.breathFactor));
   let dx = s2.x - s1.x;
   let dy = s2.y - s1.y;
-  let dist = Math.sqrt(dx * dx + dy * dy);
+  let dist = Math.sqrt(dx*dx + dy*dy);
   let minDist = r1 + r2;
 
   if (dist < minDist) {
@@ -212,7 +212,7 @@ function resolveCollision(s1, s2) {
 function parseHexToRgb(hex) {
   hex = hex.replace("#", "");
   if (hex.length === 3) {
-    hex = hex.split("").map((c) => c + c).join("");
+    hex = hex.split("").map(c => c + c).join("");
   }
   const num = parseInt(hex, 16);
   return {
@@ -232,6 +232,8 @@ let rotation = 0;
 function initDodecagonCanvas() {
   dCanvas = document.getElementById("dodecagonCanvas");
   dCtx = dCanvas.getContext("2d");
+  dWidth = dCanvas.width;
+  dHeight = dCanvas.height;
 
   window.addEventListener("mousemove", (e) => {
     rotation = (e.clientX + e.clientY) * 0.01;
@@ -306,22 +308,21 @@ function initSectionObserver() {
       if (!header) return;
 
       if (entry.isIntersecting) {
-        // Determine which section is currently in view
         const sectionIndex = Array.from(sections).indexOf(entry.target);
 
-        // Update color scheme
+        // Switch background & text color
         const scheme = colorSchemes[sectionIndex % 2];
         document.documentElement.style.setProperty("--bg-color", scheme.bg);
         document.documentElement.style.setProperty("--text-color", scheme.text);
 
-        // Set data-scheme for dynamic hover
+        // Set data-scheme for hover-based color changes
         if (scheme.bg === "#ff5e00") {
           document.documentElement.setAttribute("data-scheme", "orange");
         } else {
           document.documentElement.setAttribute("data-scheme", "black");
         }
 
-        // FIX: Change shape type based on section index
+        // Switch shape type
         currentShapeIndex = sectionIndex % shapeTypes.length;
 
         if (!header.classList.contains("glitch-intro")) {
@@ -391,14 +392,13 @@ function typeWriterEffect(text, element) {
 }
 
 //
-// ======== MINIGAME PROMPT & TOGGLING ========
+// ======== MINIGAME PROMPT & DINO ========
 let dinoGameStarted = false;
 function initMinigamePrompt() {
   const minigameButton = document.getElementById("minigamePrompt");
   const minigameCanvas = document.getElementById("miniDinoGame");
 
   minigameButton.addEventListener("click", () => {
-    // Toggle hidden class
     if (minigameCanvas.classList.contains("hidden")) {
       minigameCanvas.classList.remove("hidden");
       startDinoGame();
@@ -453,9 +453,7 @@ function initMiniDinoGame() {
   }
 
   function update() {
-    if (canvas.classList.contains("hidden")) {
-      return; // stop updating if minimized
-    }
+    if (canvas.classList.contains("hidden")) return;
 
     ctx.clearRect(0, 0, W, H);
 
@@ -475,7 +473,6 @@ function initMiniDinoGame() {
     });
     obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
 
-    // collision check
     obstacles.forEach(obs => {
       if (
         dinoX < obs.x + obs.width &&
@@ -514,13 +511,12 @@ function initMiniDinoGame() {
 }
 
 //
-// ======== MUSIC PROMPT & TOGGLING (SoundCloud) ========
+// ======== MUSIC PROMPT & FRAME ========
 function initMusicPrompt() {
   const musicButton = document.getElementById("musicPrompt");
   const musicFrame  = document.getElementById("musicFrame");
   const musicClose  = document.getElementById("musicClose");
 
-  // Toggle open/close for the SoundCloud player
   musicButton.addEventListener("click", () => {
     if (musicFrame.classList.contains("hidden")) {
       musicFrame.classList.remove("hidden");
@@ -529,18 +525,40 @@ function initMusicPrompt() {
     }
   });
 
-  // Minimizing the music frame with the "Close" button
   musicClose.addEventListener("click", () => {
     musicFrame.classList.add("hidden");
   });
 }
 
 //
-// ======== CONTACT FORM ========
-const contactForm = document.querySelector(".contact-form");
-if (contactForm) {
-  contactForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    alert("Thanks for reaching out!");
+// ======== CONTACT BUBBLE LOGIC ========
+function initContactBubble() {
+  const contactBubble = document.getElementById("contactBubble");
+  const chatModal     = document.getElementById("chatModal");
+  const messageInput  = document.getElementById("messageInput");
+  const sendBtn       = document.getElementById("sendBtn");
+
+  contactBubble.addEventListener("click", () => {
+    // Toggle chat modal
+    if (chatModal.classList.contains("hidden")) {
+      chatModal.classList.remove("hidden");
+    } else {
+      chatModal.classList.add("hidden");
+    }
+  });
+
+  sendBtn.addEventListener("click", () => {
+    const userMessage = messageInput.value.trim();
+
+    if (userMessage.length > 0) {
+      alert("Thanks for your message!\nReturning you to the homepage...");
+    } else {
+      alert("Thanks for stopping by anyway!\nReturning you to the homepage...");
+    }
+
+    // Clear input, hide chat, return to homepage
+    messageInput.value = "";
+    chatModal.classList.add("hidden");
+    window.location.href = "#home";
   });
 }
