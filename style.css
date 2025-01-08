@@ -9,8 +9,28 @@
 /* Smooth transitions for BG + text color changes */
 body {
   transition: background-color 1.2s ease, color 1.2s ease;
+  position: relative;
 }
 
+/* CRT Scanlines */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.03) 0px,
+    rgba(0, 0, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+/* Reset */
 * {
   margin: 0;
   padding: 0;
@@ -26,7 +46,6 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   overflow-x: hidden;
-  position: relative;
   line-height: 1.4;
 }
 
@@ -78,7 +97,8 @@ body {
 
 /* Glitch Hover for Nav/Project Links */
 .navbar a:hover,
-.project-link:hover {
+.project-link:hover,
+.glitchHover:hover {
   animation: glitchHover 0.4s infinite alternate;
   color: var(--bg-color);
 }
@@ -243,7 +263,7 @@ body {
   padding: 2rem;
   border: 2px solid var(--text-color);
   border-radius: 8px;
-  max-width: 800px;  /* wider for large paragraphs */
+  max-width: 800px; 
   width: 90%;
   position: relative;
   overflow: hidden;
@@ -257,8 +277,8 @@ body {
 .modal-text {
   font-size: 1.2rem;
   min-height: 100px;
-  max-height: 400px;   /* NEW: limit height */
-  overflow-y: auto;    /* NEW: scroll if content > 400px */
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .modal-close {
@@ -274,6 +294,34 @@ body {
 
 .modal-close:hover {
   background-color: var(--accent-color);
+}
+
+/* Minigame prompt + Dino Canvas */
+.mini-game-prompt {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-size: 1.2rem;
+  color: #fff;
+  background: #000; /* black background for retro vibe */
+  padding: 0.5rem 1rem;
+  border: 2px solid #fff;
+  z-index: 9999;
+  cursor: pointer;
+}
+
+#miniDinoGame {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  border: 2px solid #000;
+  z-index: 9999;
+  background: #000; /* game canvas black background */
+  image-rendering: pixelated;
+}
+
+#miniDinoGame.hidden {
+  display: none;
 }
 
 /* Contact & Form Styles */
