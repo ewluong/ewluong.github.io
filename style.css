@@ -1,9 +1,16 @@
 :root {
-  --bg-color: #ff5e00;   
+  --bg-color: #ff5e00;     /* site background initially orange */
   --text-color: #000000; 
-  --accent-color: #222222;
+  --accent-color: #222222; /* not used on hover now, but kept if needed */
   --link-glitch-color: #ffffff;
   --base-font-size: 20px;
+
+  /* hover backgrounds + text color for black vs orange scheme */
+  --hover-bg-on-black: #ff5e00; /* blaze orange if background is black */
+  --hover-text-on-black: #000000;
+
+  --hover-bg-on-orange: #000000; /* black if background is orange */
+  --hover-text-on-orange: #ff5e00;
 }
 
 /* Smooth transitions for BG + text color changes */
@@ -95,7 +102,7 @@ body {
   color: var(--text-color);
 }
 
-/* Glitch Hover for Nav/Project Links */
+/* Glitch Hover for Nav/Project Links, minigame prompt, etc. */
 .navbar a:hover,
 .project-link:hover,
 .glitchHover:hover {
@@ -182,6 +189,53 @@ body {
   }
 }
 
+/* We'll rely on a data-scheme attribute to toggle colors on hover. */
+/* If data-scheme="orange", background is #ff5e00 (orange), text is black. So we want black hover. */
+/* If data-scheme="black", background is #000000 (black), text is orange. So we want orange hover. */
+
+:root[data-scheme="orange"] {
+  --item-hover-bg: #000000;       /* black when background is orange */
+  --item-hover-text: #ff5e00;     /* orange text */
+}
+
+:root[data-scheme="black"] {
+  --item-hover-bg: #ff5e00;       /* orange when background is black */
+  --item-hover-text: #000000;     /* black text */
+}
+
+/* About Me Grid */
+.about-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  justify-content: center;
+}
+
+.about-item {
+  background-color: inherit;
+  border: 2px solid var(--text-color);
+  border-radius: 8px;
+  width: 500px;
+  padding: 1.5rem;
+  text-align: center;
+  color: inherit;
+  transition: all 0.3s ease;
+}
+
+/* Use the scheme-based hover vars */
+.about-item:hover {
+  background-color: var(--item-hover-bg);
+  color: var(--item-hover-text);
+}
+
+.about-icon {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 1rem;
+}
+
 /* Projects */
 .project-cards {
   display: flex;
@@ -201,9 +255,10 @@ body {
   color: inherit;
 }
 
+/* Use the scheme-based hover vars */
 .project-card:hover {
-  background-color: var(--accent-color);
-  color: var(--bg-color);
+  background-color: var(--item-hover-bg);
+  color: var(--item-hover-text);
 }
 
 .project-link {
@@ -293,7 +348,8 @@ body {
 }
 
 .modal-close:hover {
-  background-color: var(--accent-color);
+  background-color: var(--link-glitch-color);
+  color: var(--text-color);
 }
 
 /* Minigame prompt + Dino Canvas */
@@ -303,7 +359,7 @@ body {
   right: 20px;
   font-size: 1.2rem;
   color: #fff;
-  background: #000; /* black background for retro vibe */
+  background: #000;
   padding: 0.5rem 1rem;
   border: 2px solid #fff;
   z-index: 9999;
@@ -316,7 +372,7 @@ body {
   right: 20px;
   border: 2px solid #000;
   z-index: 9999;
-  background: #000; /* game canvas black background */
+  background: #000; /* black background for the game */
   image-rendering: pixelated;
 }
 
@@ -360,8 +416,8 @@ body {
 }
 
 .contact-btn:hover {
-  background-color: var(--accent-color);
-  color: var(--bg-color);
+  background-color: var(--link-glitch-color);
+  color: var(--text-color);
 }
 
 /* Responsive */
@@ -374,6 +430,10 @@ body {
     padding: 3rem 1rem;
   }
   .project-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+  .about-grid {
     flex-direction: column;
     align-items: center;
   }
