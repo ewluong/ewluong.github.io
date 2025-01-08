@@ -1,13 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Final code with minigame prompt, user must press space or click to start.");
+  console.log("Now items hover black->orange or orange->black. We're toggling data-scheme in the IntersectionObserver.");
 
   pickAsciiBunnyCatPanda(); 
   initCanvas();           // shapes (with repel)
   initDodecagonCanvas();  // 12-sided polygon
-  initSectionObserver();
+  initSectionObserver();  // toggles data-scheme
   onScrollTypeAscii();
   initBlogPosts();
-  initMinigamePrompt();
+  initMinigamePrompt();   // for the 'Minigame' prompt
 
   window.addEventListener("resize", onResize);
   window.addEventListener("scroll", onScrollTypeAscii);
@@ -109,6 +109,7 @@ function animateBackground() {
   shapes.forEach((shape) => {
     shape.breathFactor += 0.02;
     let breathSize = shape.baseSize * (1 + 0.1 * Math.sin(shape.breathFactor));
+
     shape.x += shape.vx;
     shape.y += shape.vy;
 
@@ -207,7 +208,7 @@ function resolveCollision(s1, s2) {
 function parseHexToRgb(hex) {
   hex = hex.replace("#", "");
   if (hex.length === 3) {
-    hex = hex.split("").map(c => c + c).join("");
+    hex = hex.split("").map((c) => c + c).join("");
   }
   const num = parseInt(hex, 16);
   return {
@@ -278,7 +279,6 @@ function drawDodecagon(cx, cy, radius, rot) {
   // Spokes
   dCtx.lineWidth = 1.5;
   dCtx.strokeStyle = spokeStyle;
-
   for (let i = 0; i < sides; i++) {
     let angle = i * angleStep + rot;
     let x = cx + radius * Math.cos(angle);
@@ -304,10 +304,19 @@ function initSectionObserver() {
       if (entry.isIntersecting) {
         const sectionIndex = Array.from(sections).indexOf(entry.target);
 
-        currentShapeIndex = sectionIndex % shapeTypes.length;
+        // Flip background & text color from the array above
         const scheme = colorSchemes[sectionIndex % 2];
         document.documentElement.style.setProperty("--bg-color", scheme.bg);
         document.documentElement.style.setProperty("--text-color", scheme.text);
+
+        // Also set data-scheme for dynamic hover
+        // If scheme.bg = #ff5e00 => data-scheme="orange"
+        // else => data-scheme="black"
+        if (scheme.bg === "#ff5e00") {
+          document.documentElement.setAttribute("data-scheme", "orange");
+        } else {
+          document.documentElement.setAttribute("data-scheme", "black");
+        }
 
         if (!header.classList.contains("glitch-intro")) {
           header.classList.add("glitch-intro");
@@ -373,24 +382,21 @@ function typeWriterEffect(text, element) {
       typeTimer = null;
     }
   }
-
   typeChar();
 }
 
 //
-// ======== Minigame Prompt & Dino Game Implementation ========
+// ======== MINIGAME PROMPT & DINO GAME ========
 let dinoGameStarted = false;
 function initMinigamePrompt() {
   const prompt = document.getElementById("minigamePrompt");
   const canvas = document.getElementById("miniDinoGame");
 
-  // Show instructions in console or you can do something else
   console.log("Hover over 'Minigame', then click or press SPACE to start the Dino game.");
 
-  // Hover effect is already triggered by glitchHover class in CSS
-  // Wait for user click
+  // On click
   prompt.addEventListener("click", startDinoGame);
-  // Also wait for user pressing Space
+  // On space press
   window.addEventListener("keydown", (e) => {
     if (e.code === "Space" && !dinoGameStarted) {
       startDinoGame();
@@ -401,10 +407,12 @@ function initMinigamePrompt() {
 function startDinoGame() {
   if (dinoGameStarted) return;
   dinoGameStarted = true;
+
   const prompt = document.getElementById("minigamePrompt");
   const canvas = document.getElementById("miniDinoGame");
-  prompt.style.display = "none"; // hide "Minigame" prompt
-  canvas.classList.remove("hidden"); // show the game canvas
+
+  prompt.style.display = "none"; 
+  canvas.classList.remove("hidden"); 
 
   initMiniDinoGame();
 }
@@ -429,7 +437,7 @@ function initMiniDinoGame() {
   let frameCount = 0;
 
   function drawDino() {
-    ctx.fillStyle = "#fff"; // White dino on black background
+    ctx.fillStyle = "#fff"; // White dino on black canvas
     ctx.fillRect(dinoX, dinoY - dinoH, dinoW, dinoH);
   }
 
@@ -497,7 +505,7 @@ function initMiniDinoGame() {
     requestAnimationFrame(update);
   }
 
-  // Keydown for jump
+  // Jump
   window.addEventListener("keydown", (e) => {
     if ((e.code === "Space" || e.code === "ArrowUp") && !isJumping && dinoGameStarted) {
       dinoVy = jumpPower;
