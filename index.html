@@ -36,7 +36,7 @@
   <!-- Home Section (Dodecagon in center) -->
   <section id="home" class="section home-section">
     <h1 class="section-header">Hey there, I'm Eric!</h1>
-    <p class="tagline">Just a truth seeker chasing the wind.</p>
+    <p class="tagline">Just a man chasing the wind.</p>
 
     <!-- Dodecagon Canvas in the center -->
     <canvas 
@@ -248,7 +248,6 @@
         <p class="no-link">Link Not Available</p>
       </div>
     </div>
-    </div>
   </section>
 
   <!-- Blog Section -->
@@ -371,19 +370,19 @@
     </div>
   </div>
 
-  <!-- Contact Section -->
+  <!-- Contact Section: Chat Bubble -->
   <section id="contact" class="section contact-section">
-    <h1 class="section-header">Contact Me</h1>
-    <p>If you'd like to reach out, feel free to drop me a line below.</p>
-    <form class="contact-form">
-      <label for="name">Name:</label>
-      <input type="text" id="name" required />
-      <label for="email">Email:</label>
-      <input type="email" id="email" required />
-      <label for="message">Message:</label>
-      <textarea id="message" rows="5" required></textarea>
-      <button type="submit" class="contact-btn">Send Message</button>
-    </form>
+    <div id="contactBubble" class="chat-bubble breathing-shape glitchy-lines">
+      <p class="bubble-text">Contact Me</p>
+    </div>
+
+    <div id="chatModal" class="chat-modal hidden">
+      <div class="chat-interface">
+        <div class="orange-bubble">Want to leave a message?</div>
+        <input type="text" id="messageInput" class="message-input" placeholder="Type your message..." />
+        <button id="sendBtn" class="send-btn">Send</button>
+      </div>
+    </div>
   </section>
 
   <!-- Music button & frame (SoundCloud embedding) -->
@@ -404,7 +403,6 @@
   <div id="minigamePrompt" class="toggle-button glitchHover">Minigame</div>
   <canvas id="miniDinoGame" width="300" height="150" class="hidden"></canvas>
 
-  <!-- Link to JS -->
   <script src="script.js"></script>
 </body>
 </html>
