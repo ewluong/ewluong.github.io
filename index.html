@@ -26,19 +26,19 @@
   <nav class="navbar">
     <ul>
       <li><a href="#home" class="nav-link">Home</a></li>
-      <li><a href="#about" class="nav-link">About</a></li>
       <li><a href="#projects" class="nav-link">Projects</a></li>
       <li><a href="#blog" class="nav-link">Blog</a></li>
+      <li><a href="#about" class="nav-link">About</a></li>
       <li><a href="#contact" class="nav-link">Contact</a></li>
     </ul>
   </nav>
 
   <!-- Home Section (Dodecagon in center) -->
   <section id="home" class="section home-section">
-    <h1 class="section-header">Hey there, I'm Eric!</h1>
+    <h1 class="section-header">Hey there, I'm Eric.</h1>
     <p class="tagline">Truth seeker chasing the wind.</p>
 
-    <!-- Dodecagon Canvas in the center, 400x400 for demonstration -->
+    <!-- Dodecagon Canvas in the center -->
     <canvas 
       id="dodecagonCanvas"
       width="400" 
@@ -48,47 +48,12 @@
     </canvas>
 
     <p>
-      Welcome to my personal website—thanks for dropping by.
-      This 12-sided polygon stays in the center, spinning like a “wheel” 
-      as you move your mouse. Check out the rest of the site for my projects 
+      Welcome to my personal website. Thanks for dropping by. Check out the rest of the site for my projects 
       and more!
     </p>
   </section>
 
-  <!-- About Section -->
-  <section id="about" class="section about-section">
-    <h1 class="section-header">About Me</h1>
-    <p>
-      I’m currently pursuing my Master of Science in Business Analytics 
-      at Santa Clara University, following my Bachelor of Arts in Cognitive 
-      Science from UC Berkeley. Along the way, I've picked up a Professional 
-      Certificate in Machine Learning & AI and a Google Data Analytics Certificate.
-    </p>
-    <p>
-      My background spans data analytics, statistical modeling, machine learning, 
-      and business analysis, with an emphasis on turning raw data into actionable 
-      insights. I've worked on everything from building financial models leveraging 
-      Python and SQL to orchestrating robust business development strategies with 
-      CRM tools. 
-    </p>
-    <p>
-      Some of my go-to skills and tools include:
-    </p>
-    <ul style="max-width: 600px; margin: 0 auto; text-align: left;">
-      <li><strong>Analytics & Modeling:</strong> Data Analysis, Predictive Analytics, A/B Testing, Marketing, Hypothesis Testing</li>
-      <li><strong>Languages & Tools:</strong> R, Python, Java, SQL, TensorFlow, Pyspark, Hadoop, Pandas, Scikit-learn</li>
-      <li><strong>Visualization:</strong> Tableau, PowerBI, Plotly, Matplotlib, Seaborn</li>
-      <li><strong>Databases & Cloud:</strong> Relational Databases, Google Analytics, CRM, Linux, GitHub</li>
-      <li><strong>Methodologies:</strong> Agile, Project Management, Financial Modeling, Time Series Forecasting</li>
-    </ul>
-    <p>
-      Professionally, I've had internships and managerial roles at organizations like 
-      Vanguard, Lifo.ai, and SPI Energy—leading data-focused initiatives, optimizing 
-      marketing strategies, and analyzing complex data sets for meaningful outcomes. 
-      I enjoy tackling new challenges and love the process of discovering patterns 
-      hidden in data.
-    </p>
-  </section>
+  
 
   <!-- Projects Section -->
   <section id="projects" class="section projects-section">
@@ -96,7 +61,6 @@
     <p>Check out some of my favorite projects below.</p>
     
     <div class="project-cards" id="project-cards">
-      
       <!-- Project 1: Anomaly Detection in Network Traffic -->
       <div class="project-card">
         <h2>Anomaly Detection in Network Traffic</h2>
@@ -195,14 +159,13 @@
         </p>
         <p class="no-link">Link Not Available</p>
       </div>
-
     </div>
   </section>
 
   <!-- Blog Section -->
   <section id="blog" class="section blog-section">
     <h1 class="section-header">Blog</h1>
-    <p>Welcome to my blog! Hover over a post to see a glitch effect. Click to open a typewriter modal.</p>
+    <p>Welcome to my blog! Click to open a typewriter modal.</p>
 
     <ul class="blog-list">
       <li class="blog-post" data-title="Finding Wonder in a World of Logic" data-content="In today's world, defined by rapid technological advances and a constant stream of information, there lies a curious trend. It's a time where logic and empirical evidence reign supreme, yet there’s an increasing fascination with the mystical and the magical. This isn’t a rejection of science or rational thought; rather, it's a quest for balance and wonder in an age where the line between the miraculous and the mundane is increasingly blurred.
@@ -314,31 +277,69 @@
   <div id="blogModal" class="modal hidden">
     <div class="modal-content">
       <h2 class="modal-title"></h2>
-      <!-- .modal-text now has max-height/scrolling in CSS -->
       <div class="modal-text"></div>
       <button class="modal-close">Close</button>
     </div>
   </div>
 
-  <!-- Contact Section -->
-  <section id="contact" class="section contact-section">
-    <h1 class="section-header">Contact Me</h1>
-    <p>
-      If you'd like to reach out, feel free to drop me a line below.
-    </p>
-    <form class="contact-form">
-      <label for="name">Name:</label>
-      <input type="text" id="name" required />
+  
+<!-- About Section -->
+<section id="about" class="section about-section">
+  <h1 class="section-header">About Me</h1>
+  <p>
+    I have a Master of Science in Business Analytics 
+    at Santa Clara University, following my Bachelor of Arts in Cognitive 
+    Science from UC Berkeley. Along the way, I've picked up a Professional 
+    Certificate in Machine Learning & AI and a Google Data Analytics Certificate.
+  </p>
+  <p>
+    My background spans data analytics, statistical modeling, machine learning, 
+    and business analysis, with an emphasis on turning raw data into actionable 
+    insights. I've worked on everything from building financial models leveraging 
+    Python and SQL to orchestrating robust business development strategies with 
+    CRM tools.
+  </p>
+  <p>
+    Some of my go-to skills and tools include:
+  </p>
+  <ul style="max-width: 600px; margin: 0 auto; text-align: left;">
+    <li><strong>Analytics & Modeling:</strong> Data Analysis, Predictive Analytics, A/B Testing, Marketing, Hypothesis Testing</li>
+    <li><strong>Languages & Tools:</strong> R, Python, Java, SQL, TensorFlow, Pyspark, Hadoop, Pandas, Scikit-learn</li>
+    <li><strong>Visualization:</strong> Tableau, PowerBI, Plotly, Matplotlib, Seaborn</li>
+    <li><strong>Databases & Cloud:</strong> Relational Databases, Google Analytics, CRM, Linux, GitHub</li>
+    <li><strong>Methodologies:</strong> Agile, Project Management, Financial Modeling, Time Series Forecasting</li>
+  </ul>
+  <p>
+    Professionally, I've had internships and managerial roles at organizations like 
+    Vanguard, Lifo.ai, and SPI Energy—leading data-focused initiatives, optimizing 
+    marketing strategies, and analyzing complex data sets for meaningful outcomes. 
+    I enjoy tackling new challenges and love the process of discovering patterns 
+    hidden in data.
+  </p>
+</section>
 
-      <label for="email">Email:</label>
-      <input type="email" id="email" required />
+<!-- Contact Section -->
+<section id="contact" class="section contact-section">
+  <h1 class="section-header">Contact Me</h1>
+  <p>If you'd like to reach out, feel free to drop me a line below.</p>
+  <form class="contact-form">
+    <label for="name">Name:</label>
+    <input type="text" id="name" required />
 
-      <label for="message">Message:</label>
-      <textarea id="message" rows="5" required></textarea>
-      
-      <button type="submit" class="contact-btn">Send Message</button>
-    </form>
-  </section>
+    <label for="email">Email:</label>
+    <input type="email" id="email" required />
+
+    <label for="message">Message:</label>
+    <textarea id="message" rows="5" required></textarea>
+    
+    <button type="submit" class="contact-btn">Send Message</button>
+  </form>
+</section>
+
+
+  <!-- 'Minigame' prompt (Glitchy) and the Dino Game Canvas (hidden by default) -->
+  <div id="minigamePrompt" class="mini-game-prompt glitchHover">Minigame</div>
+  <canvas id="miniDinoGame" width="300" height="150" class="hidden"></canvas>
 
   <!-- Link to JS -->
   <script src="script.js"></script>

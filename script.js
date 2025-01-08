@@ -1,14 +1,13 @@
-// script.js
-
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Final code: increased blogpost type speed, bug fix, max-height with scroll!");
-  
+  console.log("Final code with minigame prompt, user must press space or click to start.");
+
   pickAsciiBunnyCatPanda(); 
-  initCanvas();           // background shapes (with repel)
-  initDodecagonCanvas();  // 12-sided polygon in center
+  initCanvas();           // shapes (with repel)
+  initDodecagonCanvas();  // 12-sided polygon
   initSectionObserver();
   onScrollTypeAscii();
   initBlogPosts();
+  initMinigamePrompt();
 
   window.addEventListener("resize", onResize);
   window.addEventListener("scroll", onScrollTypeAscii);
@@ -64,7 +63,7 @@ let shapes = [];
 const shapeTypes = ["circle", "square", "triangle"];
 let currentShapeIndex = 0;
 
-// Mouse position for repel
+// Mouse repel
 let mouseX = -9999;
 let mouseY = -9999;
 const repelRadius = 100;
@@ -110,7 +109,6 @@ function animateBackground() {
   shapes.forEach((shape) => {
     shape.breathFactor += 0.02;
     let breathSize = shape.baseSize * (1 + 0.1 * Math.sin(shape.breathFactor));
-
     shape.x += shape.vx;
     shape.y += shape.vy;
 
@@ -118,7 +116,6 @@ function animateBackground() {
     let dx = shape.x - mouseX;
     let dy = shape.y - mouseY;
     let dist = Math.sqrt(dx * dx + dy * dy);
-
     if (dist < repelRadius) {
       let angle = Math.atan2(dy, dx);
       shape.x += Math.cos(angle) * repelForce * (repelRadius - dist);
@@ -183,10 +180,9 @@ function drawBackgroundShape(type, x, y, size) {
 function resolveCollision(s1, s2) {
   let r1 = s1.baseSize * (1 + 0.1 * Math.sin(s1.breathFactor));
   let r2 = s2.baseSize * (1 + 0.1 * Math.sin(s2.breathFactor));
-
   let dx = s2.x - s1.x;
   let dy = s2.y - s1.y;
-  let dist = Math.sqrt(dx * dx + dy * dy);
+  let dist = Math.sqrt(dx*dx + dy*dy);
   let minDist = r1 + r2;
 
   if (dist < minDist) {
@@ -211,7 +207,7 @@ function resolveCollision(s1, s2) {
 function parseHexToRgb(hex) {
   hex = hex.replace("#", "");
   if (hex.length === 3) {
-    hex = hex.split("").map((c) => c + c).join("");
+    hex = hex.split("").map(c => c + c).join("");
   }
   const num = parseInt(hex, 16);
   return {
@@ -232,7 +228,6 @@ function initDodecagonCanvas() {
   dCanvas = document.getElementById("dodecagonCanvas");
   dCtx = dCanvas.getContext("2d");
 
-  // Listen for mouse moves anywhere in the window
   window.addEventListener("mousemove", (e) => {
     rotation = (e.clientX + e.clientY) * 0.01;
   });
@@ -267,7 +262,6 @@ function drawDodecagon(cx, cy, radius, rot) {
   dCtx.strokeStyle = edgeStyle;
 
   dCtx.beginPath();
-
   for (let i = 0; i < sides; i++) {
     let angle = i * angleStep + rot;
     let x = cx + radius * Math.cos(angle);
@@ -289,7 +283,6 @@ function drawDodecagon(cx, cy, radius, rot) {
     let angle = i * angleStep + rot;
     let x = cx + radius * Math.cos(angle);
     let y = cy + radius * Math.sin(angle);
-
     dCtx.beginPath();
     dCtx.moveTo(cx, cy);
     dCtx.lineTo(x, y);
@@ -312,7 +305,6 @@ function initSectionObserver() {
         const sectionIndex = Array.from(sections).indexOf(entry.target);
 
         currentShapeIndex = sectionIndex % shapeTypes.length;
-
         const scheme = colorSchemes[sectionIndex % 2];
         document.documentElement.style.setProperty("--bg-color", scheme.bg);
         document.documentElement.style.setProperty("--text-color", scheme.text);
@@ -331,8 +323,7 @@ function initSectionObserver() {
 
 //
 // ======== BLOG SECTION LOGIC (Modal with Typewriter fix) ========
-let typeTimer = null; // to clear any in-progress typing
-
+let typeTimer = null;
 function initBlogPosts() {
   const blogPosts = document.querySelectorAll(".blog-post");
   const modal = document.getElementById("blogModal");
@@ -348,24 +339,20 @@ function initBlogPosts() {
       // Open the modal
       modal.classList.remove("hidden");
 
-      // Set the modal title
       modalTitle.textContent = title;
-
-      // Clear any leftover typing or text
       if (typeTimer) {
         clearTimeout(typeTimer);
         typeTimer = null;
       }
       modalText.textContent = "";
 
-      // Start typewriter effect
       typeWriterEffect(content, modalText);
     });
   });
 
   closeBtn.addEventListener("click", () => {
     modal.classList.add("hidden");
-    modalText.textContent = ""; // Clear typed text
+    modalText.textContent = "";
     if (typeTimer) {
       clearTimeout(typeTimer);
       typeTimer = null;
@@ -373,9 +360,6 @@ function initBlogPosts() {
   });
 }
 
-/** 
- * Typewriter effect in the modal, fix to avoid random characters
- */
 function typeWriterEffect(text, element) {
   element.textContent = "";
   let index = 0;
@@ -384,13 +368,144 @@ function typeWriterEffect(text, element) {
     if (index < text.length) {
       element.textContent += text.charAt(index);
       index++;
-      typeTimer = setTimeout(typeChar, 15); // speed
+      typeTimer = setTimeout(typeChar, 15);
     } else {
-      typeTimer = null; // done typing
+      typeTimer = null;
     }
   }
 
   typeChar();
+}
+
+//
+// ======== Minigame Prompt & Dino Game Implementation ========
+let dinoGameStarted = false;
+function initMinigamePrompt() {
+  const prompt = document.getElementById("minigamePrompt");
+  const canvas = document.getElementById("miniDinoGame");
+
+  // Show instructions in console or you can do something else
+  console.log("Hover over 'Minigame', then click or press SPACE to start the Dino game.");
+
+  // Hover effect is already triggered by glitchHover class in CSS
+  // Wait for user click
+  prompt.addEventListener("click", startDinoGame);
+  // Also wait for user pressing Space
+  window.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && !dinoGameStarted) {
+      startDinoGame();
+    }
+  });
+}
+
+function startDinoGame() {
+  if (dinoGameStarted) return;
+  dinoGameStarted = true;
+  const prompt = document.getElementById("minigamePrompt");
+  const canvas = document.getElementById("miniDinoGame");
+  prompt.style.display = "none"; // hide "Minigame" prompt
+  canvas.classList.remove("hidden"); // show the game canvas
+
+  initMiniDinoGame();
+}
+
+function initMiniDinoGame() {
+  const canvas = document.getElementById("miniDinoGame");
+  const ctx = canvas.getContext("2d");
+
+  const W = canvas.width;
+  const H = canvas.height;
+
+  let dinoX = 30;
+  let dinoY = H - 25;
+  let dinoW = 15;
+  let dinoH = 15;
+  let dinoVy = 0;
+  let isJumping = false;
+  const gravity = 0.5;
+  const jumpPower = 8;
+
+  let obstacles = [];
+  let frameCount = 0;
+
+  function drawDino() {
+    ctx.fillStyle = "#fff"; // White dino on black background
+    ctx.fillRect(dinoX, dinoY - dinoH, dinoW, dinoH);
+  }
+
+  function spawnObstacle() {
+    obstacles.push({
+      x: W,
+      y: H - 20,
+      width: 10,
+      height: 20
+    });
+  }
+
+  function drawObstacle(obs) {
+    ctx.fillStyle = "red";
+    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+  }
+
+  function update() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Gravity
+    if (dinoY < H) {
+      dinoVy -= gravity;
+    }
+    dinoY -= dinoVy;
+
+    if (dinoY > H - 10) {
+      dinoY = H - 10;
+      dinoVy = 0;
+      isJumping = false;
+    }
+
+    // Move obstacles
+    obstacles.forEach(obs => {
+      obs.x -= 2;
+    });
+    obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
+
+    // Collision check
+    obstacles.forEach(obs => {
+      if (
+        dinoX < obs.x + obs.width &&
+        (dinoX + dinoW) > obs.x &&
+        (dinoY - dinoH) < (obs.y + obs.height) &&
+        dinoY > obs.y
+      ) {
+        // collision -> reset
+        obstacles = [];
+        dinoX = 30;
+        dinoY = H - 25;
+        dinoVy = 0;
+        isJumping = false;
+        console.log("Game Over! Dino reset.");
+      }
+    });
+
+    drawDino();
+    obstacles.forEach(drawObstacle);
+
+    frameCount++;
+    if (frameCount % 100 === 0) {
+      spawnObstacle();
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  // Keydown for jump
+  window.addEventListener("keydown", (e) => {
+    if ((e.code === "Space" || e.code === "ArrowUp") && !isJumping && dinoGameStarted) {
+      dinoVy = jumpPower;
+      isJumping = true;
+    }
+  });
+
+  update();
 }
 
 //
