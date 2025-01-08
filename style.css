@@ -1,15 +1,17 @@
 :root {
-  --bg-color: #ff5e00;     /* site background initially orange */
-  --text-color: #000000; 
-  --accent-color: #222222; /* not used on hover now, but kept if needed */
+  /* Default site colors for orange background scheme */
+  --bg-color: #ff5e00;     
+  --text-color: #000000;
+
+  --accent-color: #222222; 
   --link-glitch-color: #ffffff;
   --base-font-size: 20px;
 
-  /* hover backgrounds + text color for black vs orange scheme */
-  --hover-bg-on-black: #ff5e00; /* blaze orange if background is black */
+  /* Hover backgrounds + text color for black vs orange scheme */
+  --hover-bg-on-black: #ff5e00; 
   --hover-text-on-black: #000000;
 
-  --hover-bg-on-orange: #000000; /* black if background is orange */
+  --hover-bg-on-orange: #000000; 
   --hover-text-on-orange: #ff5e00;
 }
 
@@ -102,7 +104,7 @@ body {
   color: var(--text-color);
 }
 
-/* Glitch Hover for Nav/Project Links, minigame prompt, etc. */
+/* Glitch Hover for Nav/Project Links, etc. */
 .navbar a:hover,
 .project-link:hover,
 .glitchHover:hover {
@@ -189,18 +191,15 @@ body {
   }
 }
 
-/* We'll rely on a data-scheme attribute to toggle colors on hover. */
-/* If data-scheme="orange", background is #ff5e00 (orange), text is black. So we want black hover. */
-/* If data-scheme="black", background is #000000 (black), text is orange. So we want orange hover. */
-
+/* Switch scheme if background is orange or black */
 :root[data-scheme="orange"] {
-  --item-hover-bg: #000000;       /* black when background is orange */
-  --item-hover-text: #ff5e00;     /* orange text */
+  --item-hover-bg: #000000; 
+  --item-hover-text: #ff5e00;
 }
 
 :root[data-scheme="black"] {
-  --item-hover-bg: #ff5e00;       /* orange when background is black */
-  --item-hover-text: #000000;     /* black text */
+  --item-hover-bg: #ff5e00; 
+  --item-hover-text: #000000;
 }
 
 /* About Me Grid */
@@ -217,14 +216,13 @@ body {
   background-color: inherit;
   border: 2px solid var(--text-color);
   border-radius: 8px;
-  width: 500px;
+  width: 400px;
   padding: 1.5rem;
   text-align: center;
   color: inherit;
   transition: all 0.3s ease;
 }
 
-/* Use the scheme-based hover vars */
 .about-item:hover {
   background-color: var(--item-hover-bg);
   color: var(--item-hover-text);
@@ -255,7 +253,6 @@ body {
   color: inherit;
 }
 
-/* Use the scheme-based hover vars */
 .project-card:hover {
   background-color: var(--item-hover-bg);
   color: var(--item-hover-text);
@@ -266,12 +263,6 @@ body {
   font-weight: bold;
   text-decoration: none;
   transition: color 0.3s ease;
-}
-
-.no-link {
-  font-style: italic;
-  opacity: 0.8;
-  color: var(--text-color);
 }
 
 /* Blog Section */
@@ -352,10 +343,9 @@ body {
   color: var(--text-color);
 }
 
-/* Minigame prompt + Dino Canvas */
-.mini-game-prompt {
+/* Toggle buttons (music + minigame) */
+.toggle-button {
   position: fixed;
-  bottom: 20px;
   right: 20px;
   font-size: 1.2rem;
   color: #fff;
@@ -366,17 +356,70 @@ body {
   cursor: pointer;
 }
 
+/* Music button near bottom-right, but above Minigame */
+#musicPrompt {
+  bottom: 80px;
+}
+
+/* Minigame button at the bottom-right corner */
+#minigamePrompt {
+  bottom: 20px;
+}
+
+/* Music frame (SoundCloud embedding) */
+.music-frame {
+  position: fixed;
+  bottom: 120px; 
+  right: 20px;
+  width: 320px;
+  height: 180px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.5rem;
+}
+
+.music-frame iframe {
+  border: none;
+  margin-top: 0.5rem;
+}
+
+/* Minimizing the music frame */
+.minimize-btn {
+  background-color: #fff;
+  color: #000;
+  border: none;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  align-self: flex-end;
+  margin-bottom: 0.5rem;
+  font-family: inherit;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.minimize-btn:hover {
+  background-color: var(--link-glitch-color);
+  color: var(--text-color);
+}
+
+/* The Minigame Canvas */
 #miniDinoGame {
   position: fixed;
   bottom: 20px;
-  right: 20px;
+  right: 120px; 
   border: 2px solid #000;
   z-index: 9999;
-  background: #000; /* black background for the game */
+  background: #000; 
   image-rendering: pixelated;
 }
 
-#miniDinoGame.hidden {
+#miniDinoGame.hidden, 
+.music-frame.hidden {
   display: none;
 }
 
@@ -436,5 +479,18 @@ body {
   .about-grid {
     flex-direction: column;
     align-items: center;
+  }
+
+  #musicPrompt {
+    bottom: 100px;
+  }
+  .music-frame {
+    bottom: 150px;
+    width: 280px;
+    height: 150px;
+  }
+  #miniDinoGame {
+    bottom: 20px;
+    right: 140px;
   }
 }

@@ -1,13 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Now items hover black->orange or orange->black. We're toggling data-scheme in the IntersectionObserver.");
+  console.log("Fixed shape change: currentShapeIndex updated in Intersection Observer. Music + Minigame toggles remain.");
 
   pickAsciiBunnyCatPanda(); 
-  initCanvas();           // shapes (with repel)
-  initDodecagonCanvas();  // 12-sided polygon
-  initSectionObserver();  // toggles data-scheme
+  initCanvas();
+  initDodecagonCanvas();
+  initSectionObserver(); // <-- We'll fix shape change here
   onScrollTypeAscii();
   initBlogPosts();
-  initMinigamePrompt();   // for the 'Minigame' prompt
+
+  initMinigamePrompt();   
+  initMusicPrompt();      
 
   window.addEventListener("resize", onResize);
   window.addEventListener("scroll", onScrollTypeAscii);
@@ -55,15 +57,15 @@ function onScrollTypeAscii() {
 }
 
 //
-// ======== BACKGROUND CANVAS: BOUNCING + BREATHING SHAPES + REPEL MOUSE ========
+// ======== BACKGROUND CANVAS: BOUNCING + REPELLING SHAPES ========
 let canvas, ctx;
 let w, h;
 const numShapes = 8;
 let shapes = [];
 const shapeTypes = ["circle", "square", "triangle"];
-let currentShapeIndex = 0;
+let currentShapeIndex = 0; // updated in IntersectionObserver
 
-// Mouse repel
+// Mouse
 let mouseX = -9999;
 let mouseY = -9999;
 const repelRadius = 100;
@@ -110,6 +112,7 @@ function animateBackground() {
     shape.breathFactor += 0.02;
     let breathSize = shape.baseSize * (1 + 0.1 * Math.sin(shape.breathFactor));
 
+    // Move shape
     shape.x += shape.vx;
     shape.y += shape.vy;
 
@@ -149,6 +152,7 @@ function animateBackground() {
 
   shapes.forEach((shape) => {
     let breathSize = shape.baseSize * (1 + 0.1 * Math.sin(shape.breathFactor));
+    // Use currentShapeIndex to pick the shape type
     drawBackgroundShape(shapeTypes[currentShapeIndex], shape.x, shape.y, breathSize);
   });
 
@@ -183,7 +187,7 @@ function resolveCollision(s1, s2) {
   let r2 = s2.baseSize * (1 + 0.1 * Math.sin(s2.breathFactor));
   let dx = s2.x - s1.x;
   let dy = s2.y - s1.y;
-  let dist = Math.sqrt(dx*dx + dy*dy);
+  let dist = Math.sqrt(dx * dx + dy * dy);
   let minDist = r1 + r2;
 
   if (dist < minDist) {
@@ -302,21 +306,23 @@ function initSectionObserver() {
       if (!header) return;
 
       if (entry.isIntersecting) {
+        // Determine which section is currently in view
         const sectionIndex = Array.from(sections).indexOf(entry.target);
 
-        // Flip background & text color from the array above
+        // Update color scheme
         const scheme = colorSchemes[sectionIndex % 2];
         document.documentElement.style.setProperty("--bg-color", scheme.bg);
         document.documentElement.style.setProperty("--text-color", scheme.text);
 
-        // Also set data-scheme for dynamic hover
-        // If scheme.bg = #ff5e00 => data-scheme="orange"
-        // else => data-scheme="black"
+        // Set data-scheme for dynamic hover
         if (scheme.bg === "#ff5e00") {
           document.documentElement.setAttribute("data-scheme", "orange");
         } else {
           document.documentElement.setAttribute("data-scheme", "black");
         }
+
+        // FIX: Change shape type based on section index
+        currentShapeIndex = sectionIndex % shapeTypes.length;
 
         if (!header.classList.contains("glitch-intro")) {
           header.classList.add("glitch-intro");
@@ -345,10 +351,9 @@ function initBlogPosts() {
       const title = post.dataset.title;
       const content = post.dataset.content;
 
-      // Open the modal
       modal.classList.remove("hidden");
-
       modalTitle.textContent = title;
+
       if (typeTimer) {
         clearTimeout(typeTimer);
         typeTimer = null;
@@ -386,20 +391,19 @@ function typeWriterEffect(text, element) {
 }
 
 //
-// ======== MINIGAME PROMPT & DINO GAME ========
+// ======== MINIGAME PROMPT & TOGGLING ========
 let dinoGameStarted = false;
 function initMinigamePrompt() {
-  const prompt = document.getElementById("minigamePrompt");
-  const canvas = document.getElementById("miniDinoGame");
+  const minigameButton = document.getElementById("minigamePrompt");
+  const minigameCanvas = document.getElementById("miniDinoGame");
 
-  console.log("Hover over 'Minigame', then click or press SPACE to start the Dino game.");
-
-  // On click
-  prompt.addEventListener("click", startDinoGame);
-  // On space press
-  window.addEventListener("keydown", (e) => {
-    if (e.code === "Space" && !dinoGameStarted) {
+  minigameButton.addEventListener("click", () => {
+    // Toggle hidden class
+    if (minigameCanvas.classList.contains("hidden")) {
+      minigameCanvas.classList.remove("hidden");
       startDinoGame();
+    } else {
+      minigameCanvas.classList.add("hidden");
     }
   });
 }
@@ -407,13 +411,6 @@ function initMinigamePrompt() {
 function startDinoGame() {
   if (dinoGameStarted) return;
   dinoGameStarted = true;
-
-  const prompt = document.getElementById("minigamePrompt");
-  const canvas = document.getElementById("miniDinoGame");
-
-  prompt.style.display = "none"; 
-  canvas.classList.remove("hidden"); 
-
   initMiniDinoGame();
 }
 
@@ -437,7 +434,7 @@ function initMiniDinoGame() {
   let frameCount = 0;
 
   function drawDino() {
-    ctx.fillStyle = "#fff"; // White dino on black canvas
+    ctx.fillStyle = "#fff";
     ctx.fillRect(dinoX, dinoY - dinoH, dinoW, dinoH);
   }
 
@@ -456,9 +453,12 @@ function initMiniDinoGame() {
   }
 
   function update() {
+    if (canvas.classList.contains("hidden")) {
+      return; // stop updating if minimized
+    }
+
     ctx.clearRect(0, 0, W, H);
 
-    // Gravity
     if (dinoY < H) {
       dinoVy -= gravity;
     }
@@ -470,13 +470,12 @@ function initMiniDinoGame() {
       isJumping = false;
     }
 
-    // Move obstacles
     obstacles.forEach(obs => {
       obs.x -= 2;
     });
     obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
 
-    // Collision check
+    // collision check
     obstacles.forEach(obs => {
       if (
         dinoX < obs.x + obs.width &&
@@ -484,7 +483,6 @@ function initMiniDinoGame() {
         (dinoY - dinoH) < (obs.y + obs.height) &&
         dinoY > obs.y
       ) {
-        // collision -> reset
         obstacles = [];
         dinoX = 30;
         dinoY = H - 25;
@@ -505,15 +503,36 @@ function initMiniDinoGame() {
     requestAnimationFrame(update);
   }
 
-  // Jump
   window.addEventListener("keydown", (e) => {
-    if ((e.code === "Space" || e.code === "ArrowUp") && !isJumping && dinoGameStarted) {
+    if ((e.code === "Space" || e.code === "ArrowUp") && !isJumping && !canvas.classList.contains("hidden")) {
       dinoVy = jumpPower;
       isJumping = true;
     }
   });
 
   update();
+}
+
+//
+// ======== MUSIC PROMPT & TOGGLING (SoundCloud) ========
+function initMusicPrompt() {
+  const musicButton = document.getElementById("musicPrompt");
+  const musicFrame  = document.getElementById("musicFrame");
+  const musicClose  = document.getElementById("musicClose");
+
+  // Toggle open/close for the SoundCloud player
+  musicButton.addEventListener("click", () => {
+    if (musicFrame.classList.contains("hidden")) {
+      musicFrame.classList.remove("hidden");
+    } else {
+      musicFrame.classList.add("hidden");
+    }
+  });
+
+  // Minimizing the music frame with the "Close" button
+  musicClose.addEventListener("click", () => {
+    musicFrame.classList.add("hidden");
+  });
 }
 
 //
