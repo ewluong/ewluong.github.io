@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Eric's Data Science Portfolio</title>
+  <!-- Link to CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Pixel/Retro Font: VT323 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link 
+    href="https://fonts.googleapis.com/css2?family=VT323&display=swap" 
+    rel="stylesheet" 
+  />
+</head>
+<body>
+  <!-- Background Canvas (Bouncing, Breathing Shapes) -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- ASCII Corner (typed on scroll, no background) -->
+  <div id="asciiCorner"></div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <ul>
+      <li><a href="#home" class="nav-link">Home</a></li>
+      <li><a href="#about" class="nav-link">About</a></li>
+      <li><a href="#projects" class="nav-link">Projects</a></li>
+      <li><a href="#contact" class="nav-link">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Home Section (Dodecagon in center) -->
+  <section id="home" class="section home-section">
+    <h1 class="section-header">Hey there, I'm Eric!</h1>
+    <p class="tagline">Truth seeker chasing the wind.</p>
+
+    <!-- Dodecagon Canvas in the center, 400x400 for demonstration -->
+    <canvas 
+      id="dodecagonCanvas"
+      width="400" 
+      height="400"
+      style="border: none; max-width: 400px;"
+    >
+    </canvas>
+
+    <p>
+      Welcome to my personal website! Thanks for dropping by. Check out the rest of the site for my projects 
+      and more!
+    </p>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="section about-section">
+    <h1 class="section-header">About Me</h1>
+    <p>
+      I received my Master of Science in Business Analytics 
+      at Santa Clara University, following my Bachelor of Arts in Cognitive 
+      Science from UC Berkeley. Along the way, I've picked up a Professional 
+      Certificate in Machine Learning & AI and a Google Data Analytics Certificate.
+    </p>
+    <p>
+      My background spans data analytics, statistical modeling, machine learning, 
+      and business analysis, with an emphasis on turning raw data into actionable 
+      insights. I've worked on everything from building financial models leveraging 
+      Python and SQL to orchestrating robust business development strategies with 
+      CRM tools. 
+    </p>
+    <p>
+      Some of my go-to skills and tools include:
+    </p>
+    <ul style="max-width: 600px; margin: 0 auto; text-align: left;">
+      <li><strong>Analytics & Modeling:</strong> Data Analysis, Predictive Analytics, A/B Testing, Marketing, Hypothesis Testing</li>
+      <li><strong>Languages & Tools:</strong> R, Python, Java, SQL, TensorFlow, Pyspark, Hadoop, Pandas, Scikit-learn</li>
+      <li><strong>Visualization:</strong> Tableau, PowerBI, Plotly, Matplotlib, Seaborn</li>
+      <li><strong>Databases & Cloud:</strong> Relational Databases, Google Analytics, CRM, Linux, GitHub</li>
+      <li><strong>Methodologies:</strong> Agile, Project Management, Financial Modeling, Time Series Forecasting</li>
+    </ul>
+    <p>
+      Professionally, I've had internships and managerial roles at organizations like 
+      Vanguard, Lifo.ai, and SPI Energy—leading data-focused initiatives, optimizing 
+      marketing strategies, and analyzing complex data sets for meaningful outcomes. 
+      I enjoy tackling new challenges and love the process of discovering patterns 
+      hidden in data.
+    </p>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="projects" class="section projects-section">
+    <h1 class="section-header">My Projects</h1>
+    <p>Check out some of my favorite projects below.</p>
+    
+    <div class="project-cards" id="project-cards">
+      
+      <!-- Project 1: Anomaly Detection in Network Traffic -->
+      <div class="project-card">
+        <h2>Anomaly Detection in Network Traffic</h2>
+        <p>
+          Built ML models (Random Forest, XGBoost, LightGBM, Neural Networks) to detect
+          cyber-attacks using UNSW-NB15. Compared precision/recall to reduce false positives, 
+          addressed class imbalance, and focused on feature engineering.
+        </p>
+        <a 
+          href="https://github.com/ewluong/project2024/tree/main/cybersecurity_threats" 
+          class="project-link"
+          target="_blank"
+        >
+          **View on GitHub**
+        </a>
+      </div>
+      
+      <!-- Project 2: Diversity & Centrality in Leadership -->
+      <div class="project-card">
+        <h2>Diversity & Centrality in Leadership</h2>
+        <p>
+          Explored leadership-level diversity (ethnicity, gender, age) and network centrality metrics 
+          for 1,500 firms (15 years), correlating them with stock returns. Data from ISS, CRSP, and COMPUSTAT.
+        </p>
+        <a
+          href="https://github.com/ewluong/public_projects/tree/main/comp_centrality"
+          class="project-link"
+          target="_blank"
+        >
+          **View on GitHub**
+        </a>
+      </div>
+
+      <!-- Project 3: Ames Housing Price Prediction -->
+      <div class="project-card">
+        <h2>Ames Housing Price Prediction</h2>
+        <p>
+          Predicts house prices by stacking models (LightGBM, XGBoost, Gradient Boosting, 
+          Random Forest, CatBoost). Demonstrates data preprocessing, feature engineering, 
+          hyperparameter tuning, and ensemble learning.
+        </p>
+        <a
+          href="https://github.com/ewluong/ames_housing"
+          class="project-link"
+          target="_blank"
+        >
+          **View on GitHub**
+        </a>
+      </div>
+
+      <!-- Project 4: Data-Driven Insights into the Book Market -->
+      <div class="project-card">
+        <h2>Book Market Insights</h2>
+        <p>
+          Time-series analysis of genres, NLP-based exploration of reviews, K-means clustering 
+          to identify market segments, and regression modeling to link user ratings with reviews 
+          and pricing.
+        </p>
+        <a
+          href="https://github.com/ewluong/public_projects/tree/main/amazon_bestsellers"
+          class="project-link"
+          target="_blank"
+        >
+          **View on GitHub**
+        </a>
+      </div>
+
+      <!-- Project 5: CBA-to-NBA Performance Correlation -->
+      <div class="project-card">
+        <h2>CBA-to-NBA Performance Correlation</h2>
+        <p>
+          Used PCA on college (CBA) player stats to see correlation with NBA scoring. 
+          Spearman/Pearson tests showed statistically significant relationships, albeit low-level correlations.
+        </p>
+        <p class="no-link">Link Not Available</p>
+      </div>
+      
+      <!-- Project 6: Amber India Case Study -->
+      <div class="project-card">
+        <h2>Amber India Restaurant Case Study</h2>
+        <p>
+          Optimized a $5 million ad budget using linear programming. Devised a demand 
+          management model for popular beverages, balancing raw material costs, spoilage, 
+          and profit.
+        </p>
+        <p class="no-link">Link Not Available</p>
+      </div>
+
+      <!-- Project 7: Panel Data Analysis on Firm Performance -->
+      <div class="project-card">
+        <h2>Panel Data Analysis on Firm Performance</h2>
+        <p>
+          Investigated relationships between investment, capital structure, and firm performance 
+          via panel data. Employed winsorization and regressions with lag/lead variables, 
+          ensuring robustness with the Wooldridge Exogeneity Test.
+        </p>
+        <p class="no-link">Link Not Available</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="section contact-section">
+    <h1 class="section-header">Contact Me</h1>
+    <p>
+      If you'd like to reach out, feel free to drop me a line below.
+    </p>
+    <form class="contact-form">
+      <label for="name">Name:</label>
+      <input type="text" id="name" required />
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" required />
+
+      <label for="message">Message:</label>
+      <textarea id="message" rows="5" required></textarea>
+      
+      <button type="submit" class="contact-btn">Send Message</button>
+    </form>
+  </section>
+
+  <!-- Link to JS -->
+  <script src="script.js"></script>
+</body>
+</html>

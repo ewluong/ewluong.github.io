@@ -1,0 +1,254 @@
+:root {
+  --bg-color: #ff5e00;   
+  --text-color: #000000; 
+  --accent-color: #222222;
+  --link-glitch-color: #ffffff;
+  --base-font-size: 20px;
+}
+
+body {
+  transition: background-color 1.2s ease, color 1.2s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: var(--base-font-size);
+}
+
+body {
+  font-family: 'VT323', monospace;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  overflow-x: hidden;
+  position: relative;
+  line-height: 1.4;
+}
+
+/* Bouncing shapes in background */
+#bgCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ASCII corner */
+#asciiCorner {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  font-family: monospace;
+  white-space: pre;
+  line-height: 1.1;
+  z-index: 999;
+  color: var(--text-color);
+}
+
+/* Navigation */
+.navbar {
+  background-color: transparent;
+  padding: 1rem;
+  text-align: center;
+}
+
+.navbar ul {
+  list-style-type: none;
+  display: inline-flex;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.navbar a {
+  text-decoration: none;
+  position: relative;
+  display: inline-block;
+  transition: color 0.3s ease;
+  font-size: 1.2rem;
+  color: var(--text-color);
+}
+
+/* Glitch Hover for Nav/Project Links */
+.navbar a:hover,
+.project-link:hover {
+  animation: glitchHover 0.4s infinite alternate;
+  color: var(--bg-color);
+}
+
+@keyframes glitchHover {
+  0% {
+    text-shadow: 1px 0 var(--link-glitch-color), -1px 0 var(--text-color);
+    transform: skewX(-3deg);
+  }
+  20% {
+    text-shadow: -2px 0 var(--text-color), 2px 0 var(--link-glitch-color);
+    transform: skewX(3deg);
+  }
+  40% {
+    text-shadow: 1px 0 var(--link-glitch-color), -1px 0 var(--text-color);
+    transform: skewX(-3deg);
+  }
+  60% {
+    text-shadow: -1px 0 var(--text-color), 1px 0 var(--link-glitch-color);
+    transform: skewX(3deg);
+  }
+  80% {
+    text-shadow: -2px 0 var(--link-glitch-color), 2px 0 var(--text-color);
+    transform: skewX(-3deg);
+  }
+  100% {
+    text-shadow: 1px 0 var(--link-glitch-color), -1px 0 var(--text-color);
+    transform: skewX(0deg);
+  }
+}
+
+/* Sections */
+.section {
+  padding: 5rem 1rem;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-header {
+  font-size: 2.6rem;
+  margin-bottom: 1rem;
+  opacity: 0;
+}
+
+.glitch-intro {
+  animation: glitchHeader 2s ease-in-out forwards;
+}
+
+@keyframes glitchHeader {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) skewX(-25deg);
+    text-shadow: 2px 0 var(--link-glitch-color), -2px 0 var(--text-color);
+  }
+  10% {
+    opacity: 0.5;
+    transform: translateY(25px) skewX(15deg);
+    text-shadow: -2px 0 var(--text-color), 2px 0 var(--link-glitch-color);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(0) skewX(-20deg);
+    text-shadow: 1px 0 var(--text-color), -1px 0 var(--link-glitch-color);
+  }
+  50% {
+    transform: translateY(-10px) skewX(20deg);
+    text-shadow: -1px 0 var(--text-color), 1px 0 var(--link-glitch-color);
+  }
+  70% {
+    transform: translateY(0) skewX(-5deg);
+    text-shadow: -1px 0 var(--link-glitch-color), 1px 0 var(--text-color);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) skewX(0deg);
+    text-shadow: none;
+  }
+}
+
+/* Projects */
+.project-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.project-card {
+  background-color: inherit;
+  border: 2px solid var(--text-color);
+  border-radius: 8px;
+  width: 320px;
+  padding: 1.5rem;
+  text-align: left;
+  transition: all 0.3s ease;
+  color: inherit;
+}
+
+.project-card:hover {
+  background-color: var(--accent-color);
+  color: var(--bg-color);
+}
+
+.project-link {
+  color: var(--text-color);
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.no-link {
+  font-style: italic;
+  opacity: 0.8;
+  color: var(--text-color);
+}
+
+/* Contact & Form Styles */
+.contact-form {
+  display: inline-block;
+  text-align: left;
+  max-width: 400px;
+  width: 100%;
+  margin: 2rem auto;
+}
+
+.contact-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  font-family: inherit;
+  border: 2px solid var(--text-color);
+  background-color: inherit;
+  color: var(--text-color);
+}
+
+.contact-btn {
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  padding: 0.8rem 1.2rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.contact-btn:hover {
+  background-color: var(--accent-color);
+  color: var(--bg-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar ul {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .section {
+    padding: 3rem 1rem;
+  }
+  .project-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+}
