@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Eric's Data Science Portfolio</title>
+  
   <!-- Link to CSS -->
   <link rel="stylesheet" href="style.css" />
 
@@ -14,6 +15,9 @@
     href="https://fonts.googleapis.com/css2?family=VT323&display=swap" 
     rel="stylesheet" 
   />
+
+  <!-- Marked.js for Markdown Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
   <!-- Background Canvas (Bouncing, Breathing, Mouse-Repelling Shapes) -->
@@ -35,8 +39,8 @@
 
   <!-- Home Section (Dodecagon in center) -->
   <section id="home" class="section home-section">
-    <h1 class="section-header">Hey there, I'm Eric!</h1>
-    <p class="tagline">Just a man chasing the wind.</p>
+    <h1 class="section-header glitch-intro">Hey there, I'm Eric!</h1>
+    <p class="tagline">Just chasing the wind...</p>
 
     <!-- Dodecagon Canvas in the center -->
     <canvas 
@@ -53,110 +57,17 @@
       and more!
     </p>
   </section>
-
-  <!-- About Section (with boxes around icons + text) -->
-  <section id="about" class="section about-section">
-    <h1 class="section-header">About Me</h1>
-    <div class="about-grid">
-      <!-- Example Work Item -->
-      <div class="about-item">
-        <img src="images/work.jpg" alt="Work Icon" class="about-icon" />
-        <p>
-          <strong>Work Experience:</strong> 
-          My journey includes roles at Vanguard and Lifo.ai, where I've tackled financial models, data analytics strategies,
-          and helped streamline business development.
-        </p>
-      </div>
-
-      <!-- SPI Energy: bitcoin.jpg -->
-      <div class="about-item">
-        <img src="images/bitcoin.jpg" alt="Crypto Icon" class="about-icon" />
-        <p>
-          <strong>SPI Energy:</strong>
-          Delved into cryptocurrency miner solutions, aiding strategic decision-making with data analysis. Learned about the 
-          evolving energy market and blockchain tech.
-        </p>
-      </div>
-
-      <!-- Books: book.jpg -->
-      <div class="about-item">
-        <img src="images/book.jpg" alt="Book Icon" class="about-icon" />
-        <p>
-          <strong>Favorite Reads:</strong>
-          "There Is No Antimemetics Division," 
-          "Hitchhiker’s Guide to the Galaxy," 
-          and "Strangers from a Different Shore" fuel my imagination and expand my worldview.
-        </p>
-      </div>
-
-      <!-- Gaming: controller.jpg -->
-      <div class="about-item">
-        <img src="images/controller.jpg" alt="Controller Icon" class="about-icon" />
-        <p>
-          <strong>Gaming Interests:</strong>
-          Whether battling in Elden Ring, building empires in Civilization VI, 
-          or theorycrafting in Path of Exile, gaming is a creative outlet 
-          that challenges my strategic thinking.
-        </p>
-      </div>
-
-      <!-- Volunteer: garden.jpg -->
-      <div class="about-item">
-        <img src="images/garden.jpg" alt="Garden Icon" class="about-icon" />
-        <p>
-          <strong>Volunteering:</strong>
-          At Berkeley’s Community Garden, I’ve done everything from mulching 
-          to planting. It’s a hands-on way to give back 
-          and cultivate green spaces.
-        </p>
-      </div>
-
-      <!-- Academics: hat.jpg -->
-      <div class="about-item">
-        <img src="images/hat.jpg" alt="Academic Icon" class="about-icon" />
-        <p>
-          <strong>Academic Achievements:</strong>
-          Santa Clara University (Business Analytics), UC Berkeley (Cognitive Science), 
-          UC Berkeley ML & AI Certificate.
-        </p>
-      </div>
-
-      <!-- NEW: Tennis: tennis.jpg -->
-      <div class="about-item">
-        <img src="images/tennis.jpg" alt="Tennis Icon" class="about-icon" />
-        <p>
-          <strong>Tennis Passion:</strong>
-          I've played tennis my whole life and still train regularly. It's taught me discipline, strategy, and
-          the value of continuous improvement.
-        </p>
-      </div>
-
-      <!-- NEW: Music: music.jpg -->
-      <div class="about-item">
-        <img src="images/music.jpg" alt="Music Icon" class="about-icon" />
-        <p>
-          <strong>Music & Production:</strong>
-          After a lifetime of playing piano and guitar, I dove into music production. 
-          I love experimenting with beats and melodies—peek the SoundCloud link in the corner!
-        </p>
-      </div>
-    </div>
-  </section>
-
   <!-- Projects Section -->
   <section id="projects" class="section projects-section">
-    <h1 class="section-header">My Projects</h1>
+    <h1 class="section-header glitch-intro">Work</h1>
     <p>Check out some of my favorite projects below.</p>
     
     <div class="project-cards" id="project-cards">
-      <!-- Project 1: Anomaly Detection in Network Traffic -->
-      <div class="project-card">
+      <div class="project-card" data-file="network.md">
         <h2>Anomaly Detection in Network Traffic</h2>
-        <p>
-          Built ML models (Random Forest, XGBoost, LightGBM, Neural Networks) to detect
+        <p> Built ML models (Random Forest, XGBoost, LightGBM, Neural Networks) to detect
           cyber-attacks using UNSW-NB15. Compared precision/recall to reduce false positives, 
-          addressed class imbalance, and focused on feature engineering.
-        </p>
+          addressed class imbalance, and focused on feature engineering.</p>
         <a 
           href="https://github.com/ewluong/project2024/tree/main/cybersecurity_threats" 
           class="project-link"
@@ -165,90 +76,59 @@
           **View on GitHub**
         </a>
       </div>
-      
-      <!-- Project 2: Diversity & Centrality in Leadership -->
-      <div class="project-card">
-        <h2>Diversity & Centrality in Leadership</h2>
-        <p>
-          Explored leadership-level diversity (ethnicity, gender, age) and network centrality metrics 
-          for 1,500 firms (15 years), correlating them with stock returns. Data from ISS, CRSP, and COMPUSTAT.
-        </p>
-        <a
-          href="https://github.com/ewluong/public_projects/tree/main/comp_centrality"
-          class="project-link"
-          target="_blank"
-        >
-          **View on GitHub**
-        </a>
-      </div>
-
-      <!-- Project 3: Ames Housing Price Prediction -->
-      <div class="project-card">
-        <h2>Ames Housing Price Prediction</h2>
-        <p>
-          Predicts house prices by stacking models (LightGBM, XGBoost, Gradient Boosting, 
-          Random Forest, CatBoost). Demonstrates data preprocessing, feature engineering, 
-          hyperparameter tuning, and ensemble learning.
-        </p>
-        <a
-          href="https://github.com/ewluong/ames_housing"
-          class="project-link"
-          target="_blank"
-        >
-          **View on GitHub**
-        </a>
-      </div>
-
-      <!-- Project 4: Data-Driven Insights into the Book Market -->
-      <div class="project-card">
-        <h2>Book Market Insights</h2>
-        <p>
-          Time-series analysis of genres, NLP-based exploration of reviews, K-means clustering 
+      <div class="project-card" data-file="amazon.pdf">
+        <h2>Best Sellers Analysis</h2>
+        <p>Time-series analysis of genres, NLP-based exploration of reviews, K-means clustering 
           to identify market segments, and regression modeling to link user ratings with reviews 
-          and pricing.
-        </p>
-        <a
-          href="https://github.com/ewluong/public_projects/tree/main/amazon_bestsellers"
+          and pricing.</p>
+        <a 
+          href="https://github.com/ewluong/project2024/tree/main/best_sellers_analysis" 
           class="project-link"
           target="_blank"
         >
           **View on GitHub**
         </a>
       </div>
-
-      <!-- Project 5: CBA-to-NBA Performance Correlation -->
-      <div class="project-card">
-        <h2>CBA-to-NBA Performance Correlation</h2>
-        <p>
-          Used PCA on college (CBA) player stats to see correlation with NBA scoring. 
-          Spearman/Pearson tests showed statistically significant relationships, albeit low-level correlations.
-        </p>
-        <p class="no-link">Link Not Available</p>
+      <div class="project-card" data-file="comp_centrality.pdf">
+        <h2>Centrality Measures in Networks</h2>
+        <p>Explored leadership-level diversity (ethnicity, gender, age) and network centrality metrics 
+          for 1,500 firms (15 years), correlating them with stock returns. Data from ISS, CRSP, and COMPUSTAT.</p>
+        <a 
+          href="https://github.com/ewluong/project2024/tree/main/centrality_measures" 
+          class="project-link"
+          target="_blank"
+        >
+          **View on GitHub**
+        </a>
       </div>
-      
-      <!-- Project 6: Amber India Case Study -->
-      <div class="project-card">
-        <h2>Amber India Restaurant Case Study</h2>
-        <p>
-          Optimized a $5 million ad budget using linear programming. Devised a demand 
-          management model for popular beverages, balancing raw material costs, spoilage, 
-          and profit.
-        </p>
-        <p class="no-link">Link Not Available</p>
+      <div class="project-card" data-file="housing.md">
+        <h2>Housing Prices Prediction</h2>
+        <p>Predicts house prices by stacking models (LightGBM, XGBoost, Gradient Boosting, 
+          Random Forest, CatBoost). Demonstrates data preprocessing, feature engineering, 
+          hyperparameter tuning, and ensemble learning.</p>
+        <a 
+          href="https://github.com/ewluong/project2024/tree/main/housing_prices_prediction" 
+          class="project-link"
+          target="_blank"
+        >
+          **View on GitHub**
+        </a>
       </div>
-
-      <!-- Project 7: Panel Data Analysis on Firm Performance -->
-      <div class="project-card">
-        <h2>Panel Data Analysis on Firm Performance</h2>
-        <p>
-          Investigated relationships between investment, capital structure, and firm performance 
+      <div class="project-card" data-file="woolridge.html">
+        <h2>Panel Data Analysis</h2>
+        <p>Investigated relationships between investment, capital structure, and firm performance 
           via panel data. Employed winsorization and regressions with lag/lead variables, 
-          ensuring robustness with the Wooldridge Exogeneity Test.
-        </p>
-        <p class="no-link">Link Not Available</p>
+          ensuring robustness with the Wooldridge Exogeneity Test.</p>
+        <a 
+          href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" 
+          class="project-link"
+          target="_blank"
+        >
+          **View on GitHub**
+        </a>
       </div>
-
-      <!-- Project 8: apexprint.co -->
+      <!-- Add more project-cards with appropriate data-file attributes as needed -->
+             <!-- Project 8: apexprint.co -->
       <div class="project-card">
         <h2>apexprint.co</h2>
         <p>
@@ -263,12 +143,149 @@
           **View Website**
       </a>
       </div>
+      <div class="project-card" data-file="sudoku.pdf">
+        <h2>Sudoku Linear Programming</h2>
+        <p>
+          Designed and implemented a linear programming solution using Gurobi to efficiently solve standard and variant Sudoku puzzles,
+          including 3D, diagonal, and Killer Sudoku, by developing optimization models with complex constraints.
+        </p>
+        <a 
+          href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" 
+          class="project-link"
+          target="_blank"
+        >
+          **View on GitHub**
+        </a>
+      </div>
+      <div class="project-card" data-file="nba.pdf">
+        <h2>CBA-to-NBA Performance Correlation</h2>
+        <p>
+          Used PCA on college (CBA) player stats to see correlation with NBA scoring. 
+          Spearman/Pearson tests showed statistically significant relationships, albeit low-level correlations.
+        </p>
+        <a 
+          href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" 
+          class="project-link"
+          target="_blank"
+        >
+          **View on GitHub**
+        </a>
+      </div>
+      <!-- Project 6: Amber India Case Study -->
+      <div class="project-card">
+        <h2>Amber India Restaurant Case Study</h2>
+        <p>
+          Optimized a $5 million ad budget using linear programming. Devised a demand 
+          management model for popular beverages, balancing raw material costs, spoilage, 
+          and profit.
+        </p>
+        <p class="no-link">Link Not Available</p>
+      </div>
+      <!-- Project 6: Amber India Case Study -->
+      <div class="project-card">
+        <h2>ewluong.com</h2>
+        <p>
+          Training a chatbot so people can chat with a friend. Jam to some music. Or learn things.
+        </p>
+        <p class="no-link"></p>
+      </div>
+      
+    </div>
+  </section>
+  <!-- About Section (with boxes around icons + text) -->
+  <section id="about" class="section about-section">
+    <h1 class="section-header glitch-intro">About Me</h1>
+    <div class="about-grid">
+      <!-- Example Work Item -->
+      <div class="about-item">
+        <img src="images/work.png" alt="Work Icon" class="about-icon" />
+        <p>
+          <strong>Work Experience:</strong> 
+          My journey includes roles at Vanguard and Lifo.ai, where I've tackled financial models, data analytics strategies,
+          and helped streamline business development.
+        </p>
+      </div>
+
+      <!-- SPI Energy: bitcoin.jpg -->
+      <div class="about-item">
+        <img src="images/bitcoin.png" alt="Crypto Icon" class="about-icon" />
+        <p>
+          <strong>SPI Energy:</strong>
+          Delved into cryptocurrency miner solutions, aiding strategic decision-making with data analysis. Learned about the 
+          evolving energy market and blockchain tech.
+        </p>
+      </div>
+
+      <!-- Books: book.jpg -->
+      <div class="about-item">
+        <img src="images/book.png" alt="Book Icon" class="about-icon" />
+        <p>
+          <strong>Favorite Reads:</strong>
+          "There Is No Antimemetics Division," 
+          "Hitchhiker’s Guide to the Galaxy," 
+          and "Strangers from a Different Shore" fuel my imagination and expand my worldview.
+        </p>
+      </div>
+
+      <!-- Gaming: controller.jpg -->
+      <div class="about-item">
+        <img src="images/controller.png" alt="Controller Icon" class="about-icon" />
+        <p>
+          <strong>Gaming Interests:</strong>
+          Whether battling in Elden Ring, building empires in Civilization VI, 
+          or theorycrafting in Path of Exile, gaming is a creative outlet 
+          that challenges my strategic thinking.
+        </p>
+      </div>
+
+      <!-- Volunteer: garden.jpg -->
+      <div class="about-item">
+        <img src="images/garden.png" alt="Garden Icon" class="about-icon" />
+        <p>
+          <strong>Volunteering:</strong>
+          At Berkeley’s Community Garden, I’ve done everything from mulching 
+          to planting. It’s a hands-on way to give back 
+          and cultivate green spaces.
+        </p>
+      </div>
+
+      <!-- Academics: hat.jpg -->
+      <div class="about-item">
+        <img src="images/hat.png" alt="Academic Icon" class="about-icon" />
+        <p>
+          <strong>Academic Achievements:</strong>
+          Santa Clara University (Business Analytics), UC Berkeley (Cognitive Science), 
+          UC Berkeley ML & AI Certificate.
+        </p>
+      </div>
+
+      <!-- NEW: Tennis: tennis.jpg -->
+      <div class="about-item">
+        <img src="images/tennis.png" alt="Tennis Icon" class="about-icon" />
+        <p>
+          <strong>Tennis Passion:</strong>
+          I've played tennis my whole life and still train regularly. It's taught me discipline, strategy, and
+          the value of continuous improvement.
+        </p>
+      </div>
+
+      <!-- NEW: Music: music.jpg -->
+      <div class="about-item">
+        <img src="images/music.png" alt="Music Icon" class="about-icon" />
+        <p>
+          <strong>Music & Production:</strong>
+          After a lifetime of playing piano and guitar, I dove into music production. 
+          I love experimenting with beats and melodies—peek the SoundCloud link in the corner!
+        </p>
+      </div>
     </div>
   </section>
 
+  
+
   <!-- Blog Section -->
   <section id="blog" class="section blog-section">
-    <h1 class="section-header">Blog</h1>
+    <h1 class="section-header glitch-intro">Blog</h1>
     <p>My thoughts on anything...</p>
 
     <ul class="blog-list">
@@ -386,39 +403,77 @@
     </div>
   </div>
 
-  <!-- Contact Section: Chat Bubble -->
-  <section id="contact" class="section contact-section">
-    <div id="contactBubble" class="chat-bubble breathing-shape glitchy-lines">
-      <p class="bubble-text">Contact Me</p>
+  <!-- Project Modal for Displaying Reports -->
+  <div id="projectModal" class="modal hidden">
+    <div class="modal-content">
+      <h2 class="modal-title"></h2>
+      <div class="modal-body"></div>
+      <button class="modal-close">Close</button>
     </div>
-
-    <div id="chatModal" class="chat-modal hidden">
-      <div class="chat-interface">
-        <div class="orange-bubble">Want to leave a message?</div>
-        <input type="text" id="messageInput" class="message-input" placeholder="Type your message..." />
-        <button id="sendBtn" class="send-btn">Send</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Music button & frame (SoundCloud embedding) -->
-  <div id="musicPrompt" class="toggle-button glitchHover">Music</div>
-  <div id="musicFrame" class="music-frame hidden">
-    <button id="musicClose" class="minimize-btn">Close</button>
-    <iframe 
-      width="300" 
-      height="120" 
-      scrolling="no" 
-      frameborder="no" 
-      allow="autoplay"
-      src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/keewimusic/love-language-spring-mini-mix&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"
-    ></iframe>
   </div>
 
-  <!-- Minigame prompt and Dino Game Canvas -->
+  <!-- Chatbox Modal -->
+  <div id="chatboxModal" class="chat-modal hidden">
+    <div class="chatbox-interface">
+      <div class="chatbox-header">
+        <span>Chat with Eric</span>
+        <button class="chatbox-close">X</button>
+      </div>
+      <div class="chatbox-body">
+        <div class="chatbox-messages">
+          <div class="chatbox-message bot">&gt; Coming soon...</div>
+        </div>
+      </div>
+      <div class="chatbox-footer">
+        <input type="text" id="chatboxInput" class="chatbox-input" placeholder="Type your message..." />
+        <button id="chatboxSendBtn" class="chatbox-send-btn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Music, Minigame, and Chat Buttons -->
+  <div id="chatboxPrompt" class="toggle-button glitchHover">Chat</div>
+  <div id="musicPrompt" class="toggle-button glitchHover">Music</div>
   <div id="minigamePrompt" class="toggle-button glitchHover">Minigame</div>
+
+  <!-- Retro-Styled Music Player -->
+  <div id="retroMusicPlayer" class="retro-music-player hidden">
+    <div class="music-header">
+      <canvas id="waveformCanvas" width="300" height="50"></canvas>
+    </div>
+    <div class="music-info">
+      <div class="song-title">Sample Song</div>
+      <div class="song-artist">Artist One</div>
+      <div class="song-album">Album/Playlist</div>
+    </div>
+    <div class="music-controls">
+      <button id="btnBackward" class="control-btn backward" aria-label="Backward"></button>
+      <button id="btnPlayPause" class="control-btn play breathing" aria-label="Play/Pause"></button>
+      <button id="btnForward" class="control-btn forward" aria-label="Forward"></button>
+      <button id="btnFavorite" class="control-btn favorite" aria-label="Favorite">❤️</button>
+      <button id="btnFavoritesToggle" class="control-btn favorites-toggle" aria-label="Toggle Favorites">★</button>
+    </div>
+    <div class="music-progress">
+      <input type="range" id="progressBar" value="0" min="0" max="100" />
+      <div class="time-display">
+        <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+      </div>
+    </div>
+    <!-- Favorites Dropdown -->
+    <div class="favorites-dropdown hidden">
+      <h3>Favorites</h3>
+      <ul id="favoritesList">
+        <!-- Favorites will be populated here -->
+      </ul>
+    </div>
+    <!-- Hidden Audio Element -->
+    <audio id="audioPlayer" src="docs/sample.mp3"></audio>
+  </div>
+
+  <!-- Minigame Canvas -->
   <canvas id="miniDinoGame" width="300" height="150" class="hidden"></canvas>
 
+  <!-- Link to JavaScript -->
   <script src="script.js"></script>
 </body>
 </html>
