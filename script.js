@@ -539,57 +539,78 @@ function initChatbox() {
 
   // Toggle chatbox modal on chat button click
   chatboxPrompt.addEventListener("click", () => {
-    const isHidden = chatboxModal.classList.contains("hidden");
-    if (isHidden) {
-      chatboxModal.classList.remove("hidden");
-      chatboxInput.focus();
-    } else {
-      chatboxModal.classList.add("hidden");
-    }
+      const isHidden = chatboxModal.classList.contains("hidden");
+      if (isHidden) {
+          chatboxModal.classList.remove("hidden");
+          chatboxInput.focus();
+      } else {
+          chatboxModal.classList.add("hidden");
+      }
   });
 
   // Close chatbox modal on close button click
   chatboxCloseBtn.addEventListener("click", () => {
-    chatboxModal.classList.add("hidden");
+      chatboxModal.classList.add("hidden");
   });
 
   // Prevent dragging when clicking close button
   chatboxCloseBtn.addEventListener("mousedown", (e) => {
-    e.stopPropagation();
+      e.stopPropagation();
   });
 
-  // Send message
+  // Handle sending message
   chatboxSendBtn.addEventListener("click", () => {
-    const message = chatboxInput.value.trim();
-    if (message === "") return;
+      const message = chatboxInput.value.trim();
+      if (!message) return;
 
-    // Append user message
-    const userMsgDiv = document.createElement("div");
-    userMsgDiv.classList.add("chatbox-message", "user");
-    userMsgDiv.textContent = message;
-    chatboxMessages.appendChild(userMsgDiv);
+      // Append user message
+      appendMessageToChat("user", message);
 
-    // Clear input
-    chatboxInput.value = "";
+      // Send the message to the chatbot API
+      fetch("http://127.0.0.1:5000/chat", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message })
+      })
+          .then((response) => response.json())
+          .then((data) => {
+              if (data.response) {
+                  // Append bot response
+                  appendMessageToChat("bot", data.response);
+              } else {
+                  appendMessageToChat("bot", "I'm sorry, but I didn't receive a proper response.");
+              }
+          })
+          .catch((error) => {
+              console.error("Error communicating with the chatbot API:", error);
+              appendMessageToChat("bot", "An error occurred. Please try again later.");
+          });
 
-    // Append bot message
-    const botMsgDiv = document.createElement("div");
-    botMsgDiv.classList.add("chatbox-message", "bot");
-    botMsgDiv.textContent = ">";
-    chatboxMessages.appendChild(botMsgDiv);
-
-    // Scroll to bottom
-    chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
-
-    // TODO: Connect to locally hosted LLM to get bot response
+      // Clear input field
+      chatboxInput.value = "";
   });
 
   // Allow sending message on Enter key
   chatboxInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      chatboxSendBtn.click();
-    }
+      if (e.key === "Enter") {
+          chatboxSendBtn.click();
+      }
   });
+
+  /**
+   * Append a message to the chatbox messages container.
+   * @param {string} role - "user" or "bot".
+   * @param {string} content - The message content.
+   */
+  function appendMessageToChat(role, content) {
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add("chatbox-message", role);
+      messageDiv.textContent = content;
+      chatboxMessages.appendChild(messageDiv);
+      chatboxMessages.scrollTop = chatboxMessages.scrollHeight; // Scroll to bottom
+  }
 
   /* ======== Make Chatbox Draggable ======== */
   makeElementDraggable(chatboxInterface);
