@@ -566,8 +566,8 @@ function initChatbox() {
       // Append user message
       appendMessageToChat("user", message);
 
-      // Send the message to the chatbot API
-      fetch("http://127.0.0.1:5000/chat", {
+      // Send the message to the chatbot API using a relative URL instead of 127.0.0.1
+      fetch("/chat", {
           method: "POST",
           headers: {
               "Content-Type": "application/json"
@@ -1102,36 +1102,3 @@ function makeElementDraggable(element) {
     }
   });
 }
-
-/* ======== RETRO-STYLED MUSIC PLAYER ======== */
-/* (Already included above in initRetroMusicPlayer) */
-
-/* ======== DIRECTORY STRUCTURE ======== */
-/*
-Ensure that your project directory includes the following structure:
-
-your-project/
-├── index.html
-├── style.css
-├── script.js
-├── docs/
-│   ├── sample.mp3            <!-- Replace with your audio files -->
-│   ├── sample2.mp3
-│   ├── sample3.mp3
-│   ├── network.md
-│   ├── amazon.pdf
-│   ├── comp_centrality.pdf
-│   ├── housing.md
-│   ├── woolridge.html
-│   └── ...other report files
-└── images/
-    ├── work.png
-    ├── bitcoin.png
-    ├── book.png
-    ├── controller.png
-    ├── garden.png
-    ├── hat.png
-    ├── tennis.png
-    ├── music.png
-    └── ...other image files
-*/
