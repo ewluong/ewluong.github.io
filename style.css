@@ -345,6 +345,7 @@ body::before {
 #musicPrompt { bottom: 80px; }
 #minigamePrompt { bottom: 140px; }
 #chatboxPrompt { bottom: 200px; }
+#backroomsPrompt { bottom: 260px; }
 .retro-music-player {
   position: fixed;
   top: 20px;
@@ -503,7 +504,72 @@ body::before {
   #musicPrompt { bottom: 100px; }
   #minigamePrompt { bottom: 140px; }
   #chatboxPrompt { bottom: 180px; }
+  #backroomsPrompt { bottom: 240px; }
   .retro-music-player { width: 90%; left: 5%; top: 10px; }
   #miniDinoGame { right: 10px; width: 250px; height: 125px; }
   .chatbox-interface { width: 90%; height: 80%; top: 10%; left: 50%; transform: translate(-50%, -50%); }
+}
+
+/* ======== Backrooms Modal Custom Styles (Retro VCR Screen) ======== */
+.backrooms-modal-content {
+  width: 90vw;
+  height: 80vh;
+  max-width: 1200px;
+  background: #000;
+  border: 8px solid #0f0;
+  box-shadow: 0 0 20px #0f0;
+  position: relative;
+  font-family: 'VT323', monospace;
+  display: flex;
+  flex-direction: column;
+}
+.vcr-header {
+  background: #0f0;
+  color: #000;
+  padding: 10px;
+  text-align: center;
+  font-size: 2rem;
+  letter-spacing: 2px;
+  border-bottom: 4px solid #000;
+}
+.vcr-header .vcr-description {
+  font-size: 1rem;
+  margin-top: 5px;
+  letter-spacing: 1px;
+}
+.vcr-screen {
+  flex: 1;
+  background: #111;
+  color: #0f0;
+  padding: 20px;
+  overflow: hidden;
+  position: relative;
+  font-size: 1.2rem;
+  line-height: 1.4;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 1.5px,
+    rgba(0, 0, 0, 0.1) 1.5px,
+    rgba(0, 0, 0, 0.1) 3px
+  );
+}
+.vcr-controls {
+  background: #0f0;
+  padding: 10px;
+  text-align: center;
+  border-top: 4px solid #000;
+}
+.vcr-controls .modal-close {
+  background: #000;
+  color: #0f0;
+  border: 2px solid #0f0;
+  padding: 5px 15px;
+  font-family: 'VT323', monospace;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.vcr-controls .modal-close:hover {
+  background: #0f0;
+  color: #000;
 }
