@@ -286,6 +286,11 @@ function typeWriterEffect(text, element) {
   let index = 0;
   function typeChar() {
     if (index < text.length) {
+      if (text.substr(index, 10) === "[Model A]:" || text.substr(index, 10) === "[Model B]:") {
+        if (!element.textContent.endsWith("\n")) {
+          element.textContent += "\n";
+        }
+      }
       element.textContent += text.charAt(index);
       index++;
       typeTimer = setTimeout(typeChar, 15);
@@ -523,31 +528,33 @@ function initBackroomsModal() {
   const backroomsModal = document.getElementById("backroomsModal");
   const backroomsClose = document.getElementById("backroomsClose");
   const backroomsText = document.getElementById("backroomsText");
+  const searchInput = document.getElementById("backroomsSearch");
+  const searchBtn = document.getElementById("backroomsSearchBtn");
+  const clearBtn = document.getElementById("backroomsClearBtn");
+
   let backroomsContent = "";
   let currentIndex = 0;
   let typeInterval = null;
-  const maxDisplayLength = 1200; // Allow more text to be displayed before deletion
   let displayBuffer = "";
-  const typingSpeed = 50; // Milliseconds per character
+  const typingSpeed = 10; // 10 ms per character
 
-  // The typewriter function now also checks if a newline is followed by a '[' (new model)
   function startTypewriter() {
     typeInterval = setInterval(() => {
       if (backroomsContent.length === 0) return;
+      if (backroomsContent.substr(currentIndex, 10) === "[Model A]:" ||
+          backroomsContent.substr(currentIndex, 10) === "[Model B]:") {
+        if (!displayBuffer.endsWith("\n")) {
+          displayBuffer += "\n";
+        }
+      }
       let nextChar = backroomsContent.charAt(currentIndex);
+      displayBuffer += nextChar;
       currentIndex++;
       if (currentIndex >= backroomsContent.length) {
-        currentIndex = 0;
-      }
-      displayBuffer += nextChar;
-      // If the character is a newline, check if the next char is '[' and if so, insert a space.
-      if (nextChar === "\n" && backroomsContent.charAt(currentIndex) === "[") {
-        displayBuffer += " ";
-      }
-      if (displayBuffer.length > maxDisplayLength) {
-        displayBuffer = displayBuffer.substring(1);
+        clearInterval(typeInterval);
       }
       backroomsText.textContent = displayBuffer;
+      backroomsText.scrollTop = backroomsText.scrollHeight;
     }, typingSpeed);
   }
 
@@ -577,6 +584,29 @@ function initBackroomsModal() {
     }
   }
 
+  function searchBackroomsContent(query) {
+    if (!backroomsContent) return "No content loaded.";
+    let lowerContent = backroomsContent.toLowerCase();
+    let lowerQuery = query.toLowerCase();
+    let results = [];
+    let startPos = 0;
+    while (true) {
+      let foundIndex = lowerContent.indexOf(lowerQuery, startPos);
+      if (foundIndex === -1) break;
+      let excerptStart = Math.max(0, foundIndex - 50);
+      let excerptEnd = Math.min(backroomsContent.length, foundIndex + query.length + 50);
+      let excerpt = backroomsContent.substring(excerptStart, excerptEnd);
+      let regex = new RegExp(query, "gi");
+      excerpt = excerpt.replace(regex, (match) => `<mark>${match}</mark>`);
+      results.push("..." + excerpt + "...");
+      startPos = foundIndex + query.length;
+    }
+    if (results.length === 0) {
+      return "No results found for '" + query + "'.";
+    }
+    return results.join("<br><br>");
+  }
+
   backroomsPrompt.addEventListener("click", () => {
     if (backroomsModal.classList.contains("hidden")) {
       backroomsModal.classList.remove("hidden");
@@ -594,6 +624,22 @@ function initBackroomsModal() {
   });
 
   backroomsClose.addEventListener("mousedown", (e) => { e.stopPropagation(); });
+
+  searchBtn.addEventListener("click", () => {
+    let query = searchInput.value.trim();
+    if (query !== "") {
+      stopTypewriter();
+      backroomsText.innerHTML = searchBackroomsContent(query);
+    }
+  });
+
+  clearBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    backroomsText.textContent = "";
+    displayBuffer = "";
+    currentIndex = 0;
+    fetchBackroomsContent();
+  });
 
   const backroomsModalContent = backroomsModal.querySelector(".modal-content");
   makeElementDraggable(backroomsModalContent);
