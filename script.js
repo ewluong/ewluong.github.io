@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initMusicPrompt();
   initChatbox(API_URL);
   initProjectModal();
+  initBackroomsModal();
   initRetroMusicPlayer();
 
   window.addEventListener("resize", onResize);
@@ -372,7 +373,6 @@ function initMusicPrompt() {
 }
 
 /* ======== CHATBOX MODAL LOGIC ======== */
-// Use the API_URL passed from the main script to fetch from your backend.
 function initChatbox(API_URL) {
   const chatboxPrompt = document.getElementById("chatboxPrompt");
   const chatboxModal = document.getElementById("chatboxModal");
@@ -396,7 +396,6 @@ function initChatbox(API_URL) {
       const message = chatboxInput.value.trim();
       if (!message) return;
       appendMessageToChat("user", message);
-      // Directly use your backend's full URL.
       fetch(`${API_URL}/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -516,6 +515,88 @@ function initProjectModal() {
   });
 
   projectModalClose.addEventListener("mousedown", (e) => { e.stopPropagation(); });
+}
+
+/* ======== BACKROOMS MODAL LOGIC (Retro VCR Screen) ======== */
+function initBackroomsModal() {
+  const backroomsPrompt = document.getElementById("backroomsPrompt");
+  const backroomsModal = document.getElementById("backroomsModal");
+  const backroomsClose = document.getElementById("backroomsClose");
+  const backroomsText = document.getElementById("backroomsText");
+  let backroomsContent = "";
+  let currentIndex = 0;
+  let typeInterval = null;
+  const maxDisplayLength = 1200; // Allow more text to be displayed before deletion
+  let displayBuffer = "";
+  const typingSpeed = 50; // Milliseconds per character
+
+  // The typewriter function now also checks if a newline is followed by a '[' (new model)
+  function startTypewriter() {
+    typeInterval = setInterval(() => {
+      if (backroomsContent.length === 0) return;
+      let nextChar = backroomsContent.charAt(currentIndex);
+      currentIndex++;
+      if (currentIndex >= backroomsContent.length) {
+        currentIndex = 0;
+      }
+      displayBuffer += nextChar;
+      // If the character is a newline, check if the next char is '[' and if so, insert a space.
+      if (nextChar === "\n" && backroomsContent.charAt(currentIndex) === "[") {
+        displayBuffer += " ";
+      }
+      if (displayBuffer.length > maxDisplayLength) {
+        displayBuffer = displayBuffer.substring(1);
+      }
+      backroomsText.textContent = displayBuffer;
+    }, typingSpeed);
+  }
+
+  function fetchBackroomsContent() {
+    fetch('docs/backrooms_convo.txt')
+      .then(response => {
+        if (!response.ok) throw new Error("Network response was not ok");
+        return response.text();
+      })
+      .then(text => {
+        backroomsContent = text;
+        currentIndex = 0;
+        displayBuffer = "";
+        backroomsText.textContent = "";
+        startTypewriter();
+      })
+      .catch(error => {
+        console.error("Error loading backrooms content:", error);
+        backroomsText.textContent = "Error loading content.";
+      });
+  }
+
+  function stopTypewriter() {
+    if (typeInterval) {
+      clearInterval(typeInterval);
+      typeInterval = null;
+    }
+  }
+
+  backroomsPrompt.addEventListener("click", () => {
+    if (backroomsModal.classList.contains("hidden")) {
+      backroomsModal.classList.remove("hidden");
+      fetchBackroomsContent();
+    } else {
+      backroomsModal.classList.add("hidden");
+      stopTypewriter();
+    }
+  });
+
+  backroomsClose.addEventListener("click", () => {
+    backroomsModal.classList.add("hidden");
+    stopTypewriter();
+    backroomsText.textContent = "";
+  });
+
+  backroomsClose.addEventListener("mousedown", (e) => { e.stopPropagation(); });
+
+  const backroomsModalContent = backroomsModal.querySelector(".modal-content");
+  makeElementDraggable(backroomsModalContent);
 }
 
 /* ======== RETRO-STYLED MUSIC PLAYER ======== */
