@@ -537,12 +537,32 @@ body::before {
   margin-top: 5px;
   letter-spacing: 1px;
 }
+/* Styles for the search bar in the Backrooms modal */
+.vcr-search {
+  margin: 10px;
+  text-align: center;
+}
+.vcr-search input {
+  padding: 5px;
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+  width: 60%;
+  margin-right: 5px;
+}
+.vcr-search button {
+  padding: 5px 10px;
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-right: 5px;
+}
+/* vcr-screen now scrollable */
 .vcr-screen {
   flex: 1;
   background: #111;
   color: #0f0;
   padding: 20px;
-  overflow: hidden;
+  overflow-y: auto;
   position: relative;
   font-size: 1.2rem;
   line-height: 1.4;
@@ -553,6 +573,17 @@ body::before {
     rgba(0, 0, 0, 0.1) 1.5px,
     rgba(0, 0, 0, 0.1) 3px
   );
+}
+/* Custom scrollbar to match retro VCR theme */
+.vcr-screen::-webkit-scrollbar {
+  width: 10px;
+}
+.vcr-screen::-webkit-scrollbar-track {
+  background: #111;
+}
+.vcr-screen::-webkit-scrollbar-thumb {
+  background-color: #0f0;
+  border: 2px solid #111;
 }
 .vcr-controls {
   background: #0f0;
