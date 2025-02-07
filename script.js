@@ -522,7 +522,7 @@ function initProjectModal() {
   projectModalClose.addEventListener("mousedown", (e) => { e.stopPropagation(); });
 }
 
-/* ======== BACKROOMS MODAL LOGIC (Retro VCR Screen) ======== */
+/* ======== BACKROOMS MODAL LOGIC (Vintage Terminal Style) ======== */
 function initBackroomsModal() {
   const backroomsPrompt = document.getElementById("backroomsPrompt");
   const backroomsModal = document.getElementById("backroomsModal");
@@ -531,6 +531,23 @@ function initBackroomsModal() {
   const searchInput = document.getElementById("backroomsSearch");
   const searchBtn = document.getElementById("backroomsSearchBtn");
   const clearBtn = document.getElementById("backroomsClearBtn");
+  const dropdown = document.getElementById("backroomsDropdown");
+
+  // Define available conversation files (all numbered backrooms*.txt).
+  const conversationFiles = [
+    { name: "All Conversations", file: "all" },
+    { name: "Backrooms 1", file: "docs/backrooms1.txt" },
+    { name: "Backrooms 2", file: "docs/backrooms2.txt" },
+    { name: "Backrooms 3", file: "docs/backrooms3.txt" }
+  ];
+  // Populate dropdown with vintage terminal styling.
+  dropdown.innerHTML = "";
+  conversationFiles.forEach(fileObj => {
+    let option = document.createElement("option");
+    option.value = fileObj.file;
+    option.textContent = fileObj.name;
+    dropdown.appendChild(option);
+  });
 
   let backroomsContent = "";
   let currentIndex = 0;
@@ -558,25 +575,6 @@ function initBackroomsModal() {
     }, typingSpeed);
   }
 
-  function fetchBackroomsContent() {
-    fetch('docs/backrooms_convo.txt')
-      .then(response => {
-        if (!response.ok) throw new Error("Network response was not ok");
-        return response.text();
-      })
-      .then(text => {
-        backroomsContent = text;
-        currentIndex = 0;
-        displayBuffer = "";
-        backroomsText.textContent = "";
-        startTypewriter();
-      })
-      .catch(error => {
-        console.error("Error loading backrooms content:", error);
-        backroomsText.textContent = "Error loading content.";
-      });
-  }
-
   function stopTypewriter() {
     if (typeInterval) {
       clearInterval(typeInterval);
@@ -584,6 +582,49 @@ function initBackroomsModal() {
     }
   }
 
+  // Function to load conversation based on selected file.
+  function loadConversation(fileValue) {
+    stopTypewriter();
+    backroomsContent = "";
+    currentIndex = 0;
+    displayBuffer = "";
+    backroomsText.textContent = "";
+    if (fileValue === "all") {
+      let promises = conversationFiles
+        .filter(f => f.file !== "all")
+        .map(f =>
+          fetch(f.file).then(response => {
+            if (!response.ok) throw new Error("Network error");
+            return response.text();
+          })
+      );
+      Promise.all(promises)
+        .then(results => {
+          backroomsContent = results.join("\n\n");
+          startTypewriter();
+        })
+        .catch(err => {
+          console.error(err);
+          backroomsText.textContent = "Error loading conversations.";
+        });
+    } else {
+      fetch(fileValue)
+        .then(response => {
+          if (!response.ok) throw new Error("Network error");
+          return response.text();
+        })
+        .then(text => {
+          backroomsContent = text;
+          startTypewriter();
+        })
+        .catch(err => {
+          console.error(err);
+          backroomsText.textContent = "Error loading conversation.";
+        });
+    }
+  }
+
+  // Search function remains the same.
   function searchBackroomsContent(query) {
     if (!backroomsContent) return "No content loaded.";
     let lowerContent = backroomsContent.toLowerCase();
@@ -610,7 +651,7 @@ function initBackroomsModal() {
   backroomsPrompt.addEventListener("click", () => {
     if (backroomsModal.classList.contains("hidden")) {
       backroomsModal.classList.remove("hidden");
-      fetchBackroomsContent();
+      loadConversation(dropdown.value);
     } else {
       backroomsModal.classList.add("hidden");
       stopTypewriter();
@@ -625,6 +666,11 @@ function initBackroomsModal() {
 
   backroomsClose.addEventListener("mousedown", (e) => { e.stopPropagation(); });
 
+  // When dropdown value changes, load the selected conversation.
+  dropdown.addEventListener("change", () => {
+    loadConversation(dropdown.value);
+  });
+
   searchBtn.addEventListener("click", () => {
     let query = searchInput.value.trim();
     if (query !== "") {
@@ -638,7 +684,7 @@ function initBackroomsModal() {
     backroomsText.textContent = "";
     displayBuffer = "";
     currentIndex = 0;
-    fetchBackroomsContent();
+    loadConversation(dropdown.value);
   });
 
   const backroomsModalContent = backroomsModal.querySelector(".modal-content");
