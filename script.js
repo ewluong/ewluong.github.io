@@ -1,4 +1,4 @@
-// Define themes with six schemes and two sub-schemes each.
+// --------------------- THEME & INITIAL SETUP ---------------------
 const themes = [
   {
     name: "Orange & Black",
@@ -47,14 +47,8 @@ let currentTheme = themes[0];
 
 document.addEventListener("DOMContentLoaded", () => {
   // Set initial theme using the first sub-scheme.
-  document.documentElement.style.setProperty(
-    "--bg-color",
-    currentTheme.sub[0].bg
-  );
-  document.documentElement.style.setProperty(
-    "--text-color",
-    currentTheme.sub[0].text
-  );
+  document.documentElement.style.setProperty("--bg-color", currentTheme.sub[0].bg);
+  document.documentElement.style.setProperty("--text-color", currentTheme.sub[0].text);
   document.documentElement.setAttribute("data-scheme", currentTheme.name);
 
   pickAsciiBunnyCatPanda();
@@ -64,41 +58,49 @@ document.addEventListener("DOMContentLoaded", () => {
   onScrollTypeAscii();
   initBlogPosts();
   initMinigamePrompt();
+  initMinigameModal();
   initMusicPrompt();
   initChatbox("http://45.27.27.79:5000");
   initProjectModal();
   initBackroomsModal();
   initRetroMusicPlayer();
-  typeTerminalHeader();
-  typeOtherHeaders(); // Typewriter effect for other section headers
+  // Use the common typewriter function for all headers (including terminalHeader)
+  typeWriterOnElement(document.getElementById("terminalHeader"), 50);
+  typeOtherHeaders(); // Apply typewriter effect for other section headers
 
   // Randomize button: picks a random theme.
   document.getElementById("randomizeToggle").addEventListener("click", function () {
     this.classList.add("vibrate");
-    setTimeout(() => {
-      this.classList.remove("vibrate");
-    }, 300);
+    setTimeout(() => { this.classList.remove("vibrate"); }, 300);
     const randomIndex = Math.floor(Math.random() * themes.length);
     currentTheme = themes[randomIndex];
-    document.documentElement.style.setProperty(
-      "--bg-color",
-      currentTheme.sub[0].bg
-    );
-    document.documentElement.style.setProperty(
-      "--text-color",
-      currentTheme.sub[0].text
-    );
+    document.documentElement.style.setProperty("--bg-color", currentTheme.sub[0].bg);
+    document.documentElement.style.setProperty("--text-color", currentTheme.sub[0].text);
     document.documentElement.setAttribute("data-scheme", currentTheme.name);
   });
 
   window.addEventListener("resize", onResize);
   window.addEventListener("scroll", onScrollTypeAscii, { passive: true });
+
+  // ----- Bring-to-Front functionality for window-like modals -----
+  let currentTopZ = 11000;
+  function bringModalToFront(modal) {
+    currentTopZ++;
+    modal.style.zIndex = currentTopZ;
+  }
+  ["minigameModal", "chatboxModal", "backroomsModal"].forEach(id => {
+    const modal = document.getElementById(id);
+    modal.addEventListener("mousedown", () => {
+      bringModalToFront(modal);
+    });
+  });
 });
 
-/* ---------- TYPEWRITER FUNCTIONS (merged duplicate definitions) ---------- */
+// --------------------- TYPEWRITER FUNCTIONS ---------------------
 function typeWriterOnElement(element, delay = 50) {
   const fullText = element.getAttribute("data-text");
   if (!fullText) return;
+  element.style.opacity = "1";
   element.textContent = "";
   let index = 0;
   function typeChar() {
@@ -120,22 +122,7 @@ function typeOtherHeaders() {
   });
 }
 
-function typeTerminalHeader() {
-  const header = document.getElementById("terminalHeader");
-  const text = header.getAttribute("data-text");
-  let index = 0;
-  header.textContent = "";
-  function typeChar() {
-    if (index < text.length) {
-      header.textContent += text.charAt(index);
-      index++;
-      setTimeout(typeChar, 50);
-    }
-  }
-  typeChar();
-}
-
-/* ---------- ASCII (Typewriter on Scroll) ---------- */
+// --------------------- ASCII (Typewriter on Scroll) ---------------------
 let asciiFull = "";
 function pickAsciiBunnyCatPanda() {
   const bunny = ["  (\\(\\ ", " ( -.- )", "  o(\")(\")"];
@@ -161,17 +148,15 @@ function onScrollTypeAscii() {
   asciiCorner.textContent = asciiFull.substring(0, revealCount);
 }
 
-/* ---------- BACKGROUND CANVAS ---------- */
+// --------------------- BACKGROUND CANVAS ---------------------
 let canvas, ctx;
 let w, h;
 const numShapes = 8;
 let shapes = [];
 const shapeTypes = ["circle", "square", "triangle"];
 let currentShapeIndex = 0;
-let mouseX = -9999,
-  mouseY = -9999;
-const repelRadius = 100,
-  repelForce = 0.03;
+let mouseX = -9999, mouseY = -9999;
+const repelRadius = 100, repelForce = 0.03;
 
 function initCanvas() {
   canvas = document.getElementById("bgCanvas");
@@ -190,14 +175,10 @@ function initCanvas() {
       breathFactor: Math.random() * 2 * Math.PI,
     });
   }
-  window.addEventListener(
-    "mousemove",
-    (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-    },
-    { passive: true }
-  );
+  window.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  }, { passive: true });
   requestAnimationFrame(animateBackground);
 }
 
@@ -212,7 +193,6 @@ function onResize() {
 
 function animateBackground() {
   ctx.clearRect(0, 0, w, h);
-  // Update shapes and compute a single textColor rgb per frame.
   const computedStyle = getComputedStyle(document.documentElement);
   const textColor = computedStyle.getPropertyValue("--text-color").trim();
   const rgb = parseHexToRgb(textColor);
@@ -221,8 +201,7 @@ function animateBackground() {
     let breathSize = shape.baseSize * (1 + 0.1 * Math.sin(shape.breathFactor));
     shape.x += shape.vx;
     shape.y += shape.vy;
-    let dx = shape.x - mouseX,
-      dy = shape.y - mouseY;
+    let dx = shape.x - mouseX, dy = shape.y - mouseY;
     let dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < repelRadius) {
       let angle = Math.atan2(dy, dx);
@@ -276,20 +255,17 @@ function drawBackgroundShape(type, x, y, size, rgb) {
 function resolveCollision(s1, s2) {
   let r1 = s1.baseSize * (1 + 0.1 * Math.sin(s1.breathFactor));
   let r2 = s2.baseSize * (1 + 0.1 * Math.sin(s2.breathFactor));
-  let dx = s2.x - s1.x,
-    dy = s2.y - s1.y;
+  let dx = s2.x - s1.x, dy = s2.y - s1.y;
   let dist = Math.sqrt(dx * dx + dy * dy);
   let minDist = r1 + r2;
   if (dist < minDist) {
     let overlap = (minDist - dist) / 2;
-    let nx = dx / dist,
-      ny = dy / dist;
+    let nx = dx / dist, ny = dy / dist;
     s1.x -= overlap * nx;
     s1.y -= overlap * ny;
     s2.x += overlap * nx;
     s2.y += overlap * ny;
-    let tempVx = s1.vx,
-      tempVy = s1.vy;
+    let tempVx = s1.vx, tempVy = s1.vy;
     s1.vx = s2.vx;
     s1.vy = s2.vy;
     s2.vx = tempVx;
@@ -300,54 +276,41 @@ function resolveCollision(s1, s2) {
 function parseHexToRgb(hex) {
   hex = hex.replace("#", "");
   if (hex.length === 3) {
-    hex = hex
-      .split("")
-      .map((c) => c + c)
-      .join("");
+    hex = hex.split("").map((c) => c + c).join("");
   }
   const num = parseInt(hex, 16);
   return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
 }
 
-/* ---------- DODECAGON (Breathing Animation) ---------- */
+// --------------------- DODECAGON (Breathing Animation) ---------------------
 let dCanvas, dCtx;
-let dWidth = 400,
-  dHeight = 400;
-let rotation = 0,
-  breathePhase = 0;
-const breatheSpeed = 0.02,
-  breatheAmplitude = 0.1;
+let dWidth = 400, dHeight = 400;
+let rotation = 0, breathePhase = 0;
+const breatheSpeed = 0.02, breatheAmplitude = 0.1;
 
 function initDodecagonCanvas() {
   dCanvas = document.getElementById("dodecagonCanvas");
   dCtx = dCanvas.getContext("2d");
   dWidth = dCanvas.width;
   dHeight = dCanvas.height;
-  window.addEventListener(
-    "mousemove",
-    (e) => {
-      rotation = (e.clientX + e.clientY) * 0.01;
-    },
-    { passive: true }
-  );
+  window.addEventListener("mousemove", (e) => {
+    rotation = (e.clientX + e.clientY) * 0.01;
+  }, { passive: true });
   requestAnimationFrame(drawDodecagonLoop);
 }
 
 function drawDodecagonLoop() {
   dCtx.clearRect(0, 0, dWidth, dHeight);
-  let cx = dWidth / 2,
-    cy = dHeight / 2;
+  let cx = dWidth / 2, cy = dHeight / 2;
   breathePhase += breatheSpeed;
   let breathScale = 1 + breatheAmplitude * Math.sin(breathePhase);
-  let baseRadius = 100,
-    currentRadius = baseRadius * breathScale;
+  let baseRadius = 100, currentRadius = baseRadius * breathScale;
   drawDodecagon(cx, cy, currentRadius, rotation);
   requestAnimationFrame(drawDodecagonLoop);
 }
 
 function drawDodecagon(cx, cy, radius, rot) {
-  let sides = 12,
-    angleStep = (Math.PI * 2) / sides;
+  let sides = 12, angleStep = (Math.PI * 2) / sides;
   const computedStyle = getComputedStyle(document.documentElement);
   const textColor = computedStyle.getPropertyValue("--text-color").trim();
   const rgb = parseHexToRgb(textColor);
@@ -379,7 +342,7 @@ function drawDodecagon(cx, cy, radius, rot) {
   }
 }
 
-/* ---------- SECTION OBSERVER (Theme Flip on Scroll) ---------- */
+// --------------------- SECTION OBSERVER (Theme Flip on Scroll) ---------------------
 function initSectionObserver() {
   const sections = document.querySelectorAll(".section");
   const options = { threshold: 0.6 };
@@ -398,7 +361,7 @@ function initSectionObserver() {
   sections.forEach((section) => observer.observe(section));
 }
 
-/* ---------- BLOG MODAL (Typewriter Effect) ---------- */
+// --------------------- BLOG MODAL (Typewriter Effect) ---------------------
 let typeTimer = null;
 function initBlogPosts() {
   const blogPosts = document.querySelectorAll(".blog-post");
@@ -431,6 +394,16 @@ function initBlogPosts() {
   closeBtn.addEventListener("mousedown", (e) => {
     e.stopPropagation();
   });
+  modal.addEventListener("click", (e) => {
+    if (!e.target.closest(".modal-content")) {
+      modal.classList.add("hidden");
+      modalText.textContent = "";
+      if (typeTimer) {
+        clearTimeout(typeTimer);
+        typeTimer = null;
+      }
+    }
+  });
 }
 
 function typeWriterEffect(text, element) {
@@ -456,19 +429,35 @@ function typeWriterEffect(text, element) {
   typeChar();
 }
 
-/* ---------- MINIGAME PROMPT ---------- */
+// --------------------- MINIGAME PROMPT ---------------------
 let dinoGameStarted = false;
 function initMinigamePrompt() {
   const minigameButton = document.getElementById("minigamePrompt");
-  const minigameCanvas = document.getElementById("miniDinoGame");
+  const minigameModal = document.getElementById("minigameModal");
   minigameButton.addEventListener("click", () => {
-    if (minigameCanvas.classList.contains("hidden")) {
-      minigameCanvas.classList.remove("hidden");
+    if (minigameModal.classList.contains("hidden")) {
+      minigameModal.classList.remove("hidden");
+      // Set focus to the modal so it can receive key events
+      minigameModal.focus();
       startDinoGame();
     } else {
-      minigameCanvas.classList.add("hidden");
+      minigameModal.classList.add("hidden");
+      dinoGameStarted = false; // Reset the flag to allow restarting the game.
     }
   });
+}
+
+function initMinigameModal() {
+  const minigameClose = document.getElementById("minigameClose");
+  const minigameModal = document.getElementById("minigameModal");
+  minigameClose.addEventListener("click", () => {
+    minigameModal.classList.add("hidden");
+    dinoGameStarted = false;
+  });
+  // Instead of dragging the inner content, drag the entire modal container.
+  const minigameHeader = document.getElementById("minigameHeader");
+  const minigameModalContainer = document.getElementById("minigameModal");
+  makeElementDraggableWithHandle(minigameHeader, minigameModalContainer);
 }
 
 function startDinoGame() {
@@ -480,33 +469,56 @@ function startDinoGame() {
 function initMiniDinoGame() {
   const canvas = document.getElementById("miniDinoGame");
   const ctx = canvas.getContext("2d");
-  const W = canvas.width,
-    H = canvas.height;
-  let dinoX = 30,
-    dinoY = H - 10,
-    dinoW = 15,
-    dinoH = 15,
+  const W = canvas.width, H = canvas.height;
+  let dinoX, dinoY, dinoW, dinoH, dinoVy, isJumping, gravity, jumpPower, obstacles, frameCount, gameOver;
+  
+  function resetGame() {
+    dinoX = 30;
+    dinoY = H - 10;
+    dinoW = 15;
+    dinoH = 15;
     dinoVy = 0;
-  let isJumping = false,
-    gravity = 0.5,
+    isJumping = false;
+    gravity = 0.5;
     jumpPower = 8;
-  let obstacles = [],
+    obstacles = [];
     frameCount = 0;
+    gameOver = false;
+    const gameOverDiv = document.getElementById("minigameGameOver");
+    gameOverDiv.innerHTML = "";
+    gameOverDiv.classList.add("hidden");
+    update();
+  }
+  
   function drawDino() {
     ctx.fillStyle = "#fff";
     ctx.fillRect(dinoX, dinoY - dinoH, dinoW, dinoH);
   }
+  
+  // Raise obstacles by setting y to H - 20 instead of H - 10
   function spawnObstacle() {
-    obstacles.push({ x: W, y: H - 10, width: 10, height: 10 });
+    obstacles.push({ x: W, y: H - 20, width: 10, height: 10 });
   }
+  
   function drawObstacle(obs) {
     ctx.fillStyle = "red";
     ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
   }
+  
+  function showGameOver() {
+    gameOver = true;
+    const score = Math.floor(frameCount / 10);
+    const gameOverDiv = document.getElementById("minigameGameOver");
+    gameOverDiv.innerHTML = `<p>Game Over!</p><p>Score: ${score}</p><p>Press Space to restart</p>`;
+    gameOverDiv.classList.remove("hidden");
+  }
+  
   function update() {
-    if (canvas.classList.contains("hidden")) return;
+    if (gameOver) return;
     ctx.clearRect(0, 0, W, H);
-    if (dinoY < H - 10) dinoVy -= gravity;
+    if (dinoY < H - 10) {
+      dinoVy -= gravity;
+    }
     dinoY -= dinoVy;
     if (dinoY > H - 10) {
       dinoY = H - 10;
@@ -515,41 +527,44 @@ function initMiniDinoGame() {
     }
     obstacles.forEach((obs) => (obs.x -= 2));
     obstacles = obstacles.filter((obs) => obs.x + obs.width > 0);
-    obstacles.forEach((obs) => {
+    for (let obs of obstacles) {
       if (
         dinoX < obs.x + obs.width &&
         dinoX + dinoW > obs.x &&
         dinoY - dinoH < obs.y + obs.height &&
         dinoY > obs.y
       ) {
-        obstacles = [];
-        dinoX = 30;
-        dinoY = H - 10;
-        dinoVy = 0;
-        isJumping = false;
-        alert("Game Over! Dino reset.");
+        showGameOver();
+        return;
       }
-    });
+    }
     drawDino();
     obstacles.forEach(drawObstacle);
     frameCount++;
     if (frameCount % 100 === 0) spawnObstacle();
     requestAnimationFrame(update);
   }
-  window.addEventListener("keydown", (e) => {
-    if (
-      (e.code === "Space" || e.code === "ArrowUp") &&
-      !isJumping &&
-      !canvas.classList.contains("hidden")
-    ) {
-      dinoVy = jumpPower;
-      isJumping = true;
-    }
-  });
-  update();
+  
+  // Attach keydown listener to the minigame modal (only once)
+  const minigameModal = document.getElementById("minigameModal");
+  if (!minigameModal.dataset.keyListenerAdded) {
+    minigameModal.addEventListener("keydown", (e) => {
+      if (!gameOver && (e.code === "Space" || e.code === "ArrowUp") && !isJumping) {
+        e.preventDefault();
+        dinoVy = jumpPower;
+        isJumping = true;
+      } else if (gameOver && e.code === "Space") {
+        e.preventDefault();
+        resetGame();
+      }
+    });
+    minigameModal.dataset.keyListenerAdded = "true";
+  }
+  
+  resetGame();
 }
 
-/* ---------- MUSIC PROMPT ---------- */
+// --------------------- MUSIC PROMPT & RETRO MUSIC PLAYER ---------------------
 function initMusicPrompt() {
   const musicButton = document.getElementById("musicPrompt");
   const retroMusicPlayer = document.getElementById("retroMusicPlayer");
@@ -558,7 +573,240 @@ function initMusicPrompt() {
   });
 }
 
-/* ---------- CHATBOX MODAL ---------- */
+function initRetroMusicPlayer() {
+  const retroMusicPlayer = document.getElementById("retroMusicPlayer");
+  const waveformCanvas = document.getElementById("waveformCanvas");
+  const songTitle = retroMusicPlayer.querySelector(".song-title");
+  const songArtist = retroMusicPlayer.querySelector(".song-artist");
+  const songAlbum = retroMusicPlayer.querySelector(".song-album");
+  const btnBackward = document.getElementById("btnBackward");
+  const btnPlayPause = document.getElementById("btnPlayPause");
+  const btnForward = document.getElementById("btnForward");
+  const btnFavorite = document.getElementById("btnFavorite");
+  const btnFavoritesToggle = document.getElementById("btnFavoritesToggle");
+  const progressBar = document.getElementById("progressBar");
+  const currentTimeSpan = document.getElementById("currentTime");
+  const totalTimeSpan = document.getElementById("totalTime");
+  const favoritesList = document.getElementById("favoritesList");
+  const audioPlayer = document.getElementById("audioPlayer");
+
+  const songs = [
+    { id: 1, name: "Sunrise Symphony", artist: "Luna Beats", filePath: "docs/sample.mp3" },
+    { id: 2, name: "Midnight Groove", artist: "Solaris", filePath: "docs/sample2.mp3" },
+    { id: 3, name: "Her Eyes", artist: "Narvent", filePath: "docs/sample3.mp3" },
+    { id: 4, name: "Depression", artist: "Sun", filePath: "docs/sample3.mp3" }
+  ];
+
+  let currentSongIndex = 0;
+  let isPlaying = false;
+  let audioContext, analyser, source, dataArray, bufferLength;
+  let animationId;
+  let lastBackwardClick = 0;
+
+  function initAudioContext() {
+    if (audioContext) return;
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+    source = audioContext.createMediaElementSource(audioPlayer);
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+    analyser.fftSize = 256;
+    bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+  }
+
+  function drawWaveform() {
+    if (!analyser) return;
+    analyser.getByteTimeDomainData(dataArray);
+    const canvasCtx = waveformCanvas.getContext("2d");
+    const width = waveformCanvas.width;
+    const height = waveformCanvas.height;
+    let computedStyle = getComputedStyle(document.documentElement);
+    let bgColor = computedStyle.getPropertyValue("--bg-color").trim();
+    let textColor = computedStyle.getPropertyValue("--text-color").trim();
+    canvasCtx.fillStyle = bgColor;
+    canvasCtx.fillRect(0, 0, width, height);
+    canvasCtx.lineWidth = 2;
+    canvasCtx.strokeStyle = textColor;
+    canvasCtx.beginPath();
+    let sliceWidth = width / bufferLength, x = 0;
+    for (let i = 0; i < bufferLength; i++) {
+      let v = dataArray[i] / 128.0;
+      let y = (v * height) / 2;
+      if (i === 0) {
+        canvasCtx.moveTo(x, y);
+      } else {
+        canvasCtx.lineTo(x, y);
+      }
+      x += sliceWidth;
+    }
+    canvasCtx.lineTo(width, height / 2);
+    canvasCtx.stroke();
+    animationId = requestAnimationFrame(drawWaveform);
+  }
+
+  function loadSong(index) {
+    if (index < 0 || index >= songs.length) return;
+    currentSongIndex = index;
+    audioPlayer.src = songs[currentSongIndex].filePath;
+    songTitle.textContent = songs[currentSongIndex].name;
+    songArtist.textContent = songs[currentSongIndex].artist;
+    songAlbum.textContent = "Album/Playlist";
+    progressBar.value = 0;
+    currentTimeSpan.textContent = "0:00";
+    totalTimeSpan.textContent = "0:00";
+    if (!audioContext) {
+      initAudioContext();
+      drawWaveform();
+    }
+    audioPlayer.load();
+  }
+
+  btnPlayPause.addEventListener("click", () => {
+    if (!isPlaying) {
+      if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+      audioPlayer.play().catch(err => {
+        console.error("Playback failed:", err);
+      });
+    } else {
+      audioPlayer.pause();
+    }
+  });
+
+  audioPlayer.addEventListener("play", () => {
+    isPlaying = true;
+    btnPlayPause.classList.remove("play");
+    btnPlayPause.classList.add("pause", "breathing");
+    if (!audioContext) {
+      initAudioContext();
+      drawWaveform();
+    }
+  });
+
+  audioPlayer.addEventListener("pause", () => {
+    isPlaying = false;
+    btnPlayPause.classList.remove("pause");
+    btnPlayPause.classList.add("play");
+    btnPlayPause.classList.remove("breathing");
+  });
+
+  btnForward.addEventListener("click", () => {
+    nextSong();
+  });
+
+  btnBackward.addEventListener("click", () => {
+    const now = Date.now();
+    if (now - lastBackwardClick < 500) {
+      previousSong();
+      lastBackwardClick = 0;
+    } else {
+      restartSong();
+      lastBackwardClick = now;
+    }
+  });
+
+  audioPlayer.addEventListener("timeupdate", () => {
+    if (audioPlayer.duration) {
+      const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+      progressBar.value = progress;
+      currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
+      totalTimeSpan.textContent = formatTime(audioPlayer.duration);
+    }
+  });
+
+  progressBar.addEventListener("input", () => {
+    const seekTime = (progressBar.value / 100) * audioPlayer.duration;
+    audioPlayer.currentTime = seekTime;
+  });
+
+  function formatTime(time) {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+  }
+
+  btnFavorite.addEventListener("click", () => {
+    const currentSong = songs[currentSongIndex];
+    addFavorite(currentSong);
+  });
+
+  function addFavorite(song) {
+    let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    if (favorites.some((fav) => fav.id === song.id)) {
+      alert("This song is already in your favorites.");
+      return;
+    }
+    favorites.push(song);
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+    populateFavorites();
+  }
+
+  function populateFavorites() {
+    let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    favoritesList.innerHTML = "";
+    if (favorites.length === 0) {
+      const li = document.createElement("li");
+      li.textContent = "No favorites yet.";
+      favoritesList.appendChild(li);
+      return;
+    }
+    favorites.forEach((fav) => {
+      const songIndex = songs.findIndex((song) => song.id === fav.id);
+      if (songIndex === -1) return;
+      const li = document.createElement("li");
+      li.textContent = `${fav.name} by ${fav.artist}`;
+      li.dataset.index = songIndex;
+      li.addEventListener("click", () => {
+        const index = parseInt(li.dataset.index);
+        if (!isNaN(index) && index >= 0 && index < songs.length) {
+          loadSong(index);
+          audioPlayer.play().catch(err => console.error("Playback failed:", err));
+        } else {
+          alert("Selected song not found.");
+        }
+      });
+      favoritesList.appendChild(li);
+    });
+  }
+
+  btnFavoritesToggle.addEventListener("click", () => {
+    const favoritesDropdown = document.querySelector(".favorites-dropdown");
+    favoritesDropdown.classList.toggle("hidden");
+  });
+
+  makeElementDraggable(retroMusicPlayer);
+
+  function nextSong() {
+    currentSongIndex = (currentSongIndex + 1) % songs.length;
+    loadSong(currentSongIndex);
+    audioPlayer.play().catch(err => console.error("Playback failed:", err));
+  }
+
+  function previousSong() {
+    currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+    loadSong(currentSongIndex);
+    audioPlayer.play().catch(err => console.error("Playback failed:", err));
+  }
+
+  function restartSong() {
+    audioPlayer.currentTime = 0;
+  }
+
+  audioPlayer.addEventListener("ended", () => {
+    nextSong();
+  });
+
+  function initRetroMusicPlayerFunc() {
+    loadSong(currentSongIndex);
+    populateFavorites();
+  }
+  initRetroMusicPlayerFunc();
+}
+
+// --------------------- CHATBOX MODAL ---------------------
 function initChatbox(API_URL) {
   const chatboxPrompt = document.getElementById("chatboxPrompt");
   const chatboxModal = document.getElementById("chatboxModal");
@@ -617,47 +865,94 @@ function initChatbox(API_URL) {
   makeElementDraggable(chatboxInterface);
 }
 
-/* ---------- MAKE ELEMENT DRAGGABLE ---------- */
+// --------------------- MAKE ELEMENT DRAGGABLE ---------------------
+// Updated to use page coordinates.
 function makeElementDraggable(element) {
-  let isDragging = false,
-    offsetX,
-    offsetY;
-  const dragHandle = element.querySelector(".chatbox-header, .music-header");
-  if (dragHandle) {
-    dragHandle.addEventListener("mousedown", (e) => {
-      if (e.target.closest(".chatbox-close") || e.target.closest(".modal-close"))
-        return;
-      isDragging = true;
-      const rect = element.getBoundingClientRect();
-      offsetX = e.clientX - rect.left;
-      offsetY = e.clientY - rect.top;
-      element.style.transform = "none";
-      element.style.left = `${rect.left}px`;
-      element.style.top = `${rect.top}px`;
-      element.classList.add("dragging");
-      document.body.style.userSelect = "none";
-    });
-  }
-  document.addEventListener("mousemove", (e) => {
+  let isDragging = false, offsetX, offsetY;
+  element.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("button, input, select, textarea")) return;
+    isDragging = true;
+    e.preventDefault();
+    const rect = element.getBoundingClientRect();
+    const computed = getComputedStyle(element);
+    const borderLeft = parseFloat(computed.borderLeftWidth) || 0;
+    const borderTop = parseFloat(computed.borderTopWidth) || 0;
+    const leftAbs = rect.left + window.scrollX;
+    const topAbs = rect.top + window.scrollY;
+    offsetX = e.pageX - leftAbs;
+    offsetY = e.pageY - topAbs;
+    element.style.transform = "none";
+    element.style.left = `${leftAbs}px`;
+    element.style.top = `${topAbs}px`;
+    element.classList.add("dragging");
+    document.body.style.userSelect = "none";
+    element.setPointerCapture(e.pointerId);
+  });
+  element.addEventListener("pointermove", (e) => {
     if (isDragging) {
-      let newLeft = e.clientX - offsetX;
-      let newTop = e.clientY - offsetY;
+      let newLeft = e.pageX - offsetX;
+      let newTop = e.pageY - offsetY;
       newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - element.offsetWidth));
       newTop = Math.max(0, Math.min(newTop, window.innerHeight - element.offsetHeight));
       element.style.left = `${newLeft}px`;
       element.style.top = `${newTop}px`;
     }
   });
-  document.addEventListener("mouseup", () => {
+  element.addEventListener("pointerup", (e) => {
     if (isDragging) {
       isDragging = false;
       element.classList.remove("dragging");
       document.body.style.userSelect = "auto";
+      element.releasePointerCapture(e.pointerId);
     }
   });
 }
 
-/* ---------- PROJECT MODAL ---------- */
+// --------------------- MAKE ELEMENT DRAGGABLE WITH HANDLE ---------------------
+// Updated to use page coordinates.
+function makeElementDraggableWithHandle(handle, target) {
+  let isDragging = false, offsetX, offsetY;
+  handle.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("input, button, select, textarea")) return;
+    isDragging = true;
+    e.preventDefault();
+    target.style.position = "absolute";
+    const rect = target.getBoundingClientRect();
+    const computed = getComputedStyle(target);
+    const borderLeft = parseFloat(computed.borderLeftWidth) || 0;
+    const borderTop = parseFloat(computed.borderTopWidth) || 0;
+    const leftAbs = rect.left + window.scrollX;
+    const topAbs = rect.top + window.scrollY;
+    offsetX = e.pageX - leftAbs;
+    offsetY = e.pageY - topAbs;
+    target.style.transform = "none";
+    target.style.left = `${leftAbs}px`;
+    target.style.top = `${topAbs}px`;
+    target.classList.add("dragging");
+    document.body.style.userSelect = "none";
+    handle.setPointerCapture(e.pointerId);
+  });
+  handle.addEventListener("pointermove", (e) => {
+    if (isDragging) {
+      let newLeft = e.pageX - offsetX;
+      let newTop = e.pageY - offsetY;
+      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - target.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, window.innerHeight - target.offsetHeight));
+      target.style.left = `${newLeft}px`;
+      target.style.top = `${newTop}px`;
+    }
+  });
+  handle.addEventListener("pointerup", (e) => {
+    if (isDragging) {
+      isDragging = false;
+      target.classList.remove("dragging");
+      document.body.style.userSelect = "auto";
+      handle.releasePointerCapture(e.pointerId);
+    }
+  });
+}
+  
+// --------------------- PROJECT MODAL ---------------------
 function initProjectModal() {
   const projectCards = document.querySelectorAll(".project-card");
   const projectModal = document.getElementById("projectModal");
@@ -726,9 +1021,16 @@ function initProjectModal() {
   projectModalClose.addEventListener("mousedown", (e) => {
     e.stopPropagation();
   });
+
+  projectModal.addEventListener("click", (e) => {
+    if (!e.target.closest(".modal-content")) {
+      projectModal.classList.add("hidden");
+      projectModalBody.innerHTML = "";
+    }
+  });
 }
 
-/* ---------- BACKROOMS MODAL (Vintage Terminal Style) ---------- */
+// --------------------- BACKROOMS MODAL (Vintage Terminal Style) ---------------------
 function initBackroomsModal() {
   const backroomsPrompt = document.getElementById("backroomsPrompt");
   const backroomsModal = document.getElementById("backroomsModal");
@@ -813,9 +1115,7 @@ function initBackroomsModal() {
         );
       Promise.all(promises)
         .then((results) => {
-          backroomsContent = results
-            .join("\n\n")
-            .replace(/\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g, "\n\n");
+          backroomsContent = results.join("\n\n").replace(/\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g, "\n\n");
           startTypewriter();
         })
         .catch((err) => {
@@ -829,10 +1129,7 @@ function initBackroomsModal() {
           return response.text();
         })
         .then((text) => {
-          backroomsContent = text.replace(
-            /\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g,
-            "\n\n"
-          );
+          backroomsContent = text.replace(/\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g, "\n\n");
           startTypewriter();
         })
         .catch((err) => {
@@ -854,10 +1151,7 @@ function initBackroomsModal() {
       let foundIndex = lowerContent.indexOf(lowerQuery, startPos);
       if (foundIndex === -1) break;
       let excerptStart = Math.max(0, foundIndex - 50);
-      let excerptEnd = Math.min(
-        backroomsContent.length,
-        foundIndex + query.length + 50
-      );
+      let excerptEnd = Math.min(backroomsContent.length, foundIndex + query.length + 50);
       let excerpt = backroomsContent.substring(excerptStart, excerptEnd);
       let regex = new RegExp(query, "gi");
       excerpt = excerpt.replace(regex, (match) => `<mark>${match}</mark>`);
@@ -871,6 +1165,7 @@ function initBackroomsModal() {
     return results.join("<br><br>");
   }
 
+  // Toggle the backrooms modal when clicking the backrooms button
   backroomsPrompt.addEventListener("click", () => {
     if (backroomsModal.classList.contains("hidden")) {
       backroomsModal.classList.remove("hidden");
@@ -878,13 +1173,7 @@ function initBackroomsModal() {
     } else {
       backroomsModal.classList.add("hidden");
       stopTypewriter();
-    }
-  });
-
-  backroomsModal.addEventListener("click", (e) => {
-    if (!e.target.closest(".modal-content")) {
-      backroomsModal.classList.add("hidden");
-      stopTypewriter();
+      resetBackroomsContainer();
     }
   });
 
@@ -906,8 +1195,7 @@ function initBackroomsModal() {
     let query = searchInput.value.trim();
     if (query !== "") {
       stopTypewriter();
-      document.getElementById("backroomsText").innerHTML =
-        searchBackroomsContent(query);
+      document.getElementById("backroomsText").innerHTML = searchBackroomsContent(query);
     }
   });
 
@@ -919,238 +1207,94 @@ function initBackroomsModal() {
     loadConversation(dropdown.value);
   });
 
-  const backroomsModalContent = document.querySelector(".backrooms-modal-content");
-  makeElementDraggable(backroomsModalContent);
+  // Use the header as the drag handle for the backrooms modal content.
+  const backroomsHeader = document.querySelector(".vcr-header");
+  makeElementDraggableWithHandle(backroomsHeader, document.querySelector(".backrooms-modal-content"));
 }
 
-/* ---------- RETRO‑STYLED MUSIC PLAYER ---------- */
-function initRetroMusicPlayer() {
-  const retroMusicPlayer = document.getElementById("retroMusicPlayer");
-  const waveformCanvas = document.getElementById("waveformCanvas");
-  const songTitle = retroMusicPlayer.querySelector(".song-title");
-  const songArtist = retroMusicPlayer.querySelector(".song-artist");
-  const songAlbum = retroMusicPlayer.querySelector(".song-album");
-  const btnBackward = document.getElementById("btnBackward");
-  const btnPlayPause = document.getElementById("btnPlayPause");
-  const btnForward = document.getElementById("btnForward");
-  const btnFavorite = document.getElementById("btnFavorite");
-  const btnFavoritesToggle = document.getElementById("btnFavoritesToggle");
-  const progressBar = document.getElementById("progressBar");
-  const currentTimeSpan = document.getElementById("currentTime");
-  const totalTimeSpan = document.getElementById("totalTime");
-  const favoritesList = document.getElementById("favoritesList");
-  const audioPlayer = document.getElementById("audioPlayer");
-
-  const songs = [
-    { id: 1, name: "Sunrise Symphony", artist: "Luna Beats", filePath: "docs/sample.mp3" },
-    { id: 2, name: "Midnight Groove", artist: "Solaris", filePath: "docs/sample2.mp3" },
-    { id: 3, name: "Her Eyes", artist: "Narvent", filePath: "docs/sample3.mp3" },
-    { id: 4, name: "Depression", artist: "Sun", filePath: "docs/sample3.mp3" }
-  ];
-
-  let currentSongIndex = 0;
-  let isPlaying = false;
-  let audioContext, analyser, source, dataArray, bufferLength;
-  let animationId;
-  let lastBackwardClick = 0;
-
-  function initAudioContext() {
-    if (audioContext) return;
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = audioContext.createAnalyser();
-    source = audioContext.createMediaElementSource(audioPlayer);
-    source.connect(analyser);
-    analyser.connect(audioContext.destination);
-    analyser.fftSize = 256;
-    bufferLength = analyser.frequencyBinCount;
-    dataArray = new Uint8Array(bufferLength);
-  }
-
-  function drawWaveform() {
-    if (!analyser) return;
-    analyser.getByteTimeDomainData(dataArray);
-    const canvasCtx = waveformCanvas.getContext("2d");
-    const width = waveformCanvas.width;
-    const height = waveformCanvas.height;
-    let computedStyle = getComputedStyle(document.documentElement);
-    let bgColor = computedStyle.getPropertyValue("--bg-color").trim();
-    let textColor = computedStyle.getPropertyValue("--text-color").trim();
-    canvasCtx.fillStyle = bgColor;
-    canvasCtx.fillRect(0, 0, width, height);
-    canvasCtx.lineWidth = 2;
-    canvasCtx.strokeStyle = textColor;
-    canvasCtx.beginPath();
-    let sliceWidth = width / bufferLength,
-      x = 0;
-    for (let i = 0; i < bufferLength; i++) {
-      let v = dataArray[i] / 128.0;
-      let y = (v * height) / 2;
-      if (i === 0) {
-        canvasCtx.moveTo(x, y);
-      } else {
-        canvasCtx.lineTo(x, y);
-      }
-      x += sliceWidth;
-    }
-    canvasCtx.lineTo(width, height / 2);
-    canvasCtx.stroke();
-    animationId = requestAnimationFrame(drawWaveform);
-  }
-
-  function loadSong(index) {
-    if (index < 0 || index >= songs.length) return;
-    currentSongIndex = index;
-    audioPlayer.src = songs[currentSongIndex].filePath;
-    songTitle.textContent = songs[currentSongIndex].name;
-    songArtist.textContent = songs[currentSongIndex].artist;
-    songAlbum.textContent = "Album/Playlist";
-    progressBar.value = 0;
-    currentTimeSpan.textContent = "0:00";
-    totalTimeSpan.textContent = "0:00";
-    if (!audioContext) {
-      initAudioContext();
-      drawWaveform();
-    }
-    audioPlayer.load();
-  }
-
-  btnPlayPause.addEventListener("click", () => {
-    if (!isPlaying) {
-      if (audioContext && audioContext.state === "suspended") {
-        audioContext.resume();
-      }
-      audioPlayer.play();
-    } else {
-      audioPlayer.pause();
+// --------------------- MAKE ELEMENT DRAGGABLE ---------------------
+// Updated to use page coordinates.
+function makeElementDraggable(element) {
+  let isDragging = false, offsetX, offsetY;
+  element.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("button, input, select, textarea")) return;
+    isDragging = true;
+    e.preventDefault();
+    const rect = element.getBoundingClientRect();
+    const computed = getComputedStyle(element);
+    const borderLeft = parseFloat(computed.borderLeftWidth) || 0;
+    const borderTop = parseFloat(computed.borderTopWidth) || 0;
+    const leftAbs = rect.left + window.scrollX;
+    const topAbs = rect.top + window.scrollY;
+    offsetX = e.pageX - leftAbs;
+    offsetY = e.pageY - topAbs;
+    element.style.transform = "none";
+    element.style.left = `${leftAbs}px`;
+    element.style.top = `${topAbs}px`;
+    element.classList.add("dragging");
+    document.body.style.userSelect = "none";
+    element.setPointerCapture(e.pointerId);
+  });
+  element.addEventListener("pointermove", (e) => {
+    if (isDragging) {
+      let newLeft = e.pageX - offsetX;
+      let newTop = e.pageY - offsetY;
+      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - element.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, window.innerHeight - element.offsetHeight));
+      element.style.left = `${newLeft}px`;
+      element.style.top = `${newTop}px`;
     }
   });
-
-  audioPlayer.addEventListener("play", () => {
-    isPlaying = true;
-    btnPlayPause.classList.remove("play");
-    btnPlayPause.classList.add("pause", "breathing");
-    if (!audioContext) {
-      initAudioContext();
-      drawWaveform();
+  element.addEventListener("pointerup", (e) => {
+    if (isDragging) {
+      isDragging = false;
+      element.classList.remove("dragging");
+      document.body.style.userSelect = "auto";
+      element.releasePointerCapture(e.pointerId);
     }
   });
+}
 
-  audioPlayer.addEventListener("pause", () => {
-    isPlaying = false;
-    btnPlayPause.classList.remove("pause");
-    btnPlayPause.classList.add("play");
-    btnPlayPause.classList.remove("breathing");
+// --------------------- MAKE ELEMENT DRAGGABLE WITH HANDLE ---------------------
+// Updated to use page coordinates.
+function makeElementDraggableWithHandle(handle, target) {
+  let isDragging = false, offsetX, offsetY;
+  handle.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("input, button, select, textarea")) return;
+    isDragging = true;
+    e.preventDefault();
+    target.style.position = "absolute";
+    const rect = target.getBoundingClientRect();
+    const computed = getComputedStyle(target);
+    const borderLeft = parseFloat(computed.borderLeftWidth) || 0;
+    const borderTop = parseFloat(computed.borderTopWidth) || 0;
+    const leftAbs = rect.left + window.scrollX;
+    const topAbs = rect.top + window.scrollY;
+    offsetX = e.pageX - leftAbs;
+    offsetY = e.pageY - topAbs;
+    target.style.transform = "none";
+    target.style.left = `${leftAbs}px`;
+    target.style.top = `${topAbs}px`;
+    target.classList.add("dragging");
+    document.body.style.userSelect = "none";
+    handle.setPointerCapture(e.pointerId);
   });
-
-  btnForward.addEventListener("click", () => {
-    nextSong();
-  });
-  btnBackward.addEventListener("click", () => {
-    const now = Date.now();
-    if (now - lastBackwardClick < 500) {
-      previousSong();
-      lastBackwardClick = 0;
-    } else {
-      restartSong();
-      lastBackwardClick = now;
+  handle.addEventListener("pointermove", (e) => {
+    if (isDragging) {
+      let newLeft = e.pageX - offsetX;
+      let newTop = e.pageY - offsetY;
+      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - target.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, window.innerHeight - target.offsetHeight));
+      target.style.left = `${newLeft}px`;
+      target.style.top = `${newTop}px`;
     }
   });
-
-  audioPlayer.addEventListener("timeupdate", () => {
-    if (audioPlayer.duration) {
-      const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-      progressBar.value = progress;
-      currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
-      totalTimeSpan.textContent = formatTime(audioPlayer.duration);
+  handle.addEventListener("pointerup", (e) => {
+    if (isDragging) {
+      isDragging = false;
+      target.classList.remove("dragging");
+      document.body.style.userSelect = "auto";
+      handle.releasePointerCapture(e.pointerId);
     }
   });
-
-  progressBar.addEventListener("input", () => {
-    const seekTime = (progressBar.value / 100) * audioPlayer.duration;
-    audioPlayer.currentTime = seekTime;
-  });
-
-  function formatTime(time) {
-    if (isNaN(time)) return "0:00";
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
-  }
-
-  btnFavorite.addEventListener("click", () => {
-    const currentSong = songs[currentSongIndex];
-    addFavorite(currentSong);
-  });
-
-  function addFavorite(song) {
-    let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-    if (favorites.some((fav) => fav.id === song.id)) {
-      alert("This song is already in your favorites.");
-      return;
-    }
-    favorites.push(song);
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-    populateFavorites();
-  }
-
-  function populateFavorites() {
-    let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-    favoritesList.innerHTML = "";
-    if (favorites.length === 0) {
-      const li = document.createElement("li");
-      li.textContent = "No favorites yet.";
-      favoritesList.appendChild(li);
-      return;
-    }
-    favorites.forEach((fav) => {
-      const songIndex = songs.findIndex((song) => song.id === fav.id);
-      if (songIndex === -1) return;
-      const li = document.createElement("li");
-      li.textContent = `${fav.name} by ${fav.artist}`;
-      li.dataset.index = songIndex;
-      li.addEventListener("click", () => {
-        const index = parseInt(li.dataset.index);
-        if (!isNaN(index) && index >= 0 && index < songs.length) {
-          loadSong(index);
-          audioPlayer.play();
-        } else {
-          alert("Selected song not found.");
-        }
-      });
-      favoritesList.appendChild(li);
-    });
-  }
-
-  btnFavoritesToggle.addEventListener("click", () => {
-    const favoritesDropdown = document.querySelector(".favorites-dropdown");
-    favoritesDropdown.classList.toggle("hidden");
-  });
-
-  makeElementDraggable(retroMusicPlayer);
-
-  function nextSong() {
-    currentSongIndex = (currentSongIndex + 1) % songs.length;
-    loadSong(currentSongIndex);
-    audioPlayer.play();
-  }
-
-  function previousSong() {
-    currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-    loadSong(currentSongIndex);
-    audioPlayer.play();
-  }
-
-  function restartSong() {
-    audioPlayer.currentTime = 0;
-  }
-
-  audioPlayer.addEventListener("ended", () => {
-    nextSong();
-  });
-
-  function initRetroMusicPlayerFunc() {
-    loadSong(currentSongIndex);
-    populateFavorites();
-  }
-  initRetroMusicPlayerFunc();
 }
