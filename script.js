@@ -1,11 +1,61 @@
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("All features initialized: Enlarging boxes on hover, project modals, glitch effects, music and minigame buttons, chatbox, and retro music player.");
+// Define themes with six schemes and two sub-schemes each.
+const themes = [
+  {
+    name: "Orange & Black",
+    sub: [
+      { bg: "#ff5e00", text: "#000000" },
+      { bg: "#000000", text: "#ff5e00" },
+    ],
+  },
+  {
+    name: "Black & Bright Green",
+    sub: [
+      { bg: "#000000", text: "#00ff00" },
+      { bg: "#00ff00", text: "#000000" },
+    ],
+  },
+  {
+    name: "Dark Purple & Neon Green",
+    sub: [
+      { bg: "#2e003e", text: "#00ff00" },
+      { bg: "#00ff00", text: "#2e003e" },
+    ],
+  },
+  {
+    name: "Navy Blue & Light Blue",
+    sub: [
+      { bg: "#001f3f", text: "#7FDBFF" },
+      { bg: "#7FDBFF", text: "#001f3f" },
+    ],
+  },
+  {
+    name: "Dark Maroon & Amber",
+    sub: [
+      { bg: "#0d0208", text: "#f2a900" },
+      { bg: "#f2a900", text: "#0d0208" },
+    ],
+  },
+  {
+    name: "Dark Blue & Off-White",
+    sub: [
+      { bg: "#011627", text: "#fdfffc" },
+      { bg: "#fdfffc", text: "#011627" },
+    ],
+  },
+];
+let currentTheme = themes[0];
 
-  // Since your site is hosted on GitHub Pages,
-  // relative URLs point to GitHub Pages rather than your backend.
-  // Explicitly set the API URL to your backend.
-  const API_URL = "http://45.27.27.79:5000";
-  console.log("API_URL set to:", API_URL);
+document.addEventListener("DOMContentLoaded", () => {
+  // Set initial theme using the first sub-scheme.
+  document.documentElement.style.setProperty(
+    "--bg-color",
+    currentTheme.sub[0].bg
+  );
+  document.documentElement.style.setProperty(
+    "--text-color",
+    currentTheme.sub[0].text
+  );
+  document.documentElement.setAttribute("data-scheme", currentTheme.name);
 
   pickAsciiBunnyCatPanda();
   initCanvas();
@@ -13,29 +63,83 @@ document.addEventListener("DOMContentLoaded", () => {
   initSectionObserver();
   onScrollTypeAscii();
   initBlogPosts();
-
   initMinigamePrompt();
   initMusicPrompt();
-  initChatbox(API_URL);
+  initChatbox("http://45.27.27.79:5000");
   initProjectModal();
   initBackroomsModal();
   initRetroMusicPlayer();
+  typeTerminalHeader();
+  typeOtherHeaders(); // Typewriter effect for other section headers
+
+  // Randomize button: picks a random theme.
+  document.getElementById("randomizeToggle").addEventListener("click", function () {
+    this.classList.add("vibrate");
+    setTimeout(() => {
+      this.classList.remove("vibrate");
+    }, 300);
+    const randomIndex = Math.floor(Math.random() * themes.length);
+    currentTheme = themes[randomIndex];
+    document.documentElement.style.setProperty(
+      "--bg-color",
+      currentTheme.sub[0].bg
+    );
+    document.documentElement.style.setProperty(
+      "--text-color",
+      currentTheme.sub[0].text
+    );
+    document.documentElement.setAttribute("data-scheme", currentTheme.name);
+  });
 
   window.addEventListener("resize", onResize);
-  window.addEventListener("scroll", onScrollTypeAscii);
+  window.addEventListener("scroll", onScrollTypeAscii, { passive: true });
 });
 
-/* ======== SCHEMES: ORANGE+BLACK, BLACK+ORANGE ======== */
-const colorSchemes = [
-  { bg: "#ff5e00", text: "#000000" },
-  { bg: "#000000", text: "#ff5e00" }
-];
+/* ---------- TYPEWRITER FUNCTIONS (merged duplicate definitions) ---------- */
+function typeWriterOnElement(element, delay = 50) {
+  const fullText = element.getAttribute("data-text");
+  if (!fullText) return;
+  element.textContent = "";
+  let index = 0;
+  function typeChar() {
+    if (index < fullText.length) {
+      element.textContent += fullText.charAt(index);
+      index++;
+      setTimeout(typeChar, delay);
+    }
+  }
+  typeChar();
+}
 
-/* ======== ASCII: BUNNY, CAT, PANDA; typed as we scroll ======== */
+function typeOtherHeaders() {
+  const headers = document.querySelectorAll(".section-header");
+  headers.forEach((header) => {
+    if (header.id !== "terminalHeader") {
+      typeWriterOnElement(header, 50);
+    }
+  });
+}
+
+function typeTerminalHeader() {
+  const header = document.getElementById("terminalHeader");
+  const text = header.getAttribute("data-text");
+  let index = 0;
+  header.textContent = "";
+  function typeChar() {
+    if (index < text.length) {
+      header.textContent += text.charAt(index);
+      index++;
+      setTimeout(typeChar, 50);
+    }
+  }
+  typeChar();
+}
+
+/* ---------- ASCII (Typewriter on Scroll) ---------- */
 let asciiFull = "";
 function pickAsciiBunnyCatPanda() {
   const bunny = ["  (\\(\\ ", " ( -.- )", "  o(\")(\")"];
-  const cat   = ["  /\\__/\\", " (  o.o  )", "  >  ^  < "];
+  const cat = ["  /\\__/\\", " (  o.o  )", "  >  ^  < "];
   const panda = ["  ___  ", " (o o) ", " (  V  )", " /     \\", "|       |"];
   const asciiOptions = [bunny, cat, panda];
   const chosen = asciiOptions[Math.floor(Math.random() * asciiOptions.length)];
@@ -57,15 +161,17 @@ function onScrollTypeAscii() {
   asciiCorner.textContent = asciiFull.substring(0, revealCount);
 }
 
-/* ======== BACKGROUND CANVAS: BOUNCING + REPELLING SHAPES ======== */
+/* ---------- BACKGROUND CANVAS ---------- */
 let canvas, ctx;
 let w, h;
 const numShapes = 8;
 let shapes = [];
 const shapeTypes = ["circle", "square", "triangle"];
 let currentShapeIndex = 0;
-let mouseX = -9999, mouseY = -9999;
-const repelRadius = 100, repelForce = 0.03;
+let mouseX = -9999,
+  mouseY = -9999;
+const repelRadius = 100,
+  repelForce = 0.03;
 
 function initCanvas() {
   canvas = document.getElementById("bgCanvas");
@@ -84,10 +190,14 @@ function initCanvas() {
       breathFactor: Math.random() * 2 * Math.PI,
     });
   }
-  window.addEventListener("mousemove", (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
+  window.addEventListener(
+    "mousemove",
+    (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    },
+    { passive: true }
+  );
   requestAnimationFrame(animateBackground);
 }
 
@@ -102,22 +212,37 @@ function onResize() {
 
 function animateBackground() {
   ctx.clearRect(0, 0, w, h);
+  // Update shapes and compute a single textColor rgb per frame.
+  const computedStyle = getComputedStyle(document.documentElement);
+  const textColor = computedStyle.getPropertyValue("--text-color").trim();
+  const rgb = parseHexToRgb(textColor);
   shapes.forEach((shape) => {
     shape.breathFactor += 0.02;
     let breathSize = shape.baseSize * (1 + 0.1 * Math.sin(shape.breathFactor));
     shape.x += shape.vx;
     shape.y += shape.vy;
-    let dx = shape.x - mouseX, dy = shape.y - mouseY;
+    let dx = shape.x - mouseX,
+      dy = shape.y - mouseY;
     let dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < repelRadius) {
       let angle = Math.atan2(dy, dx);
       shape.x += Math.cos(angle) * repelForce * (repelRadius - dist);
       shape.y += Math.sin(angle) * repelForce * (repelRadius - dist);
     }
-    if (shape.x - breathSize < 0) { shape.x = breathSize; shape.vx = -shape.vx; }
-    else if (shape.x + breathSize > w) { shape.x = w - breathSize; shape.vx = -shape.vx; }
-    if (shape.y - breathSize < 0) { shape.y = breathSize; shape.vy = -shape.vy; }
-    else if (shape.y + breathSize > h) { shape.y = h - breathSize; shape.vy = -shape.vy; }
+    if (shape.x - breathSize < 0) {
+      shape.x = breathSize;
+      shape.vx = -shape.vx;
+    } else if (shape.x + breathSize > w) {
+      shape.x = w - breathSize;
+      shape.vx = -shape.vx;
+    }
+    if (shape.y - breathSize < 0) {
+      shape.y = breathSize;
+      shape.vy = -shape.vy;
+    } else if (shape.y + breathSize > h) {
+      shape.y = h - breathSize;
+      shape.vy = -shape.vy;
+    }
   });
   for (let i = 0; i < shapes.length; i++) {
     for (let j = i + 1; j < shapes.length; j++) {
@@ -126,21 +251,20 @@ function animateBackground() {
   }
   shapes.forEach((shape) => {
     let breathSize = shape.baseSize * (1 + 0.1 * Math.sin(shape.breathFactor));
-    drawBackgroundShape(shapeTypes[currentShapeIndex], shape.x, shape.y, breathSize);
+    drawBackgroundShape(shapeTypes[currentShapeIndex], shape.x, shape.y, breathSize, rgb);
   });
   requestAnimationFrame(animateBackground);
 }
 
-function drawBackgroundShape(type, x, y, size) {
+function drawBackgroundShape(type, x, y, size, rgb) {
   ctx.beginPath();
   ctx.lineWidth = 2;
-  let textColor = getComputedStyle(document.documentElement)
-    .getPropertyValue("--text-color").trim();
-  let { r, g, b } = parseHexToRgb(textColor);
-  ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.25)`;
-  if (type === "circle") { ctx.arc(x, y, size, 0, Math.PI * 2); }
-  else if (type === "square") { ctx.rect(x - size, y - size, size * 2, size * 2); }
-  else if (type === "triangle") {
+  ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25)`;
+  if (type === "circle") {
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+  } else if (type === "square") {
+    ctx.rect(x - size, y - size, size * 2, size * 2);
+  } else if (type === "triangle") {
     ctx.moveTo(x, y - size);
     ctx.lineTo(x - size, y + size);
     ctx.lineTo(x + size, y + size);
@@ -152,17 +276,20 @@ function drawBackgroundShape(type, x, y, size) {
 function resolveCollision(s1, s2) {
   let r1 = s1.baseSize * (1 + 0.1 * Math.sin(s1.breathFactor));
   let r2 = s2.baseSize * (1 + 0.1 * Math.sin(s2.breathFactor));
-  let dx = s2.x - s1.x, dy = s2.y - s1.y;
+  let dx = s2.x - s1.x,
+    dy = s2.y - s1.y;
   let dist = Math.sqrt(dx * dx + dy * dy);
   let minDist = r1 + r2;
   if (dist < minDist) {
     let overlap = (minDist - dist) / 2;
-    let nx = dx / dist, ny = dy / dist;
+    let nx = dx / dist,
+      ny = dy / dist;
     s1.x -= overlap * nx;
     s1.y -= overlap * ny;
     s2.x += overlap * nx;
     s2.y += overlap * ny;
-    let tempVx = s1.vx, tempVy = s1.vy;
+    let tempVx = s1.vx,
+      tempVy = s1.vy;
     s1.vx = s2.vx;
     s1.vy = s2.vy;
     s2.vx = tempVx;
@@ -173,57 +300,74 @@ function resolveCollision(s1, s2) {
 function parseHexToRgb(hex) {
   hex = hex.replace("#", "");
   if (hex.length === 3) {
-    hex = hex.split("").map(c => c + c).join("");
+    hex = hex
+      .split("")
+      .map((c) => c + c)
+      .join("");
   }
   const num = parseInt(hex, 16);
   return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
 }
 
-/* ======== DODECAGON (Breathing Animation) ======== */
+/* ---------- DODECAGON (Breathing Animation) ---------- */
 let dCanvas, dCtx;
-let dWidth = 400, dHeight = 400;
-let rotation = 0, breathePhase = 0;
-const breatheSpeed = 0.02, breatheAmplitude = 0.1;
+let dWidth = 400,
+  dHeight = 400;
+let rotation = 0,
+  breathePhase = 0;
+const breatheSpeed = 0.02,
+  breatheAmplitude = 0.1;
 
 function initDodecagonCanvas() {
   dCanvas = document.getElementById("dodecagonCanvas");
   dCtx = dCanvas.getContext("2d");
-  dWidth = dCanvas.width; dHeight = dCanvas.height;
-  window.addEventListener("mousemove", (e) => {
-    rotation = (e.clientX + e.clientY) * 0.01;
-  });
+  dWidth = dCanvas.width;
+  dHeight = dCanvas.height;
+  window.addEventListener(
+    "mousemove",
+    (e) => {
+      rotation = (e.clientX + e.clientY) * 0.01;
+    },
+    { passive: true }
+  );
   requestAnimationFrame(drawDodecagonLoop);
 }
 
 function drawDodecagonLoop() {
   dCtx.clearRect(0, 0, dWidth, dHeight);
-  let cx = dWidth / 2, cy = dHeight / 2;
+  let cx = dWidth / 2,
+    cy = dHeight / 2;
   breathePhase += breatheSpeed;
   let breathScale = 1 + breatheAmplitude * Math.sin(breathePhase);
-  let baseRadius = 100, currentRadius = baseRadius * breathScale;
+  let baseRadius = 100,
+    currentRadius = baseRadius * breathScale;
   drawDodecagon(cx, cy, currentRadius, rotation);
   requestAnimationFrame(drawDodecagonLoop);
 }
 
 function drawDodecagon(cx, cy, radius, rot) {
-  let sides = 12, angleStep = (Math.PI * 2) / sides;
-  let textColor = getComputedStyle(document.documentElement)
-    .getPropertyValue("--text-color").trim();
-  let { r, g, b } = parseHexToRgb(textColor);
+  let sides = 12,
+    angleStep = (Math.PI * 2) / sides;
+  const computedStyle = getComputedStyle(document.documentElement);
+  const textColor = computedStyle.getPropertyValue("--text-color").trim();
+  const rgb = parseHexToRgb(textColor);
   dCtx.lineWidth = 2;
-  dCtx.strokeStyle = `rgba(${r}, ${g}, ${b}, 1)`;
+  dCtx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 1)`;
   dCtx.beginPath();
   for (let i = 0; i < sides; i++) {
     let angle = i * angleStep + rot;
     let x = cx + radius * Math.cos(angle);
     let y = cy + radius * Math.sin(angle);
-    if (i === 0) { dCtx.moveTo(x, y); } 
-    else { dCtx.lineTo(x, y); }
+    if (i === 0) {
+      dCtx.moveTo(x, y);
+    } else {
+      dCtx.lineTo(x, y);
+    }
   }
   dCtx.closePath();
   dCtx.stroke();
   dCtx.lineWidth = 1.5;
-  dCtx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.5)`;
+  dCtx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`;
   for (let i = 0; i < sides; i++) {
     let angle = i * angleStep + rot;
     let x = cx + radius * Math.cos(angle);
@@ -235,7 +379,7 @@ function drawDodecagon(cx, cy, radius, rot) {
   }
 }
 
-/* ======== SECTION OBSERVER + BG/TEXT COLOR SWAP ======== */
+/* ---------- SECTION OBSERVER (Theme Flip on Scroll) ---------- */
 function initSectionObserver() {
   const sections = document.querySelectorAll(".section");
   const options = { threshold: 0.6 };
@@ -243,10 +387,10 @@ function initSectionObserver() {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         const sectionIndex = Array.from(sections).indexOf(entry.target);
-        const scheme = colorSchemes[sectionIndex % colorSchemes.length];
+        const scheme = currentTheme.sub[sectionIndex % 2];
         document.documentElement.style.setProperty("--bg-color", scheme.bg);
         document.documentElement.style.setProperty("--text-color", scheme.text);
-        document.documentElement.setAttribute("data-scheme", scheme.bg === "#ff5e00" ? "orange" : "black");
+        document.documentElement.setAttribute("data-scheme", currentTheme.name);
         currentShapeIndex = sectionIndex % shapeTypes.length;
       }
     });
@@ -254,7 +398,7 @@ function initSectionObserver() {
   sections.forEach((section) => observer.observe(section));
 }
 
-/* ======== BLOG SECTION LOGIC (Modal with Typewriter Effect) ======== */
+/* ---------- BLOG MODAL (Typewriter Effect) ---------- */
 let typeTimer = null;
 function initBlogPosts() {
   const blogPosts = document.querySelectorAll(".blog-post");
@@ -268,7 +412,10 @@ function initBlogPosts() {
       const content = post.dataset.content;
       modal.classList.remove("hidden");
       modalTitle.textContent = title;
-      if (typeTimer) { clearTimeout(typeTimer); typeTimer = null; }
+      if (typeTimer) {
+        clearTimeout(typeTimer);
+        typeTimer = null;
+      }
       modalText.textContent = "";
       typeWriterEffect(content, modalText);
     });
@@ -276,9 +423,14 @@ function initBlogPosts() {
   closeBtn.addEventListener("click", () => {
     modal.classList.add("hidden");
     modalText.textContent = "";
-    if (typeTimer) { clearTimeout(typeTimer); typeTimer = null; }
+    if (typeTimer) {
+      clearTimeout(typeTimer);
+      typeTimer = null;
+    }
   });
-  closeBtn.addEventListener("mousedown", (e) => { e.stopPropagation(); });
+  closeBtn.addEventListener("mousedown", (e) => {
+    e.stopPropagation();
+  });
 }
 
 function typeWriterEffect(text, element) {
@@ -286,20 +438,25 @@ function typeWriterEffect(text, element) {
   let index = 0;
   function typeChar() {
     if (index < text.length) {
-      if (text.substr(index, 10) === "[Model A]:" || text.substr(index, 10) === "[Model B]:") {
-        if (!element.textContent.endsWith("\n")) {
-          element.textContent += "\n";
+      if (
+        text.substr(index, 8) === "Model A:" ||
+        text.substr(index, 8) === "Model B:"
+      ) {
+        if (!element.textContent.endsWith("\n\n")) {
+          element.textContent = element.textContent.replace(/\n*$/, "\n\n");
         }
       }
       element.textContent += text.charAt(index);
       index++;
       typeTimer = setTimeout(typeChar, 15);
-    } else { typeTimer = null; }
+    } else {
+      typeTimer = null;
+    }
   }
   typeChar();
 }
 
-/* ======== MINIGAME PROMPT LOGIC ======== */
+/* ---------- MINIGAME PROMPT ---------- */
 let dinoGameStarted = false;
 function initMinigamePrompt() {
   const minigameButton = document.getElementById("minigamePrompt");
@@ -323,10 +480,18 @@ function startDinoGame() {
 function initMiniDinoGame() {
   const canvas = document.getElementById("miniDinoGame");
   const ctx = canvas.getContext("2d");
-  const W = canvas.width, H = canvas.height;
-  let dinoX = 30, dinoY = H - 10, dinoW = 15, dinoH = 15, dinoVy = 0;
-  let isJumping = false, gravity = 0.5, jumpPower = 8;
-  let obstacles = [], frameCount = 0;
+  const W = canvas.width,
+    H = canvas.height;
+  let dinoX = 30,
+    dinoY = H - 10,
+    dinoW = 15,
+    dinoH = 15,
+    dinoVy = 0;
+  let isJumping = false,
+    gravity = 0.5,
+    jumpPower = 8;
+  let obstacles = [],
+    frameCount = 0;
   function drawDino() {
     ctx.fillStyle = "#fff";
     ctx.fillRect(dinoX, dinoY - dinoH, dinoW, dinoH);
@@ -343,13 +508,25 @@ function initMiniDinoGame() {
     ctx.clearRect(0, 0, W, H);
     if (dinoY < H - 10) dinoVy -= gravity;
     dinoY -= dinoVy;
-    if (dinoY > H - 10) { dinoY = H - 10; dinoVy = 0; isJumping = false; }
-    obstacles.forEach(obs => obs.x -= 2);
-    obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
-    obstacles.forEach(obs => {
-      if (dinoX < obs.x + obs.width && (dinoX + dinoW) > obs.x && (dinoY - dinoH) < (obs.y + obs.height) && dinoY > obs.y) {
+    if (dinoY > H - 10) {
+      dinoY = H - 10;
+      dinoVy = 0;
+      isJumping = false;
+    }
+    obstacles.forEach((obs) => (obs.x -= 2));
+    obstacles = obstacles.filter((obs) => obs.x + obs.width > 0);
+    obstacles.forEach((obs) => {
+      if (
+        dinoX < obs.x + obs.width &&
+        dinoX + dinoW > obs.x &&
+        dinoY - dinoH < obs.y + obs.height &&
+        dinoY > obs.y
+      ) {
         obstacles = [];
-        dinoX = 30; dinoY = H - 10; dinoVy = 0; isJumping = false;
+        dinoX = 30;
+        dinoY = H - 10;
+        dinoVy = 0;
+        isJumping = false;
         alert("Game Over! Dino reset.");
       }
     });
@@ -360,7 +537,11 @@ function initMiniDinoGame() {
     requestAnimationFrame(update);
   }
   window.addEventListener("keydown", (e) => {
-    if ((e.code === "Space" || e.code === "ArrowUp") && !isJumping && !canvas.classList.contains("hidden")) {
+    if (
+      (e.code === "Space" || e.code === "ArrowUp") &&
+      !isJumping &&
+      !canvas.classList.contains("hidden")
+    ) {
       dinoVy = jumpPower;
       isJumping = true;
     }
@@ -368,7 +549,7 @@ function initMiniDinoGame() {
   update();
 }
 
-/* ======== MUSIC PROMPT LOGIC ======== */
+/* ---------- MUSIC PROMPT ---------- */
 function initMusicPrompt() {
   const musicButton = document.getElementById("musicPrompt");
   const retroMusicPlayer = document.getElementById("retroMusicPlayer");
@@ -377,7 +558,7 @@ function initMusicPrompt() {
   });
 }
 
-/* ======== CHATBOX MODAL LOGIC ======== */
+/* ---------- CHATBOX MODAL ---------- */
 function initChatbox(API_URL) {
   const chatboxPrompt = document.getElementById("chatboxPrompt");
   const chatboxModal = document.getElementById("chatboxModal");
@@ -387,66 +568,74 @@ function initChatbox(API_URL) {
   const chatboxMessages = chatboxModal.querySelector(".chatbox-messages");
   const chatboxInterface = chatboxModal.querySelector(".chatbox-interface");
 
+  // Toggle chat modal on click.
   chatboxPrompt.addEventListener("click", () => {
-      if (chatboxModal.classList.contains("hidden")) {
-          chatboxModal.classList.remove("hidden");
-          chatboxInput.focus();
-      } else {
-          chatboxModal.classList.add("hidden");
-      }
+    chatboxModal.classList.toggle("hidden");
+    if (!chatboxModal.classList.contains("hidden")) {
+      chatboxInput.focus();
+    }
   });
-  chatboxCloseBtn.addEventListener("click", () => { chatboxModal.classList.add("hidden"); });
-  chatboxCloseBtn.addEventListener("mousedown", (e) => { e.stopPropagation(); });
+  chatboxCloseBtn.addEventListener("click", () => {
+    chatboxModal.classList.add("hidden");
+  });
+  chatboxCloseBtn.addEventListener("mousedown", (e) => {
+    e.stopPropagation();
+  });
   chatboxSendBtn.addEventListener("click", () => {
-      const message = chatboxInput.value.trim();
-      if (!message) return;
-      appendMessageToChat("user", message);
-      fetch(`${API_URL}/chat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message })
+    const message = chatboxInput.value.trim();
+    if (!message) return;
+    appendMessageToChat("user", message);
+    fetch(`${API_URL}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.response) {
+          appendMessageToChat("bot", data.response);
+        } else {
+          appendMessageToChat("bot", "I'm sorry, but I didn't receive a proper response.");
+        }
       })
-          .then((response) => response.json())
-          .then((data) => {
-              if (data.response) {
-                  appendMessageToChat("bot", data.response);
-              } else {
-                  appendMessageToChat("bot", "I'm sorry, but I didn't receive a proper response.");
-              }
-          })
-          .catch((error) => {
-              console.error("Error communicating with the chatbot API:", error);
-              appendMessageToChat("bot", "An error occurred. Please try again later.");
-          });
-      chatboxInput.value = "";
+      .catch((error) => {
+        console.error("Error communicating with the chatbot API:", error);
+        appendMessageToChat("bot", "An error occurred. Please try again later.");
+      });
+    chatboxInput.value = "";
   });
-  chatboxInput.addEventListener("keydown", (e) => { if (e.key === "Enter") chatboxSendBtn.click(); });
+  chatboxInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") chatboxSendBtn.click();
+  });
   function appendMessageToChat(role, content) {
-      const messageDiv = document.createElement("div");
-      messageDiv.classList.add("chatbox-message", role);
-      messageDiv.textContent = content;
-      chatboxMessages.appendChild(messageDiv);
-      chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("chatbox-message", role);
+    messageDiv.textContent = content;
+    chatboxMessages.appendChild(messageDiv);
+    chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
   }
   makeElementDraggable(chatboxInterface);
 }
 
-/* ======== Make Element Draggable (Reusable) ======== */
+/* ---------- MAKE ELEMENT DRAGGABLE ---------- */
 function makeElementDraggable(element) {
-  let isDragging = false, offsetX, offsetY;
+  let isDragging = false,
+    offsetX,
+    offsetY;
   const dragHandle = element.querySelector(".chatbox-header, .music-header");
   if (dragHandle) {
     dragHandle.addEventListener("mousedown", (e) => {
-      if (e.target.closest('.chatbox-close') || e.target.closest('.modal-close')) return;
+      if (e.target.closest(".chatbox-close") || e.target.closest(".modal-close"))
+        return;
       isDragging = true;
       const rect = element.getBoundingClientRect();
       offsetX = e.clientX - rect.left;
       offsetY = e.clientY - rect.top;
-      element.style.transform = 'none';
+      element.style.transform = "none";
       element.style.left = `${rect.left}px`;
       element.style.top = `${rect.top}px`;
-      element.classList.add('dragging');
-      document.body.style.userSelect = 'none';
+      element.classList.add("dragging");
+      document.body.style.userSelect = "none";
     });
   }
   document.addEventListener("mousemove", (e) => {
@@ -462,13 +651,13 @@ function makeElementDraggable(element) {
   document.addEventListener("mouseup", () => {
     if (isDragging) {
       isDragging = false;
-      element.classList.remove('dragging');
-      document.body.style.userSelect = 'auto';
+      element.classList.remove("dragging");
+      document.body.style.userSelect = "auto";
     }
   });
 }
 
-/* ======== PROJECT MODAL LOGIC ======== */
+/* ---------- PROJECT MODAL ---------- */
 function initProjectModal() {
   const projectCards = document.querySelectorAll(".project-card");
   const projectModal = document.getElementById("projectModal");
@@ -479,27 +668,42 @@ function initProjectModal() {
   projectCards.forEach((card) => {
     card.addEventListener("click", () => {
       const file = card.getAttribute("data-file");
-      const projectTitle = card.querySelector("h2").textContent;
+      const projectTitle = card.querySelector("h2").textContent.trim();
+
+      if (projectTitle === "Infinite Backrooms") {
+        const backroomsModal = document.getElementById("backroomsModal");
+        backroomsModal.classList.remove("hidden");
+        if (window.loadBackrooms) {
+          const dropdown = document.getElementById("backroomsDropdown");
+          window.loadBackrooms(dropdown.value);
+        }
+        return;
+      } else if (projectTitle === "ewluong.com") {
+        const chatboxModal = document.getElementById("chatboxModal");
+        chatboxModal.classList.remove("hidden");
+        return;
+      }
+
       projectModalTitle.textContent = projectTitle;
       projectModalBody.innerHTML = "";
-      if (file.endsWith(".md")) {
+      if (file && file.endsWith(".md")) {
         fetch(`docs/${file}`)
-          .then(response => {
+          .then((response) => {
             if (!response.ok) throw new Error("Network response was not ok");
             return response.text();
           })
-          .then(mdText => {
+          .then((mdText) => {
             const htmlContent = marked.parse(mdText);
             const markdownDiv = document.createElement("div");
             markdownDiv.classList.add("markdown-content");
             markdownDiv.innerHTML = htmlContent;
             projectModalBody.appendChild(markdownDiv);
           })
-          .catch(error => {
+          .catch((error) => {
             projectModalBody.textContent = "Error loading the document.";
             console.error("Fetch error:", error);
           });
-      } else if (file.endsWith(".pdf") || file.endsWith(".html")) {
+      } else if (file && (file.endsWith(".pdf") || file.endsWith(".html"))) {
         const iframe = document.createElement("iframe");
         iframe.src = `docs/${file}`;
         iframe.type = file.endsWith(".pdf") ? "application/pdf" : "text/html";
@@ -519,49 +723,58 @@ function initProjectModal() {
     projectModalBody.innerHTML = "";
   });
 
-  projectModalClose.addEventListener("mousedown", (e) => { e.stopPropagation(); });
+  projectModalClose.addEventListener("mousedown", (e) => {
+    e.stopPropagation();
+  });
 }
 
-/* ======== BACKROOMS MODAL LOGIC (Vintage Terminal Style) ======== */
+/* ---------- BACKROOMS MODAL (Vintage Terminal Style) ---------- */
 function initBackroomsModal() {
   const backroomsPrompt = document.getElementById("backroomsPrompt");
   const backroomsModal = document.getElementById("backroomsModal");
   const backroomsClose = document.getElementById("backroomsClose");
-  const backroomsText = document.getElementById("backroomsText");
+  let backroomsContentElement = document.getElementById("backroomsContent");
   const searchInput = document.getElementById("backroomsSearch");
   const searchBtn = document.getElementById("backroomsSearchBtn");
   const clearBtn = document.getElementById("backroomsClearBtn");
   const dropdown = document.getElementById("backroomsDropdown");
 
-  // Define available conversation files (all numbered backrooms*.txt).
   const conversationFiles = [
-    { name: "All Conversations", file: "all" },
     { name: "Backrooms 1", file: "docs/backrooms1.txt" },
+    { name: "All Conversations", file: "all" },
     { name: "Backrooms 2", file: "docs/backrooms2.txt" },
-    { name: "Backrooms 3", file: "docs/backrooms3.txt" }
+    { name: "Backrooms 3", file: "docs/backrooms3.txt" },
   ];
-  // Populate dropdown with vintage terminal styling.
   dropdown.innerHTML = "";
-  conversationFiles.forEach(fileObj => {
+  conversationFiles.forEach((fileObj) => {
     let option = document.createElement("option");
     option.value = fileObj.file;
     option.textContent = fileObj.name;
     dropdown.appendChild(option);
   });
+  dropdown.selectedIndex = 0;
 
   let backroomsContent = "";
   let currentIndex = 0;
   let typeInterval = null;
   let displayBuffer = "";
-  const typingSpeed = 10; // 10 ms per character
+  const typingSpeed = 1;
+
+  function resetBackroomsContainer() {
+    document.getElementById("backroomsText").innerHTML =
+      '<span id="backroomsContent"></span><span id="cursor"></span>';
+    backroomsContentElement = document.getElementById("backroomsContent");
+  }
 
   function startTypewriter() {
     typeInterval = setInterval(() => {
       if (backroomsContent.length === 0) return;
-      if (backroomsContent.substr(currentIndex, 10) === "[Model A]:" ||
-          backroomsContent.substr(currentIndex, 10) === "[Model B]:") {
-        if (!displayBuffer.endsWith("\n")) {
-          displayBuffer += "\n";
+      if (
+        backroomsContent.substr(currentIndex, 8) === "Model A:" ||
+        backroomsContent.substr(currentIndex, 8) === "Model B:"
+      ) {
+        if (!displayBuffer.endsWith("\n\n")) {
+          displayBuffer = displayBuffer.replace(/\n*$/, "\n\n");
         }
       }
       let nextChar = backroomsContent.charAt(currentIndex);
@@ -570,8 +783,9 @@ function initBackroomsModal() {
       if (currentIndex >= backroomsContent.length) {
         clearInterval(typeInterval);
       }
-      backroomsText.textContent = displayBuffer;
-      backroomsText.scrollTop = backroomsText.scrollHeight;
+      backroomsContentElement.textContent = displayBuffer;
+      document.getElementById("backroomsText").scrollTop =
+        document.getElementById("backroomsText").scrollHeight;
     }, typingSpeed);
   }
 
@@ -582,49 +796,54 @@ function initBackroomsModal() {
     }
   }
 
-  // Function to load conversation based on selected file.
   function loadConversation(fileValue) {
     stopTypewriter();
+    resetBackroomsContainer();
     backroomsContent = "";
     currentIndex = 0;
     displayBuffer = "";
-    backroomsText.textContent = "";
     if (fileValue === "all") {
       let promises = conversationFiles
-        .filter(f => f.file !== "all")
-        .map(f =>
-          fetch(f.file).then(response => {
+        .filter((f) => f.file !== "all")
+        .map((f) =>
+          fetch(f.file).then((response) => {
             if (!response.ok) throw new Error("Network error");
             return response.text();
           })
-      );
+        );
       Promise.all(promises)
-        .then(results => {
-          backroomsContent = results.join("\n\n");
+        .then((results) => {
+          backroomsContent = results
+            .join("\n\n")
+            .replace(/\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g, "\n\n");
           startTypewriter();
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
-          backroomsText.textContent = "Error loading conversations.";
+          backroomsContentElement.textContent = "Error loading conversations.";
         });
     } else {
       fetch(fileValue)
-        .then(response => {
+        .then((response) => {
           if (!response.ok) throw new Error("Network error");
           return response.text();
         })
-        .then(text => {
-          backroomsContent = text;
+        .then((text) => {
+          backroomsContent = text.replace(
+            /\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g,
+            "\n\n"
+          );
           startTypewriter();
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
-          backroomsText.textContent = "Error loading conversation.";
+          backroomsContentElement.textContent = "Error loading conversation.";
         });
     }
   }
 
-  // Search function remains the same.
+  window.loadBackrooms = loadConversation;
+
   function searchBackroomsContent(query) {
     if (!backroomsContent) return "No content loaded.";
     let lowerContent = backroomsContent.toLowerCase();
@@ -635,11 +854,15 @@ function initBackroomsModal() {
       let foundIndex = lowerContent.indexOf(lowerQuery, startPos);
       if (foundIndex === -1) break;
       let excerptStart = Math.max(0, foundIndex - 50);
-      let excerptEnd = Math.min(backroomsContent.length, foundIndex + query.length + 50);
+      let excerptEnd = Math.min(
+        backroomsContent.length,
+        foundIndex + query.length + 50
+      );
       let excerpt = backroomsContent.substring(excerptStart, excerptEnd);
       let regex = new RegExp(query, "gi");
       excerpt = excerpt.replace(regex, (match) => `<mark>${match}</mark>`);
       results.push("..." + excerpt + "...");
+      if (results.length >= 30) break;
       startPos = foundIndex + query.length;
     }
     if (results.length === 0) {
@@ -658,15 +881,23 @@ function initBackroomsModal() {
     }
   });
 
+  backroomsModal.addEventListener("click", (e) => {
+    if (!e.target.closest(".modal-content")) {
+      backroomsModal.classList.add("hidden");
+      stopTypewriter();
+    }
+  });
+
   backroomsClose.addEventListener("click", () => {
     backroomsModal.classList.add("hidden");
     stopTypewriter();
-    backroomsText.textContent = "";
+    resetBackroomsContainer();
   });
 
-  backroomsClose.addEventListener("mousedown", (e) => { e.stopPropagation(); });
+  backroomsClose.addEventListener("mousedown", (e) => {
+    e.stopPropagation();
+  });
 
-  // When dropdown value changes, load the selected conversation.
   dropdown.addEventListener("change", () => {
     loadConversation(dropdown.value);
   });
@@ -675,23 +906,24 @@ function initBackroomsModal() {
     let query = searchInput.value.trim();
     if (query !== "") {
       stopTypewriter();
-      backroomsText.innerHTML = searchBackroomsContent(query);
+      document.getElementById("backroomsText").innerHTML =
+        searchBackroomsContent(query);
     }
   });
 
   clearBtn.addEventListener("click", () => {
     searchInput.value = "";
-    backroomsText.textContent = "";
+    resetBackroomsContainer();
     displayBuffer = "";
     currentIndex = 0;
     loadConversation(dropdown.value);
   });
 
-  const backroomsModalContent = backroomsModal.querySelector(".modal-content");
+  const backroomsModalContent = document.querySelector(".backrooms-modal-content");
   makeElementDraggable(backroomsModalContent);
 }
 
-/* ======== RETRO-STYLED MUSIC PLAYER ======== */
+/* ---------- RETRO‑STYLED MUSIC PLAYER ---------- */
 function initRetroMusicPlayer() {
   const retroMusicPlayer = document.getElementById("retroMusicPlayer");
   const waveformCanvas = document.getElementById("waveformCanvas");
@@ -706,7 +938,6 @@ function initRetroMusicPlayer() {
   const progressBar = document.getElementById("progressBar");
   const currentTimeSpan = document.getElementById("currentTime");
   const totalTimeSpan = document.getElementById("totalTime");
-  const favoritesDropdown = retroMusicPlayer.querySelector(".favorites-dropdown");
   const favoritesList = document.getElementById("favoritesList");
   const audioPlayer = document.getElementById("audioPlayer");
 
@@ -738,31 +969,30 @@ function initRetroMusicPlayer() {
   function drawWaveform() {
     if (!analyser) return;
     analyser.getByteTimeDomainData(dataArray);
-    const canvasCtx = waveformCanvas.getContext('2d');
+    const canvasCtx = waveformCanvas.getContext("2d");
     const width = waveformCanvas.width;
     const height = waveformCanvas.height;
-    let visualizerColor;
-    const currentScheme = document.documentElement.getAttribute("data-scheme");
-    if (currentScheme === "orange") {
-      visualizerColor = '#ff5e00';
-      canvasCtx.fillStyle = '#000000';
-    } else {
-      visualizerColor = '#000000';
-      canvasCtx.fillStyle = '#ff5e00';
-    }
+    let computedStyle = getComputedStyle(document.documentElement);
+    let bgColor = computedStyle.getPropertyValue("--bg-color").trim();
+    let textColor = computedStyle.getPropertyValue("--text-color").trim();
+    canvasCtx.fillStyle = bgColor;
     canvasCtx.fillRect(0, 0, width, height);
     canvasCtx.lineWidth = 2;
-    canvasCtx.strokeStyle = visualizerColor;
+    canvasCtx.strokeStyle = textColor;
     canvasCtx.beginPath();
-    let sliceWidth = width / bufferLength, x = 0;
-    for(let i = 0; i < bufferLength; i++) {
+    let sliceWidth = width / bufferLength,
+      x = 0;
+    for (let i = 0; i < bufferLength; i++) {
       let v = dataArray[i] / 128.0;
-      let y = v * height / 2;
-      if(i === 0) { canvasCtx.moveTo(x, y); }
-      else { canvasCtx.lineTo(x, y); }
+      let y = (v * height) / 2;
+      if (i === 0) {
+        canvasCtx.moveTo(x, y);
+      } else {
+        canvasCtx.lineTo(x, y);
+      }
       x += sliceWidth;
     }
-    canvasCtx.lineTo(width, height/2);
+    canvasCtx.lineTo(width, height / 2);
     canvasCtx.stroke();
     animationId = requestAnimationFrame(drawWaveform);
   }
@@ -777,23 +1007,32 @@ function initRetroMusicPlayer() {
     progressBar.value = 0;
     currentTimeSpan.textContent = "0:00";
     totalTimeSpan.textContent = "0:00";
-    if (!audioContext) { initAudioContext(); drawWaveform(); }
-    if (analyser && dataArray) { analyser.getByteTimeDomainData(dataArray); }
+    if (!audioContext) {
+      initAudioContext();
+      drawWaveform();
+    }
     audioPlayer.load();
   }
 
   btnPlayPause.addEventListener("click", () => {
     if (!isPlaying) {
-      if (audioContext && audioContext.state === 'suspended') { audioContext.resume(); }
+      if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume();
+      }
       audioPlayer.play();
-    } else { audioPlayer.pause(); }
+    } else {
+      audioPlayer.pause();
+    }
   });
 
   audioPlayer.addEventListener("play", () => {
     isPlaying = true;
     btnPlayPause.classList.remove("play");
     btnPlayPause.classList.add("pause", "breathing");
-    if (!audioContext) { initAudioContext(); drawWaveform(); }
+    if (!audioContext) {
+      initAudioContext();
+      drawWaveform();
+    }
   });
 
   audioPlayer.addEventListener("pause", () => {
@@ -803,11 +1042,18 @@ function initRetroMusicPlayer() {
     btnPlayPause.classList.remove("breathing");
   });
 
-  btnForward.addEventListener("click", () => { nextSong(); });
+  btnForward.addEventListener("click", () => {
+    nextSong();
+  });
   btnBackward.addEventListener("click", () => {
     const now = Date.now();
-    if (now - lastBackwardClick < 500) { previousSong(); lastBackwardClick = 0; }
-    else { restartSong(); lastBackwardClick = now; }
+    if (now - lastBackwardClick < 500) {
+      previousSong();
+      lastBackwardClick = 0;
+    } else {
+      restartSong();
+      lastBackwardClick = now;
+    }
   });
 
   audioPlayer.addEventListener("timeupdate", () => {
@@ -828,7 +1074,7 @@ function initRetroMusicPlayer() {
     if (isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+    return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
   }
 
   btnFavorite.addEventListener("click", () => {
@@ -837,29 +1083,29 @@ function initRetroMusicPlayer() {
   });
 
   function addFavorite(song) {
-    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-    if (favorites.some(fav => fav.id === song.id)) {
+    let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    if (favorites.some((fav) => fav.id === song.id)) {
       alert("This song is already in your favorites.");
       return;
     }
     favorites.push(song);
-    localStorage.setItem('favorites', JSON.stringify(favorites));
+    localStorage.setItem("favorites", JSON.stringify(favorites));
     populateFavorites();
   }
 
   function populateFavorites() {
-    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
     favoritesList.innerHTML = "";
     if (favorites.length === 0) {
-      const li = document.createElement('li');
+      const li = document.createElement("li");
       li.textContent = "No favorites yet.";
       favoritesList.appendChild(li);
       return;
     }
     favorites.forEach((fav) => {
-      const songIndex = songs.findIndex(song => song.id === fav.id);
+      const songIndex = songs.findIndex((song) => song.id === fav.id);
       if (songIndex === -1) return;
-      const li = document.createElement('li');
+      const li = document.createElement("li");
       li.textContent = `${fav.name} by ${fav.artist}`;
       li.dataset.index = songIndex;
       li.addEventListener("click", () => {
@@ -876,7 +1122,8 @@ function initRetroMusicPlayer() {
   }
 
   btnFavoritesToggle.addEventListener("click", () => {
-    favoritesDropdown.classList.toggle('hidden');
+    const favoritesDropdown = document.querySelector(".favorites-dropdown");
+    favoritesDropdown.classList.toggle("hidden");
   });
 
   makeElementDraggable(retroMusicPlayer);
@@ -897,48 +1144,13 @@ function initRetroMusicPlayer() {
     audioPlayer.currentTime = 0;
   }
 
-  audioPlayer.addEventListener("ended", () => { nextSong(); });
+  audioPlayer.addEventListener("ended", () => {
+    nextSong();
+  });
 
   function initRetroMusicPlayerFunc() {
     loadSong(currentSongIndex);
     populateFavorites();
   }
   initRetroMusicPlayerFunc();
-}
-
-/* ======== Make Element Draggable (Reusable) ======== */
-function makeElementDraggable(element) {
-  let isDragging = false, offsetX, offsetY;
-  const dragHandle = element.querySelector(".chatbox-header, .music-header");
-  if (dragHandle) {
-    dragHandle.addEventListener("mousedown", (e) => {
-      if (e.target.closest('.chatbox-close') || e.target.closest('.modal-close')) return;
-      isDragging = true;
-      const rect = element.getBoundingClientRect();
-      offsetX = e.clientX - rect.left;
-      offsetY = e.clientY - rect.top;
-      element.style.transform = 'none';
-      element.style.left = `${rect.left}px`;
-      element.style.top = `${rect.top}px`;
-      element.classList.add('dragging');
-      document.body.style.userSelect = 'none';
-    });
-  }
-  document.addEventListener("mousemove", (e) => {
-    if (isDragging) {
-      let newLeft = e.clientX - offsetX;
-      let newTop = e.clientY - offsetY;
-      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - element.offsetWidth));
-      newTop = Math.max(0, Math.min(newTop, window.innerHeight - element.offsetHeight));
-      element.style.left = `${newLeft}px`;
-      element.style.top = `${newTop}px`;
-    }
-  });
-  document.addEventListener("mouseup", () => {
-    if (isDragging) {
-      isDragging = false;
-      element.classList.remove('dragging');
-      document.body.style.userSelect = 'auto';
-    }
-  });
 }
