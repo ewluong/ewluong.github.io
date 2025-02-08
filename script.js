@@ -1,3 +1,12 @@
+// --------------------- UTILITY FUNCTIONS ---------------------
+function debounce(func, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
 // --------------------- THEME & INITIAL SETUP ---------------------
 const themes = [
   {
@@ -79,8 +88,21 @@ document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.setAttribute("data-scheme", currentTheme.name);
   });
 
-  window.addEventListener("resize", onResize);
-  window.addEventListener("scroll", onScrollTypeAscii, { passive: true });
+  // --------------------- Optimize Event Handling ---------------------
+  // Debounced resize event
+  window.addEventListener("resize", debounce(onResize, 100));
+
+  // Throttled scroll event using requestAnimationFrame
+  let scrollTicking = false;
+  window.addEventListener("scroll", () => {
+    if (!scrollTicking) {
+      requestAnimationFrame(() => {
+        onScrollTypeAscii();
+        scrollTicking = false;
+      });
+      scrollTicking = true;
+    }
+  }, { passive: true });
 
   // ----- Bring-to-Front functionality for window-like modals -----
   let currentTopZ = 11000;
@@ -291,8 +313,23 @@ const breatheSpeed = 0.02, breatheAmplitude = 0.1;
 function initDodecagonCanvas() {
   dCanvas = document.getElementById("dodecagonCanvas");
   dCtx = dCanvas.getContext("2d");
-  dWidth = dCanvas.width;
-  dHeight = dCanvas.height;
+
+  // Make the canvas responsive: set size based on its container width.
+  function resizeDodecagon() {
+    const containerWidth = dCanvas.parentElement.clientWidth;
+    if (containerWidth < 400) {
+      dCanvas.width = containerWidth;
+      dCanvas.height = containerWidth;
+    } else {
+      dCanvas.width = 400;
+      dCanvas.height = 400;
+    }
+    dWidth = dCanvas.width;
+    dHeight = dCanvas.height;
+  }
+  resizeDodecagon();
+  window.addEventListener("resize", resizeDodecagon);
+
   window.addEventListener("mousemove", (e) => {
     rotation = (e.clientX + e.clientY) * 0.01;
   }, { passive: true });
@@ -304,7 +341,7 @@ function drawDodecagonLoop() {
   let cx = dWidth / 2, cy = dHeight / 2;
   breathePhase += breatheSpeed;
   let breathScale = 1 + breatheAmplitude * Math.sin(breathePhase);
-  let baseRadius = 100, currentRadius = baseRadius * breathScale;
+  let baseRadius = Math.min(dWidth, dHeight) / 4, currentRadius = baseRadius * breathScale;
   drawDodecagon(cx, cy, currentRadius, rotation);
   requestAnimationFrame(drawDodecagonLoop);
 }
@@ -874,9 +911,6 @@ function makeElementDraggable(element) {
     isDragging = true;
     e.preventDefault();
     const rect = element.getBoundingClientRect();
-    const computed = getComputedStyle(element);
-    const borderLeft = parseFloat(computed.borderLeftWidth) || 0;
-    const borderTop = parseFloat(computed.borderTopWidth) || 0;
     const leftAbs = rect.left + window.scrollX;
     const topAbs = rect.top + window.scrollY;
     offsetX = e.pageX - leftAbs;
@@ -918,9 +952,6 @@ function makeElementDraggableWithHandle(handle, target) {
     e.preventDefault();
     target.style.position = "absolute";
     const rect = target.getBoundingClientRect();
-    const computed = getComputedStyle(target);
-    const borderLeft = parseFloat(computed.borderLeftWidth) || 0;
-    const borderTop = parseFloat(computed.borderTopWidth) || 0;
     const leftAbs = rect.left + window.scrollX;
     const topAbs = rect.top + window.scrollY;
     offsetX = e.pageX - leftAbs;
@@ -951,7 +982,7 @@ function makeElementDraggableWithHandle(handle, target) {
     }
   });
 }
-  
+
 // --------------------- PROJECT MODAL ---------------------
 function initProjectModal() {
   const projectCards = document.querySelectorAll(".project-card");
@@ -1212,89 +1243,3 @@ function initBackroomsModal() {
   makeElementDraggableWithHandle(backroomsHeader, document.querySelector(".backrooms-modal-content"));
 }
 
-// --------------------- MAKE ELEMENT DRAGGABLE ---------------------
-// Updated to use page coordinates.
-function makeElementDraggable(element) {
-  let isDragging = false, offsetX, offsetY;
-  element.addEventListener("pointerdown", (e) => {
-    if (e.target.closest("button, input, select, textarea")) return;
-    isDragging = true;
-    e.preventDefault();
-    const rect = element.getBoundingClientRect();
-    const computed = getComputedStyle(element);
-    const borderLeft = parseFloat(computed.borderLeftWidth) || 0;
-    const borderTop = parseFloat(computed.borderTopWidth) || 0;
-    const leftAbs = rect.left + window.scrollX;
-    const topAbs = rect.top + window.scrollY;
-    offsetX = e.pageX - leftAbs;
-    offsetY = e.pageY - topAbs;
-    element.style.transform = "none";
-    element.style.left = `${leftAbs}px`;
-    element.style.top = `${topAbs}px`;
-    element.classList.add("dragging");
-    document.body.style.userSelect = "none";
-    element.setPointerCapture(e.pointerId);
-  });
-  element.addEventListener("pointermove", (e) => {
-    if (isDragging) {
-      let newLeft = e.pageX - offsetX;
-      let newTop = e.pageY - offsetY;
-      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - element.offsetWidth));
-      newTop = Math.max(0, Math.min(newTop, window.innerHeight - element.offsetHeight));
-      element.style.left = `${newLeft}px`;
-      element.style.top = `${newTop}px`;
-    }
-  });
-  element.addEventListener("pointerup", (e) => {
-    if (isDragging) {
-      isDragging = false;
-      element.classList.remove("dragging");
-      document.body.style.userSelect = "auto";
-      element.releasePointerCapture(e.pointerId);
-    }
-  });
-}
-
-// --------------------- MAKE ELEMENT DRAGGABLE WITH HANDLE ---------------------
-// Updated to use page coordinates.
-function makeElementDraggableWithHandle(handle, target) {
-  let isDragging = false, offsetX, offsetY;
-  handle.addEventListener("pointerdown", (e) => {
-    if (e.target.closest("input, button, select, textarea")) return;
-    isDragging = true;
-    e.preventDefault();
-    target.style.position = "absolute";
-    const rect = target.getBoundingClientRect();
-    const computed = getComputedStyle(target);
-    const borderLeft = parseFloat(computed.borderLeftWidth) || 0;
-    const borderTop = parseFloat(computed.borderTopWidth) || 0;
-    const leftAbs = rect.left + window.scrollX;
-    const topAbs = rect.top + window.scrollY;
-    offsetX = e.pageX - leftAbs;
-    offsetY = e.pageY - topAbs;
-    target.style.transform = "none";
-    target.style.left = `${leftAbs}px`;
-    target.style.top = `${topAbs}px`;
-    target.classList.add("dragging");
-    document.body.style.userSelect = "none";
-    handle.setPointerCapture(e.pointerId);
-  });
-  handle.addEventListener("pointermove", (e) => {
-    if (isDragging) {
-      let newLeft = e.pageX - offsetX;
-      let newTop = e.pageY - offsetY;
-      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - target.offsetWidth));
-      newTop = Math.max(0, Math.min(newTop, window.innerHeight - target.offsetHeight));
-      target.style.left = `${newLeft}px`;
-      target.style.top = `${newTop}px`;
-    }
-  });
-  handle.addEventListener("pointerup", (e) => {
-    if (isDragging) {
-      isDragging = false;
-      target.classList.remove("dragging");
-      document.body.style.userSelect = "auto";
-      handle.releasePointerCapture(e.pointerId);
-    }
-  });
-}
