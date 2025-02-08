@@ -227,12 +227,11 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  /* Default dark overlay for modals using the "modal" class */
   background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 11000;
 }
 .hidden {
   display: none;
@@ -296,8 +295,6 @@ body::before {
   background-color: var(--link-glitch-color);
   color: var(--text-color);
 }
-
-/* Chat Modal - Positioning to center right */
 .chat-modal .chatbox-interface {
   background-color: var(--bg-color);
   border: 2px solid var(--text-color);
@@ -379,8 +376,6 @@ body::before {
   background-color: var(--hover-bg-on-orange);
   color: var(--hover-text-on-orange);
 }
-
-/* Toggle Buttons */
 .toggle-button {
   position: fixed;
   font-size: 1.2rem;
@@ -410,16 +405,18 @@ body::before {
   bottom: 140px;
   right: 20px;
 }
-#minigamePrompt {
+#dataPrompt {
   bottom: 80px;
+  right: 20px;
+}
+#minigamePrompt {
+  bottom: 20px;
   right: 20px;
 }
 .top-right {
   top: 20px;
   right: 20px;
 }
-
-/* Retro Music Player */
 .retro-music-player {
   position: fixed;
   top: 20px;
@@ -587,8 +584,6 @@ body::before {
 .favorites-dropdown li:last-child {
   border-bottom: none;
 }
-
-/* Backrooms Modal (Vintage Terminal Style) */
 #backroomsModal {
   background-color: transparent !important;
   pointer-events: none;
@@ -725,8 +720,6 @@ body::before {
   24% { transform: translate(1px, -1px); }
   25% { transform: translate(0); }
 }
-
-/* ---------- Mobile Responsive Styles ---------- */
 @media (max-width: 768px) {
   body { font-size: 16px; }
   .section { padding: 4rem 1.5rem; margin: 5rem 0; }
@@ -734,7 +727,6 @@ body::before {
   .project-card, .about-item { width: 90%; }
   .chat-modal .chatbox-interface, .retro-music-player { width: 90%; }
 }
-
 @media (max-width: 480px) {
   .retro-music-player {
     width: 95%;
@@ -750,15 +742,11 @@ body::before {
     gap: 0.5rem;
   }
 }
-
-/* --- Custom CSS for Minigame and Dodecagon Canvases --- */
 #dodecagonCanvas, #miniDinoGame {
   display: block;
   max-width: 100%;
   height: auto;
 }
-
-/* --- Custom CSS for Minigame Modal --- */
 #minigameModal {
   position: fixed;
   top: 50%;
@@ -767,7 +755,7 @@ body::before {
   width: auto;
   height: auto;
   background-color: transparent;
-  display: block; /* Let .hidden control visibility */
+  display: block;
   z-index: 9999;
 }
 #minigameModal.hidden {
@@ -776,7 +764,7 @@ body::before {
 #minigameModal .modal-content {
   background-color: var(--bg-color);
   color: var(--text-color);
-  padding: 0;  /* Remove extra padding to align drag offset */
+  padding: 0;
   border: 2px solid var(--text-color);
   border-radius: 8px;
   width: auto;
@@ -795,4 +783,10 @@ body::before {
   border-top-right-radius: 8px;
   cursor: move;
   border-bottom: 1px solid var(--bg-color);
+}
+#backroomsModal .modal-content,
+.chat-modal .chatbox-interface,
+#minigameModal .modal-content,
+#retroMusicPlayer {
+  box-shadow: 0 0 20px var(--text-color);
 }

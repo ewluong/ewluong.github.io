@@ -55,7 +55,19 @@ const themes = [
 let currentTheme = themes[3];
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Set initial theme using the first sub-scheme.
+  console.log("DOM fully loaded");
+  // Log the visit only once per session.
+  if (!sessionStorage.getItem("visitLogged")) {
+    fetch("/log_visit")
+      .then(response => response.json())
+      .then(data => {
+        console.log("Visit logged:", data);
+        sessionStorage.setItem("visitLogged", "true");
+      })
+      .catch(error => console.error("Error logging visit:", error));
+  }
+
+  // Set initial theme
   document.documentElement.style.setProperty("--bg-color", currentTheme.sub[0].bg);
   document.documentElement.style.setProperty("--text-color", currentTheme.sub[0].text);
   document.documentElement.setAttribute("data-scheme", currentTheme.name);
@@ -69,15 +81,16 @@ document.addEventListener("DOMContentLoaded", () => {
   initMinigamePrompt();
   initMinigameModal();
   initMusicPrompt();
-  initChatbox("http://45.27.27.79:5000");
+  initChatbox("/"); // Adjust if needed
   initProjectModal();
   initBackroomsModal();
   initRetroMusicPlayer();
-  // Use the common typewriter function for all headers (including terminalHeader)
-  typeWriterOnElement(document.getElementById("terminalHeader"), 50);
-  typeOtherHeaders(); // Apply typewriter effect for other section headers
+  initDataModal(); // Data modal now only reads analytics data
 
-  // Randomize button: picks a random theme.
+  typeWriterOnElement(document.getElementById("terminalHeader"), 50);
+  typeOtherHeaders();
+
+  // Randomize theme button
   document.getElementById("randomizeToggle").addEventListener("click", function () {
     this.classList.add("vibrate");
     setTimeout(() => { this.classList.remove("vibrate"); }, 300);
@@ -88,11 +101,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.setAttribute("data-scheme", currentTheme.name);
   });
 
-  // --------------------- Optimize Event Handling ---------------------
-  // Debounced resize event
+  // Optimize event handling
   window.addEventListener("resize", debounce(onResize, 100));
 
-  // Throttled scroll event using requestAnimationFrame
   let scrollTicking = false;
   window.addEventListener("scroll", () => {
     if (!scrollTicking) {
@@ -104,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, { passive: true });
 
-  // ----- Bring-to-Front functionality for window-like modals -----
+  // Bring-to-Front for modals
   let currentTopZ = 11000;
   function bringModalToFront(modal) {
     currentTopZ++;
@@ -314,7 +325,6 @@ function initDodecagonCanvas() {
   dCanvas = document.getElementById("dodecagonCanvas");
   dCtx = dCanvas.getContext("2d");
 
-  // Make the canvas responsive: set size based on its container width.
   function resizeDodecagon() {
     const containerWidth = dCanvas.parentElement.clientWidth;
     if (containerWidth < 400) {
@@ -474,12 +484,11 @@ function initMinigamePrompt() {
   minigameButton.addEventListener("click", () => {
     if (minigameModal.classList.contains("hidden")) {
       minigameModal.classList.remove("hidden");
-      // Set focus to the modal so it can receive key events
       minigameModal.focus();
       startDinoGame();
     } else {
       minigameModal.classList.add("hidden");
-      dinoGameStarted = false; // Reset the flag to allow restarting the game.
+      dinoGameStarted = false;
     }
   });
 }
@@ -491,7 +500,6 @@ function initMinigameModal() {
     minigameModal.classList.add("hidden");
     dinoGameStarted = false;
   });
-  // Instead of dragging the inner content, drag the entire modal container.
   const minigameHeader = document.getElementById("minigameHeader");
   const minigameModalContainer = document.getElementById("minigameModal");
   makeElementDraggableWithHandle(minigameHeader, minigameModalContainer);
@@ -532,7 +540,6 @@ function initMiniDinoGame() {
     ctx.fillRect(dinoX, dinoY - dinoH, dinoW, dinoH);
   }
   
-  // Raise obstacles by setting y to H - 20 instead of H - 10
   function spawnObstacle() {
     obstacles.push({ x: W, y: H - 20, width: 10, height: 10 });
   }
@@ -582,7 +589,6 @@ function initMiniDinoGame() {
     requestAnimationFrame(update);
   }
   
-  // Attach keydown listener to the minigame modal (only once)
   const minigameModal = document.getElementById("minigameModal");
   if (!minigameModal.dataset.keyListenerAdded) {
     minigameModal.addEventListener("keydown", (e) => {
@@ -851,9 +857,8 @@ function initChatbox(API_URL) {
   const chatboxSendBtn = document.getElementById("chatboxSendBtn");
   const chatboxInput = document.getElementById("chatboxInput");
   const chatboxMessages = chatboxModal.querySelector(".chatbox-messages");
-  const chatboxInterface = chatboxModal.querySelector(".chatbox-interface");
+  const chatboxInterface = document.getElementById("chatboxModal").querySelector(".chatbox-interface");
 
-  // Toggle chat modal on click.
   chatboxPrompt.addEventListener("click", () => {
     chatboxModal.classList.toggle("hidden");
     if (!chatboxModal.classList.contains("hidden")) {
@@ -899,13 +904,116 @@ function initChatbox(API_URL) {
     chatboxMessages.appendChild(messageDiv);
     chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
   }
-  // Use the updated draggable function for fixed elements.
   makeElementDraggable(chatboxInterface);
 }
 
+// --------------------- DATA MODAL (Site Analytics & Chart) ---------------------
+function initDataModal() {
+  const dataPrompt = document.getElementById("dataPrompt");
+  const dataModal = document.getElementById("dataModal");
+  const dataModalClose = document.getElementById("dataModalClose");
+  const dataModalBody = document.getElementById("dataModalBody");
+
+  dataPrompt.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dataModal.classList.remove("hidden");
+    fetchDataAnalytics();
+  });
+
+  dataModalClose.addEventListener("click", () => {
+    dataModal.classList.add("hidden");
+  });
+
+  dataModal.addEventListener("click", (e) => {
+    if (!e.target.closest(".modal-content")) {
+      dataModal.classList.add("hidden");
+    }
+  });
+}
+
+function fetchDataAnalytics() {
+  const dataModalBody = document.getElementById("dataModalBody");
+  // Use the read-only /analytics endpoint.
+  const analyticsAPI = "http://192.168.4.33:5000/analytics";
+  dataModalBody.innerHTML = "<p>Loading site data...</p>";
+  fetch(analyticsAPI)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Aggregate visits by hour.
+      const countsByHour = {};
+      data.timeseries.forEach(record => {
+        const date = new Date(record.timestamp);
+        // Format the hour string as "YYYY-MM-DD HH:00"
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const hour = date.getHours().toString().padStart(2, '0');
+        const key = `${year}-${month}-${day} ${hour}:00`;
+        countsByHour[key] = (countsByHour[key] || 0) + 1;
+      });
+      // Sort the hour keys in chronological order.
+      const sortedLabels = Object.keys(countsByHour).sort();
+      const counts = sortedLabels.map(label => countsByHour[label]);
+      dataModalBody.innerHTML = `<canvas id="analyticsChart" width="400" height="200"></canvas>`;
+      plotAnalyticsChart(sortedLabels, counts);
+    })
+    .catch(error => {
+      dataModalBody.innerHTML = `<p>Error loading site data: ${error.message}</p>`;
+      console.error("Error fetching analytics:", error);
+    });
+}
+
+function plotAnalyticsChart(labels, dataPoints) {
+  const ctx = document.getElementById("analyticsChart").getContext("2d");
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Visits per Hour',
+        data: dataPoints,
+        backgroundColor: 'rgba(255, 94, 0, 0.2)',
+        borderColor: 'rgba(255, 94, 0, 1)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(0,0,0,1)',
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          ticks: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+            font: { family: 'VT323, monospace' }
+          },
+          grid: { color: 'rgba(0,0,0,0.2)' }
+        },
+        y: {
+          ticks: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+            font: { family: 'VT323, monospace' }
+          },
+          grid: { color: 'rgba(0,0,0,0.2)' }
+        }
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+            font: { family: 'VT323, monospace' }
+          }
+        }
+      }
+    }
+  });
+}
+
 // --------------------- MAKE ELEMENT DRAGGABLE ---------------------
-// Updated to check the element's computed position.
-// For fixed elements (like our chat modal), use client coordinates.
 function makeElementDraggable(element) {
   let isDragging = false, offsetX, offsetY;
   element.addEventListener("pointerdown", (e) => {
@@ -960,14 +1068,12 @@ function makeElementDraggable(element) {
 }
 
 // --------------------- MAKE ELEMENT DRAGGABLE WITH HANDLE ---------------------
-// Updated to force the target element into fixed positioning for consistent drag alignment.
 function makeElementDraggableWithHandle(handle, target) {
   let isDragging = false, offsetX, offsetY;
   handle.addEventListener("pointerdown", (e) => {
     if (e.target.closest("input, button, select, textarea")) return;
     isDragging = true;
     e.preventDefault();
-    // Force the target into fixed positioning for accurate dragging
     target.style.position = "fixed";
     const rect = target.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
@@ -1212,7 +1318,6 @@ function initBackroomsModal() {
     return results.join("<br><br>");
   }
 
-  // Toggle the backrooms modal when clicking the backrooms button
   backroomsPrompt.addEventListener("click", () => {
     if (backroomsModal.classList.contains("hidden")) {
       backroomsModal.classList.remove("hidden");
@@ -1254,7 +1359,538 @@ function initBackroomsModal() {
     loadConversation(dropdown.value);
   });
 
-  // Use the header as the drag handle for the backrooms modal content.
   const backroomsHeader = document.querySelector(".vcr-header");
   makeElementDraggableWithHandle(backroomsHeader, document.querySelector(".backrooms-modal-content"));
+}
+
+// --------------------- PLOT ANALYTICS CHART (Using Chart.js) ---------------------
+function plotAnalyticsChart(labels, dataPoints) {
+  const ctx = document.getElementById("analyticsChart").getContext("2d");
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Visits per Hour',
+        data: dataPoints,
+        backgroundColor: 'rgba(255, 94, 0, 0.2)',
+        borderColor: 'rgba(255, 94, 0, 1)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(0,0,0,1)',
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          ticks: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+            font: { family: 'VT323, monospace' }
+          },
+          grid: { color: 'rgba(0,0,0,0.2)' }
+        },
+        y: {
+          ticks: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+            font: { family: 'VT323, monospace' }
+          },
+          grid: { color: 'rgba(0,0,0,0.2)' }
+        }
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+            font: { family: 'VT323, monospace' }
+          }
+        }
+      }
+    }
+  });
+}
+
+// --------------------- MAKE ELEMENT DRAGGABLE ---------------------
+function makeElementDraggable(element) {
+  let isDragging = false, offsetX, offsetY;
+  element.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("button, input, select, textarea")) return;
+    isDragging = true;
+    e.preventDefault();
+    const rect = element.getBoundingClientRect();
+    const computedPos = getComputedStyle(element).position;
+    if (computedPos === "fixed") {
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      element.style.left = `${rect.left}px`;
+      element.style.top = `${rect.top}px`;
+    } else {
+      const leftAbs = rect.left + window.scrollX;
+      const topAbs = rect.top + window.scrollY;
+      offsetX = e.pageX - leftAbs;
+      offsetY = e.pageY - topAbs;
+      element.style.left = `${leftAbs}px`;
+      element.style.top = `${topAbs}px`;
+    }
+    element.style.transform = "none";
+    element.classList.add("dragging");
+    document.body.style.userSelect = "none";
+    element.setPointerCapture(e.pointerId);
+  });
+  element.addEventListener("pointermove", (e) => {
+    if (isDragging) {
+      let newLeft, newTop;
+      const computedPos = getComputedStyle(element).position;
+      if (computedPos === "fixed") {
+        newLeft = e.clientX - offsetX;
+        newTop = e.clientY - offsetY;
+      } else {
+        newLeft = e.pageX - offsetX;
+        newTop = e.pageY - offsetY;
+      }
+      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - element.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, window.innerHeight - element.offsetHeight));
+      element.style.left = `${newLeft}px`;
+      element.style.top = `${newTop}px`;
+    }
+  });
+  element.addEventListener("pointerup", (e) => {
+    if (isDragging) {
+      isDragging = false;
+      element.classList.remove("dragging");
+      document.body.style.userSelect = "auto";
+      element.releasePointerCapture(e.pointerId);
+    }
+  });
+}
+
+// --------------------- MAKE ELEMENT DRAGGABLE WITH HANDLE ---------------------
+function makeElementDraggableWithHandle(handle, target) {
+  let isDragging = false, offsetX, offsetY;
+  handle.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("input, button, select, textarea")) return;
+    isDragging = true;
+    e.preventDefault();
+    target.style.position = "fixed";
+    const rect = target.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    target.style.left = `${rect.left}px`;
+    target.style.top = `${rect.top}px`;
+    target.style.transform = "none";
+    target.classList.add("dragging");
+    document.body.style.userSelect = "none";
+    handle.setPointerCapture(e.pointerId);
+  });
+  handle.addEventListener("pointermove", (e) => {
+    if (isDragging) {
+      let newLeft = e.clientX - offsetX;
+      let newTop = e.clientY - offsetY;
+      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - target.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, window.innerHeight - target.offsetHeight));
+      target.style.left = `${newLeft}px`;
+      target.style.top = `${newTop}px`;
+    }
+  });
+  handle.addEventListener("pointerup", (e) => {
+    if (isDragging) {
+      isDragging = false;
+      target.classList.remove("dragging");
+      document.body.style.userSelect = "auto";
+      handle.releasePointerCapture(e.pointerId);
+    }
+  });
+}
+
+// --------------------- PROJECT MODAL ---------------------
+function initProjectModal() {
+  const projectCards = document.querySelectorAll(".project-card");
+  const projectModal = document.getElementById("projectModal");
+  const projectModalTitle = projectModal.querySelector(".modal-title");
+  const projectModalBody = projectModal.querySelector(".modal-body");
+  const projectModalClose = projectModal.querySelector(".modal-close");
+
+  projectCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      const file = card.getAttribute("data-file");
+      const projectTitle = card.querySelector("h2").textContent.trim();
+
+      if (projectTitle === "Infinite Backrooms") {
+        const backroomsModal = document.getElementById("backroomsModal");
+        backroomsModal.classList.remove("hidden");
+        if (window.loadBackrooms) {
+          const dropdown = document.getElementById("backroomsDropdown");
+          window.loadBackrooms(dropdown.value);
+        }
+        return;
+      } else if (projectTitle === "ewluong.com") {
+        const chatboxModal = document.getElementById("chatboxModal");
+        chatboxModal.classList.remove("hidden");
+        return;
+      }
+
+      projectModalTitle.textContent = projectTitle;
+      projectModalBody.innerHTML = "";
+      if (file && file.endsWith(".md")) {
+        fetch(`docs/${file}`)
+          .then((response) => {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.text();
+          })
+          .then((mdText) => {
+            const htmlContent = marked.parse(mdText);
+            const markdownDiv = document.createElement("div");
+            markdownDiv.classList.add("markdown-content");
+            markdownDiv.innerHTML = htmlContent;
+            projectModalBody.appendChild(markdownDiv);
+          })
+          .catch((error) => {
+            projectModalBody.textContent = "Error loading the document.";
+            console.error("Fetch error:", error);
+          });
+      } else if (file && (file.endsWith(".pdf") || file.endsWith(".html"))) {
+        const iframe = document.createElement("iframe");
+        iframe.src = `docs/${file}`;
+        iframe.type = file.endsWith(".pdf") ? "application/pdf" : "text/html";
+        iframe.allow = "fullscreen";
+        iframe.style.width = "100%";
+        iframe.style.height = "500px";
+        projectModalBody.appendChild(iframe);
+      } else {
+        projectModalBody.textContent = "Unsupported file format.";
+      }
+      projectModal.classList.remove("hidden");
+    });
+  });
+
+  projectModalClose.addEventListener("click", () => {
+    projectModal.classList.add("hidden");
+    projectModalBody.innerHTML = "";
+  });
+
+  projectModalClose.addEventListener("mousedown", (e) => {
+    e.stopPropagation();
+  });
+
+  projectModal.addEventListener("click", (e) => {
+    if (!e.target.closest(".modal-content")) {
+      projectModal.classList.add("hidden");
+      projectModalBody.innerHTML = "";
+    }
+  });
+}
+
+// --------------------- BACKROOMS MODAL (Vintage Terminal Style) ---------------------
+function initBackroomsModal() {
+  const backroomsPrompt = document.getElementById("backroomsPrompt");
+  const backroomsModal = document.getElementById("backroomsModal");
+  const backroomsClose = document.getElementById("backroomsClose");
+  let backroomsContentElement = document.getElementById("backroomsContent");
+  const searchInput = document.getElementById("backroomsSearch");
+  const searchBtn = document.getElementById("backroomsSearchBtn");
+  const clearBtn = document.getElementById("backroomsClearBtn");
+  const dropdown = document.getElementById("backroomsDropdown");
+
+  const conversationFiles = [
+    { name: "Backrooms 1", file: "docs/backrooms1.txt" },
+    { name: "All Conversations", file: "all" },
+    { name: "Backrooms 2", file: "docs/backrooms2.txt" },
+    { name: "Backrooms 3", file: "docs/backrooms3.txt" },
+  ];
+  dropdown.innerHTML = "";
+  conversationFiles.forEach((fileObj) => {
+    let option = document.createElement("option");
+    option.value = fileObj.file;
+    option.textContent = fileObj.name;
+    dropdown.appendChild(option);
+  });
+  dropdown.selectedIndex = 0;
+
+  let backroomsContent = "";
+  let currentIndex = 0;
+  let typeInterval = null;
+  let displayBuffer = "";
+  const typingSpeed = 1;
+
+  function resetBackroomsContainer() {
+    document.getElementById("backroomsText").innerHTML =
+      '<span id="backroomsContent"></span><span id="cursor"></span>';
+    backroomsContentElement = document.getElementById("backroomsContent");
+  }
+
+  function startTypewriter() {
+    typeInterval = setInterval(() => {
+      if (backroomsContent.length === 0) return;
+      if (
+        backroomsContent.substr(currentIndex, 8) === "Model A:" ||
+        backroomsContent.substr(currentIndex, 8) === "Model B:"
+      ) {
+        if (!displayBuffer.endsWith("\n\n")) {
+          displayBuffer = displayBuffer.replace(/\n*$/, "\n\n");
+        }
+      }
+      let nextChar = backroomsContent.charAt(currentIndex);
+      displayBuffer += nextChar;
+      currentIndex++;
+      if (currentIndex >= backroomsContent.length) {
+        clearInterval(typeInterval);
+      }
+      backroomsContentElement.textContent = displayBuffer;
+      document.getElementById("backroomsText").scrollTop =
+        document.getElementById("backroomsText").scrollHeight;
+    }, typingSpeed);
+  }
+
+  function stopTypewriter() {
+    if (typeInterval) {
+      clearInterval(typeInterval);
+      typeInterval = null;
+    }
+  }
+
+  function loadConversation(fileValue) {
+    stopTypewriter();
+    resetBackroomsContainer();
+    backroomsContent = "";
+    currentIndex = 0;
+    displayBuffer = "";
+    if (fileValue === "all") {
+      let promises = conversationFiles
+        .filter((f) => f.file !== "all")
+        .map((f) =>
+          fetch(f.file).then((response) => {
+            if (!response.ok) throw new Error("Network error");
+            return response.text();
+          })
+        );
+      Promise.all(promises)
+        .then((results) => {
+          backroomsContent = results.join("\n\n").replace(/\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g, "\n\n");
+          startTypewriter();
+        })
+        .catch((err) => {
+          console.error(err);
+          backroomsContentElement.textContent = "Error loading conversations.";
+        });
+    } else {
+      fetch(fileValue)
+        .then((response) => {
+          if (!response.ok) throw new Error("Network error");
+          return response.text();
+        })
+        .then((text) => {
+          backroomsContent = text.replace(/\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g, "\n\n");
+          startTypewriter();
+        })
+        .catch((err) => {
+          console.error(err);
+          backroomsContentElement.textContent = "Error loading conversation.";
+        });
+    }
+  }
+
+  window.loadBackrooms = loadConversation;
+
+  function searchBackroomsContent(query) {
+    if (!backroomsContent) return "No content loaded.";
+    let lowerContent = backroomsContent.toLowerCase();
+    let lowerQuery = query.toLowerCase();
+    let results = [];
+    let startPos = 0;
+    while (true) {
+      let foundIndex = lowerContent.indexOf(lowerQuery, startPos);
+      if (foundIndex === -1) break;
+      let excerptStart = Math.max(0, foundIndex - 50);
+      let excerptEnd = Math.min(backroomsContent.length, foundIndex + query.length + 50);
+      let excerpt = backroomsContent.substring(excerptStart, excerptEnd);
+      let regex = new RegExp(query, "gi");
+      excerpt = excerpt.replace(regex, (match) => `<mark>${match}</mark>`);
+      results.push("..." + excerpt + "...");
+      if (results.length >= 30) break;
+      startPos = foundIndex + query.length;
+    }
+    if (results.length === 0) {
+      return "No results found for '" + query + "'.";
+    }
+    return results.join("<br><br>");
+  }
+
+  backroomsPrompt.addEventListener("click", () => {
+    if (backroomsModal.classList.contains("hidden")) {
+      backroomsModal.classList.remove("hidden");
+      loadConversation(dropdown.value);
+    } else {
+      backroomsModal.classList.add("hidden");
+      stopTypewriter();
+      resetBackroomsContainer();
+    }
+  });
+
+  backroomsClose.addEventListener("click", () => {
+    backroomsModal.classList.add("hidden");
+    stopTypewriter();
+    resetBackroomsContainer();
+  });
+
+  backroomsClose.addEventListener("mousedown", (e) => {
+    e.stopPropagation();
+  });
+
+  dropdown.addEventListener("change", () => {
+    loadConversation(dropdown.value);
+  });
+
+  searchBtn.addEventListener("click", () => {
+    let query = searchInput.value.trim();
+    if (query !== "") {
+      stopTypewriter();
+      document.getElementById("backroomsText").innerHTML = searchBackroomsContent(query);
+    }
+  });
+
+  clearBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    resetBackroomsContainer();
+    displayBuffer = "";
+    currentIndex = 0;
+    loadConversation(dropdown.value);
+  });
+
+  const backroomsHeader = document.querySelector(".vcr-header");
+  makeElementDraggableWithHandle(backroomsHeader, document.querySelector(".backrooms-modal-content"));
+}
+
+// --------------------- PLOT ANALYTICS CHART (Using Chart.js) ---------------------
+function plotAnalyticsChart(labels, dataPoints) {
+  const ctx = document.getElementById("analyticsChart").getContext("2d");
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Visits per Hour',
+        data: dataPoints,
+        backgroundColor: 'rgba(255, 94, 0, 0.2)',
+        borderColor: 'rgba(255, 94, 0, 1)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(0,0,0,1)',
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          ticks: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+            font: { family: 'VT323, monospace' }
+          },
+          grid: { color: 'rgba(0,0,0,0.2)' }
+        },
+        y: {
+          ticks: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+            font: { family: 'VT323, monospace' }
+          },
+          grid: { color: 'rgba(0,0,0,0.2)' }
+        }
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
+            font: { family: 'VT323, monospace' }
+          }
+        }
+      }
+    }
+  });
+}
+
+// --------------------- MAKE ELEMENT DRAGGABLE ---------------------
+function makeElementDraggable(element) {
+  let isDragging = false, offsetX, offsetY;
+  element.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("button, input, select, textarea")) return;
+    isDragging = true;
+    e.preventDefault();
+    const rect = element.getBoundingClientRect();
+    const computedPos = getComputedStyle(element).position;
+    if (computedPos === "fixed") {
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      element.style.left = `${rect.left}px`;
+      element.style.top = `${rect.top}px`;
+    } else {
+      const leftAbs = rect.left + window.scrollX;
+      const topAbs = rect.top + window.scrollY;
+      offsetX = e.pageX - leftAbs;
+      offsetY = e.pageY - topAbs;
+      element.style.left = `${leftAbs}px`;
+      element.style.top = `${topAbs}px`;
+    }
+    element.style.transform = "none";
+    element.classList.add("dragging");
+    document.body.style.userSelect = "none";
+    element.setPointerCapture(e.pointerId);
+  });
+  element.addEventListener("pointermove", (e) => {
+    if (isDragging) {
+      let newLeft, newTop;
+      const computedPos = getComputedStyle(element).position;
+      if (computedPos === "fixed") {
+        newLeft = e.clientX - offsetX;
+        newTop = e.clientY - offsetY;
+      } else {
+        newLeft = e.pageX - offsetX;
+        newTop = e.pageY - offsetY;
+      }
+      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - element.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, window.innerHeight - element.offsetHeight));
+      element.style.left = `${newLeft}px`;
+      element.style.top = `${newTop}px`;
+    }
+  });
+  element.addEventListener("pointerup", (e) => {
+    if (isDragging) {
+      isDragging = false;
+      element.classList.remove("dragging");
+      document.body.style.userSelect = "auto";
+      element.releasePointerCapture(e.pointerId);
+    }
+  });
+}
+
+// --------------------- MAKE ELEMENT DRAGGABLE WITH HANDLE ---------------------
+function makeElementDraggableWithHandle(handle, target) {
+  let isDragging = false, offsetX, offsetY;
+  handle.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("input, button, select, textarea")) return;
+    isDragging = true;
+    e.preventDefault();
+    target.style.position = "fixed";
+    const rect = target.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    target.style.left = `${rect.left}px`;
+    target.style.top = `${rect.top}px`;
+    target.style.transform = "none";
+    target.classList.add("dragging");
+    document.body.style.userSelect = "none";
+    handle.setPointerCapture(e.pointerId);
+  });
+  handle.addEventListener("pointermove", (e) => {
+    if (isDragging) {
+      let newLeft = e.clientX - offsetX;
+      let newTop = e.clientY - offsetY;
+      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - target.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, window.innerHeight - target.offsetHeight));
+      target.style.left = `${newLeft}px`;
+      target.style.top = `${newTop}px`;
+    }
+  });
+  handle.addEventListener("pointerup", (e) => {
+    if (isDragging) {
+      isDragging = false;
+      target.classList.remove("dragging");
+      document.body.style.userSelect = "auto";
+      handle.releasePointerCapture(e.pointerId);
+    }
+  });
 }
