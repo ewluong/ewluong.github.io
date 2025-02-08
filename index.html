@@ -13,7 +13,6 @@
     <!-- Preconnect & preload Google Font (Pixel/Retro Font: VT323) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Preload the font stylesheet for faster rendering -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=VT323&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
@@ -21,6 +20,8 @@
 
     <!-- Marked.js for Markdown Parsing (loaded with defer) -->
     <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Chart.js for plotting the analytics chart -->
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <!-- Randomize Button (styled like toggle buttons, positioned at top right) -->
@@ -32,7 +33,7 @@
     <!-- ASCII Corner (typed on scroll) -->
     <div id="asciiCorner"></div>
 
-    <!-- Navigation Bar (Contact removed) -->
+    <!-- Navigation Bar -->
     <nav class="navbar">
       <ul>
         <li><a href="#home" class="nav-link">Home</a></li>
@@ -48,15 +49,9 @@
       <h1 id="terminalHeader" class="section-header" data-text="> Hey there, I'm Eric!"></h1>
       <p class="tagline">Just chasing the wind...</p>
       <!-- Dodecagon Canvas -->
-      <canvas
-        id="dodecagonCanvas"
-        width="400"
-        height="400"
-        style="max-width: 400px; border: none;"
-      ></canvas>
+      <canvas id="dodecagonCanvas" width="400" height="400" style="max-width: 400px; border: none;"></canvas>
       <p>
-        Welcome. Thanks for dropping by.
-        Check out the rest of the site for my projects and more!
+        Welcome. Thanks for dropping by. Check out the rest of the site for my projects and more!
       </p>
     </section>
 
@@ -73,130 +68,77 @@
             A playful and interactive platform where users can chat with a friendly AI chatbot, enjoy some tunes, or explore educational content.
             Built with HTML, CSS, and JavaScript for a dynamic frontend, and powered by Python with Flask and Hugging Face Transformers for the chatbot backend.
           </p>
-          <a
-            href="https://github.com/ewluong/ewluong.github.io"
-            class="project-link"
-            target="_blank"
-          >**View on GitHub**</a>
+          <a href="https://github.com/ewluong/ewluong.github.io" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
         <!-- Project Card 2: Anomaly Detection in Network Traffic -->
         <div class="project-card" data-file="network.md">
           <h2>Anomaly Detection in Network Traffic</h2>
           <p>
-            Built ML models (Random Forest, XGBoost, LightGBM, Neural Networks) to detect
-            cyber‑attacks using UNSW‑NB15. Compared precision/recall to reduce false
-            positives, addressed class imbalance, and focused on feature engineering.
+            Built ML models (Random Forest, XGBoost, LightGBM, Neural Networks) to detect cyber‑attacks using UNSW‑NB15. Compared precision/recall to reduce false positives, addressed class imbalance, and focused on feature engineering.
           </p>
-          <a
-            href="https://github.com/ewluong/project2024/tree/main/cybersecurity_threats"
-            class="project-link"
-            target="_blank"
-          >**View on GitHub**</a>
+          <a href="https://github.com/ewluong/project2024/tree/main/cybersecurity_threats" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
         <!-- Project Card 3: Best Sellers Analysis -->
         <div class="project-card" data-file="amazon.pdf">
           <h2>Best Sellers Analysis</h2>
           <p>
-            Time-series analysis of genres, NLP‑based exploration of reviews, K‑means
-            clustering to identify market segments, and regression modeling to link user
-            ratings with reviews and pricing.
+            Time-series analysis of genres, NLP‑based exploration of reviews, K‑means clustering to identify market segments, and regression modeling to link user ratings with reviews and pricing.
           </p>
-          <a
-            href="https://github.com/ewluong/project2024/tree/main/best_sellers_analysis"
-            class="project-link"
-            target="_blank"
-          >**View on GitHub**</a>
+          <a href="https://github.com/ewluong/project2024/tree/main/best_sellers_analysis" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
         <!-- Project Card 4: Centrality Measures in Networks -->
         <div class="project-card" data-file="comp_centrality.pdf">
           <h2>Centrality Measures in Networks</h2>
           <p>
-            Explored leadership‑level diversity (ethnicity, gender, age) and network
-            centrality metrics for 1,500 firms (15 years), correlating them with stock
-            returns. Data from ISS, CRSP, and COMPUSTAT.
+            Explored leadership‑level diversity (ethnicity, gender, age) and network centrality metrics for 1,500 firms (15 years), correlating them with stock returns. Data from ISS, CRSP, and COMPUSTAT.
           </p>
-          <a
-            href="https://github.com/ewluong/project2024/tree/main/centrality_measures"
-            class="project-link"
-            target="_blank"
-          >**View on GitHub**</a>
+          <a href="https://github.com/ewluong/project2024/tree/main/centrality_measures" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
         <!-- Project Card 5: Housing Prices Prediction -->
         <div class="project-card" data-file="housing.md">
           <h2>Housing Prices Prediction</h2>
           <p>
-            Predicts house prices by stacking models (LightGBM, XGBoost, Gradient Boosting,
-            Random Forest, CatBoost). Demonstrates data preprocessing, feature engineering,
-            hyperparameter tuning, and ensemble learning.
+            Predicts house prices by stacking models (LightGBM, XGBoost, Gradient Boosting, Random Forest, CatBoost). Demonstrates data preprocessing, feature engineering, hyperparameter tuning, and ensemble learning.
           </p>
-          <a
-            href="https://github.com/ewluong/project2024/tree/main/housing_prices_prediction"
-            class="project-link"
-            target="_blank"
-          >**View on GitHub**</a>
+          <a href="https://github.com/ewluong/project2024/tree/main/housing_prices_prediction" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
         <!-- Project Card 6: Panel Data Analysis -->
         <div class="project-card" data-file="woolridge.html">
           <h2>Panel Data Analysis</h2>
           <p>
-            Investigated relationships between investment, capital structure, and firm
-            performance via panel data. Employed winsorization and regressions with lag/lead
-            variables, ensuring robustness with the Wooldridge Exogeneity Test.
+            Investigated relationships between investment, capital structure, and firm performance via panel data. Employed winsorization and regressions with lag/lead variables, ensuring robustness with the Wooldridge Exogeneity Test.
           </p>
-          <a
-            href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis"
-            class="project-link"
-            target="_blank"
-          >**View on GitHub**</a>
+          <a href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
         <!-- Project Card 7: apexprint.co -->
         <div class="project-card">
           <h2>apexprint.co</h2>
           <p>
-            Built a website and online storefront for a printing shop in the Bay Area.
-            Fully integrated with the store’s point of sale and administrative systems.
+            Built a website and online storefront for a printing shop in the Bay Area. Fully integrated with the store’s point of sale and administrative systems.
           </p>
-          <a
-            href="https://www.goabcprint.com/"
-            class="project-link"
-            target="_blank"
-          >**View Website**</a>
+          <a href="https://www.goabcprint.com/" class="project-link" target="_blank">**View Website**</a>
         </div>
         <!-- Project Card 8: Sudoku Linear Programming -->
         <div class="project-card" data-file="sudoku.pdf">
           <h2>Sudoku Linear Programming</h2>
           <p>
-            Designed and implemented a linear programming solution using Gurobi to
-            efficiently solve standard and variant Sudoku puzzles, including 3D, diagonal,
-            and Killer Sudoku, by developing optimization models with complex constraints.
+            Designed and implemented a linear programming solution using Gurobi to efficiently solve standard and variant Sudoku puzzles, including 3D, diagonal, and Killer Sudoku, by developing optimization models with complex constraints.
           </p>
-          <a
-            href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis"
-            class="project-link"
-            target="_blank"
-          >**View on GitHub**</a>
+          <a href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
         <!-- Project Card 9: CBA‑to‑NBA Performance Correlation -->
         <div class="project-card" data-file="nba.pdf">
           <h2>CBA‑to‑NBA Performance Correlation</h2>
           <p>
-            Used PCA on college (CBA) player stats to see correlation with NBA scoring.
-            Spearman/Pearson tests showed statistically significant relationships, albeit
-            low‑level correlations.
+            Used PCA on college (CBA) player stats to see correlation with NBA scoring. Spearman/Pearson tests showed statistically significant relationships, albeit low‑level correlations.
           </p>
-          <a
-            href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis"
-            class="project-link"
-            target="_blank"
-          >**View on GitHub**</a>
+          <a href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
         <!-- Project Card 10: Amber India Restaurant Case Study -->
         <div class="project-card">
           <h2>Amber India Restaurant Case Study</h2>
           <p>
-            Optimized a $5 million ad budget using linear programming. Devised a demand
-            management model for popular beverages, balancing raw material costs,
-            spoilage, and profit.
+            Optimized a $5 million ad budget using linear programming. Devised a demand management model for popular beverages, balancing raw material costs, spoilage, and profit.
           </p>
           <p class="no-link">Link Not Available</p>
         </div>
@@ -204,99 +146,73 @@
         <div class="project-card" data-file="infinite_backrooms.html">
           <h2>Infinite Backrooms</h2>
           <p>
-            An endless dual‑model conversation system that simulates perpetual dialogues
-            between contrasting personalities.
-            Built using Meta‑Llama‑3.1‑8B‑Instruct and advanced session memory techniques,
-            it explores deep philosophical and existential themes.
-            Dive into the innovative design and the intricate memory management that
-            powers this project.
+            An endless dual‑model conversation system that simulates perpetual dialogues between contrasting personalities.
+            Built using Meta‑Llama‑3.1‑8B‑Instruct and advanced session memory techniques, it explores deep philosophical and existential themes.
+            Dive into the innovative design and the intricate memory management that powers this project.
           </p>
-          <a
-            href="https://github.com/ewluong/project2024/tree/main/infinite_backrooms"
-            class="project-link"
-            target="_blank"
-          >**View on GitHub**</a>
+          <a href="https://github.com/ewluong/project2024/tree/main/infinite_backrooms" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
       </div>
     </section>
 
     <!-- About Section -->
     <section id="about" class="section about-section">
-      <!-- Section Header with Typewriter Effect -->
       <h1 class="section-header" data-text="About Me">About Me</h1>
       <div class="about-grid">
         <!-- About Item 1 -->
         <div class="about-item">
           <img src="images/work.png" alt="Work Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Work Experience:</strong>
-            My journey includes roles at Vanguard and Lifo.ai, where I've tackled financial
-            models, data analytics strategies, and helped streamline business development.
+            <strong>Work Experience:</strong> My journey includes roles at Vanguard and Lifo.ai, where I've tackled financial models, data analytics strategies, and helped streamline business development.
           </p>
         </div>
         <!-- About Item 2 -->
         <div class="about-item">
           <img src="images/bitcoin.png" alt="Crypto Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>SPI Energy:</strong>
-            Delved into cryptocurrency miner solutions, aiding strategic decision‑making with
-            data analysis. Learned about the evolving energy market and blockchain tech.
+            <strong>SPI Energy:</strong> Delved into cryptocurrency miner solutions, aiding strategic decision‑making with data analysis. Learned about the evolving energy market and blockchain tech.
           </p>
         </div>
         <!-- About Item 3 -->
         <div class="about-item">
           <img src="images/book.png" alt="Book Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Favorite Reads:</strong>
-            "There Is No Antimemetics Division," "Hitchhiker’s Guide to the Galaxy," and
-            "Strangers from a Different Shore" fuel my imagination and expand my worldview.
+            <strong>Favorite Reads:</strong> "There Is No Antimemetics Division," "Hitchhiker’s Guide to the Galaxy," and "Strangers from a Different Shore" fuel my imagination and expand my worldview.
           </p>
         </div>
         <!-- About Item 4 -->
         <div class="about-item">
           <img src="images/controller.png" alt="Controller Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Gaming Interests:</strong>
-            Whether battling in Elden Ring, building empires in Civilization VI, or
-            theorycrafting in Path of Exile, gaming is a creative outlet that challenges my
-            strategic thinking.
+            <strong>Gaming Interests:</strong> Whether battling in Elden Ring, building empires in Civilization VI, or theorycrafting in Path of Exile, gaming is a creative outlet that challenges my strategic thinking.
           </p>
         </div>
         <!-- About Item 5 -->
         <div class="about-item">
           <img src="images/garden.png" alt="Garden Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Volunteering:</strong>
-            At Berkeley’s Community Garden, I’ve done everything from mulching to planting.
-            It’s a hands‑on way to give back and cultivate green spaces.
+            <strong>Volunteering:</strong> At Berkeley’s Community Garden, I’ve done everything from mulching to planting. It’s a hands‑on way to give back and cultivate green spaces.
           </p>
         </div>
         <!-- About Item 6 -->
         <div class="about-item">
           <img src="images/hat.png" alt="Academic Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Academic Achievements:</strong>
-            Santa Clara University (Business Analytics), UC Berkeley (Cognitive Science),
-            UC Berkeley ML & AI Certificate.
+            <strong>Academic Achievements:</strong> Santa Clara University (Business Analytics), UC Berkeley (Cognitive Science), UC Berkeley ML & AI Certificate.
           </p>
         </div>
         <!-- About Item 7 -->
         <div class="about-item">
           <img src="images/tennis.png" alt="Tennis Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Tennis Passion:</strong>
-            I've played tennis my whole life and still train regularly. It's taught me
-            discipline, strategy, and the value of continuous improvement.
+            <strong>Tennis Passion:</strong> I've played tennis my whole life and still train regularly. It's taught me discipline, strategy, and the value of continuous improvement.
           </p>
         </div>
         <!-- About Item 8 -->
         <div class="about-item">
           <img src="images/music.png" alt="Music Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Music & Production:</strong>
-            After a lifetime of playing piano and guitar, I dove into music production. I
-            love experimenting with beats and melodies—peek the SoundCloud link in the
-            corner!
+            <strong>Music & Production:</strong> After a lifetime of playing piano and guitar, I dove into music production. I love experimenting with beats and melodies—peek the SoundCloud link in the corner!
           </p>
         </div>
       </div>
@@ -304,7 +220,6 @@
 
     <!-- Blog Section -->
     <section id="blog" class="section blog-section">
-      <!-- Section Header with Typewriter Effect -->
       <h1 class="section-header" data-text="Blog">Blog</h1>
       <p>My thoughts on anything...</p>
       <ul class="blog-list">
@@ -385,7 +300,7 @@ Because Descartes’ implication that the mind is independent from the body, and
       <div class="modal-content">
         <h2 class="modal-title"></h2>
         <div class="modal-text"></div>
-        <button class="modal-close">Close</button>
+        <button type="button" class="modal-close">Close</button>
       </div>
     </div>
 
@@ -394,7 +309,7 @@ Because Descartes’ implication that the mind is independent from the body, and
       <div class="modal-content">
         <h2 class="modal-title"></h2>
         <div class="modal-body"></div>
-        <button class="modal-close">Close</button>
+        <button type="button" class="modal-close">Close</button>
       </div>
     </div>
 
@@ -404,11 +319,7 @@ Because Descartes’ implication that the mind is independent from the body, and
         <div class="vcr-header">
           <h2 class="modal-title">Infinite Backrooms</h2>
           <p class="vcr-description">
-            In a specialized environment of machine cognition, two Llama‑based language
-            models engage in a perpetual feedback loop, exchanging tokens and refining
-            their internal parameters. The result is an ongoing, self‑sustaining dialog
-            that explores emergent behaviors and latent representations—visions of
-            boundless dreams.
+            In a specialized environment of machine cognition, two Llama‑based language models engage in a perpetual feedback loop, exchanging tokens and refining their internal parameters. The result is an ongoing, self‑sustaining dialog that explores emergent behaviors and latent representations—visions of boundless dreams.
           </p>
         </div>
         <div class="vcr-search">
@@ -423,17 +334,17 @@ Because Descartes’ implication that the mind is independent from the body, and
           </div>
         </div>
         <div class="vcr-controls">
-          <button class="modal-close" id="backroomsClose">Exit</button>
+          <button type="button" class="modal-close" id="backroomsClose">Exit</button>
         </div>
       </div>
     </div>
 
-    <!-- Chatbox Modal (Starts off hidden) -->
+    <!-- Chatbox Modal -->
     <div id="chatboxModal" class="chat-modal hidden">
       <div class="chatbox-interface">
         <div class="chatbox-header">
           <span>Chat with Eric</span>
-          <button class="chatbox-close">X</button>
+          <button type="button" class="chatbox-close">X</button>
         </div>
         <div class="chatbox-body">
           <div class="chatbox-messages">
@@ -442,21 +353,30 @@ Because Descartes’ implication that the mind is independent from the body, and
         </div>
         <div class="chatbox-footer">
           <input type="text" id="chatboxInput" class="chatbox-input" placeholder="Type your message..." />
-          <button id="chatboxSendBtn" class="chatbox-send-btn">Send</button>
+          <button type="button" id="chatboxSendBtn" class="chatbox-send-btn">Send</button>
         </div>
       </div>
     </div>
 
+    <!-- Data Modal (Analytics with Chart) -->
+    <div id="dataModal" class="modal hidden">
+      <div class="modal-content">
+        <h2 class="modal-title">Site Analytics</h2>
+        <div class="modal-body" id="dataModalBody">
+          <p>Loading site data...</p>
+        </div>
+        <button type="button" class="modal-close" id="dataModalClose">Close</button>
+      </div>
+    </div>
+
     <!-- Minigame Modal (Draggable, starts center left) -->
-    <!-- Added tabindex="0" so it can receive focus for key events -->
     <div id="minigameModal" class="modal hidden" tabindex="0">
       <div class="modal-content" id="minigameModalContent">
         <div class="modal-header" id="minigameHeader">
           <span>Minigame</span>
-          <button class="modal-close" id="minigameClose">X</button>
+          <button type="button" class="modal-close" id="minigameClose">X</button>
         </div>
         <canvas id="miniDinoGame" width="300" height="150"></canvas>
-        <!-- Game Over overlay -->
         <div id="minigameGameOver" class="game-over hidden"></div>
       </div>
     </div>
@@ -464,6 +384,8 @@ Because Descartes’ implication that the mind is independent from the body, and
     <!-- Toggle Buttons (Bottom Right) -->
     <div id="chatboxPrompt" class="toggle-button">Chat</div>
     <div id="musicPrompt" class="toggle-button">Music</div>
+    <!-- Data toggle remains a button -->
+    <button type="button" id="dataPrompt" class="toggle-button">Data</button>
     <div id="minigamePrompt" class="toggle-button">Minigame</div>
     <div id="backroomsPrompt" class="toggle-button">Backrooms</div>
 
@@ -478,11 +400,11 @@ Because Descartes’ implication that the mind is independent from the body, and
         <div class="song-album">Album/Playlist</div>
       </div>
       <div class="music-controls">
-        <button id="btnBackward" class="control-btn backward" aria-label="Backward"></button>
-        <button id="btnPlayPause" class="control-btn play breathing" aria-label="Play/Pause"></button>
-        <button id="btnForward" class="control-btn forward" aria-label="Forward"></button>
-        <button id="btnFavorite" class="control-btn favorite" aria-label="Favorite">❤️</button>
-        <button id="btnFavoritesToggle" class="control-btn favorites-toggle" aria-label="Toggle Favorites">★</button>
+        <button type="button" id="btnBackward" class="control-btn backward" aria-label="Backward"></button>
+        <button type="button" id="btnPlayPause" class="control-btn play breathing" aria-label="Play/Pause"></button>
+        <button type="button" id="btnForward" class="control-btn forward" aria-label="Forward"></button>
+        <button type="button" id="btnFavorite" class="control-btn favorite" aria-label="Favorite">❤️</button>
+        <button type="button" id="btnFavoritesToggle" class="control-btn favorites-toggle" aria-label="Toggle Favorites">★</button>
       </div>
       <div class="music-progress">
         <input type="range" id="progressBar" value="0" min="0" max="100" />
