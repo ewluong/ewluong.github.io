@@ -525,11 +525,11 @@ body::before {
   border-color: transparent var(--text-color) transparent transparent;
 }
 .control-btn.favorite::before {
-  content: "❤️";
+  content: "";
   font-size: 1rem;
 }
 .control-btn.favorites-toggle::before {
-  content: "★";
+  content: "";
   font-size: 1rem;
 }
 .breathing {

@@ -52,7 +52,7 @@ const themes = [
     ],
   },
 ];
-let currentTheme = themes[0];
+let currentTheme = themes[3];
 
 document.addEventListener("DOMContentLoaded", () => {
   // Set initial theme using the first sub-scheme.
@@ -851,7 +851,7 @@ function initChatbox(API_URL) {
   const chatboxSendBtn = document.getElementById("chatboxSendBtn");
   const chatboxInput = document.getElementById("chatboxInput");
   const chatboxMessages = chatboxModal.querySelector(".chatbox-messages");
-  const chatboxInterface = document.getElementById("chatboxModal").querySelector(".chatbox-interface");
+  const chatboxInterface = chatboxModal.querySelector(".chatbox-interface");
 
   // Toggle chat modal on click.
   chatboxPrompt.addEventListener("click", () => {
@@ -899,11 +899,13 @@ function initChatbox(API_URL) {
     chatboxMessages.appendChild(messageDiv);
     chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
   }
+  // Use the updated draggable function for fixed elements.
   makeElementDraggable(chatboxInterface);
 }
 
 // --------------------- MAKE ELEMENT DRAGGABLE ---------------------
-// Updated to use page coordinates.
+// Updated to check the element's computed position.
+// For fixed elements (like our chat modal), use client coordinates.
 function makeElementDraggable(element) {
   let isDragging = false, offsetX, offsetY;
   element.addEventListener("pointerdown", (e) => {
@@ -911,21 +913,36 @@ function makeElementDraggable(element) {
     isDragging = true;
     e.preventDefault();
     const rect = element.getBoundingClientRect();
-    const leftAbs = rect.left + window.scrollX;
-    const topAbs = rect.top + window.scrollY;
-    offsetX = e.pageX - leftAbs;
-    offsetY = e.pageY - topAbs;
+    const computedPos = getComputedStyle(element).position;
+    if (computedPos === "fixed") {
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      element.style.left = `${rect.left}px`;
+      element.style.top = `${rect.top}px`;
+    } else {
+      const leftAbs = rect.left + window.scrollX;
+      const topAbs = rect.top + window.scrollY;
+      offsetX = e.pageX - leftAbs;
+      offsetY = e.pageY - topAbs;
+      element.style.left = `${leftAbs}px`;
+      element.style.top = `${topAbs}px`;
+    }
     element.style.transform = "none";
-    element.style.left = `${leftAbs}px`;
-    element.style.top = `${topAbs}px`;
     element.classList.add("dragging");
     document.body.style.userSelect = "none";
     element.setPointerCapture(e.pointerId);
   });
   element.addEventListener("pointermove", (e) => {
     if (isDragging) {
-      let newLeft = e.pageX - offsetX;
-      let newTop = e.pageY - offsetY;
+      let newLeft, newTop;
+      const computedPos = getComputedStyle(element).position;
+      if (computedPos === "fixed") {
+        newLeft = e.clientX - offsetX;
+        newTop = e.clientY - offsetY;
+      } else {
+        newLeft = e.pageX - offsetX;
+        newTop = e.pageY - offsetY;
+      }
       newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - element.offsetWidth));
       newTop = Math.max(0, Math.min(newTop, window.innerHeight - element.offsetHeight));
       element.style.left = `${newLeft}px`;
