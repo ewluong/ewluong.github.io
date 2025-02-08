@@ -3,18 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- For a better mobile experience -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>Eric's Data Science Portfolio</title>
 
     <!-- Link to external CSS -->
     <link rel="stylesheet" href="style.css" />
 
-    <!-- Pixel/Retro Font: VT323 -->
+    <!-- Preconnect & preload Google Font (Pixel/Retro Font: VT323) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Preload the font stylesheet for faster rendering -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=VT323&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
+    </noscript>
 
     <!-- Marked.js for Markdown Parsing (loaded with defer) -->
     <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -29,14 +32,13 @@
     <!-- ASCII Corner (typed on scroll) -->
     <div id="asciiCorner"></div>
 
-    <!-- Navigation Bar -->
+    <!-- Navigation Bar (Contact removed) -->
     <nav class="navbar">
       <ul>
         <li><a href="#home" class="nav-link">Home</a></li>
         <li><a href="#about" class="nav-link">About</a></li>
         <li><a href="#projects" class="nav-link">Projects</a></li>
         <li><a href="#blog" class="nav-link">Blog</a></li>
-        <li><a href="#contact" class="nav-link">Contact</a></li>
       </ul>
     </nav>
 
@@ -50,7 +52,7 @@
         id="dodecagonCanvas"
         width="400"
         height="400"
-        style="border: none; max-width: 400px;"
+        style="max-width: 400px; border: none;"
       ></canvas>
       <p>
         Welcome. Thanks for dropping by.
@@ -61,39 +63,35 @@
     <!-- Projects Section -->
     <section id="projects" class="section projects-section">
       <!-- Section Header with Typewriter Effect -->
-      <h1 class="section-header glitch-intro" data-text="Work">Work</h1>
+      <h1 class="section-header" data-text="Work">Work</h1>
       <p>Check out some of my favorite projects below.</p>
       <div class="project-cards" id="project-cards">
-        <!-- Project Card 1: ewluong.com (opens Chat modal) -->
+        <!-- Project Card 1: ewluong.com -->
         <div class="project-card">
           <h2>ewluong.com</h2>
           <p>
-            A playful and interactive platform where users can chat with a friendly AI
-            chatbot, enjoy some tunes, or explore educational content.
-            Built with HTML, CSS, and JavaScript for a dynamic frontend, and powered by
-            Python with Flask and Hugging Face Transformers for the chatbot backend.
+            A playful and interactive platform where users can chat with a friendly AI chatbot, enjoy some tunes, or explore educational content.
+            Built with HTML, CSS, and JavaScript for a dynamic frontend, and powered by Python with Flask and Hugging Face Transformers for the chatbot backend.
           </p>
           <a
             href="https://github.com/ewluong/ewluong.github.io"
             class="project-link"
             target="_blank"
-            >**View on GitHub**</a
-          >
+          >**View on GitHub**</a>
         </div>
         <!-- Project Card 2: Anomaly Detection in Network Traffic -->
         <div class="project-card" data-file="network.md">
           <h2>Anomaly Detection in Network Traffic</h2>
           <p>
             Built ML models (Random Forest, XGBoost, LightGBM, Neural Networks) to detect
-            cyber-attacks using UNSW-NB15. Compared precision/recall to reduce false
+            cyber‑attacks using UNSW‑NB15. Compared precision/recall to reduce false
             positives, addressed class imbalance, and focused on feature engineering.
           </p>
           <a
             href="https://github.com/ewluong/project2024/tree/main/cybersecurity_threats"
             class="project-link"
             target="_blank"
-            >**View on GitHub**</a
-          >
+          >**View on GitHub**</a>
         </div>
         <!-- Project Card 3: Best Sellers Analysis -->
         <div class="project-card" data-file="amazon.pdf">
@@ -107,8 +105,7 @@
             href="https://github.com/ewluong/project2024/tree/main/best_sellers_analysis"
             class="project-link"
             target="_blank"
-            >**View on GitHub**</a
-          >
+          >**View on GitHub**</a>
         </div>
         <!-- Project Card 4: Centrality Measures in Networks -->
         <div class="project-card" data-file="comp_centrality.pdf">
@@ -122,8 +119,7 @@
             href="https://github.com/ewluong/project2024/tree/main/centrality_measures"
             class="project-link"
             target="_blank"
-            >**View on GitHub**</a
-          >
+          >**View on GitHub**</a>
         </div>
         <!-- Project Card 5: Housing Prices Prediction -->
         <div class="project-card" data-file="housing.md">
@@ -137,8 +133,7 @@
             href="https://github.com/ewluong/project2024/tree/main/housing_prices_prediction"
             class="project-link"
             target="_blank"
-            >**View on GitHub**</a
-          >
+          >**View on GitHub**</a>
         </div>
         <!-- Project Card 6: Panel Data Analysis -->
         <div class="project-card" data-file="woolridge.html">
@@ -152,8 +147,7 @@
             href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis"
             class="project-link"
             target="_blank"
-            >**View on GitHub**</a
-          >
+          >**View on GitHub**</a>
         </div>
         <!-- Project Card 7: apexprint.co -->
         <div class="project-card">
@@ -166,8 +160,7 @@
             href="https://www.goabcprint.com/"
             class="project-link"
             target="_blank"
-            >**View Website**</a
-          >
+          >**View Website**</a>
         </div>
         <!-- Project Card 8: Sudoku Linear Programming -->
         <div class="project-card" data-file="sudoku.pdf">
@@ -181,8 +174,7 @@
             href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis"
             class="project-link"
             target="_blank"
-            >**View on GitHub**</a
-          >
+          >**View on GitHub**</a>
         </div>
         <!-- Project Card 9: CBA‑to‑NBA Performance Correlation -->
         <div class="project-card" data-file="nba.pdf">
@@ -196,8 +188,7 @@
             href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis"
             class="project-link"
             target="_blank"
-            >**View on GitHub**</a
-          >
+          >**View on GitHub**</a>
         </div>
         <!-- Project Card 10: Amber India Restaurant Case Study -->
         <div class="project-card">
@@ -224,8 +215,7 @@
             href="https://github.com/ewluong/project2024/tree/main/infinite_backrooms"
             class="project-link"
             target="_blank"
-            >**View on GitHub**</a
-          >
+          >**View on GitHub**</a>
         </div>
       </div>
     </section>
@@ -233,9 +223,9 @@
     <!-- About Section -->
     <section id="about" class="section about-section">
       <!-- Section Header with Typewriter Effect -->
-      <h1 class="section-header glitch-intro" data-text="About Me">About Me</h1>
+      <h1 class="section-header" data-text="About Me">About Me</h1>
       <div class="about-grid">
-        <!-- About Item 1: Work Experience -->
+        <!-- About Item 1 -->
         <div class="about-item">
           <img src="images/work.png" alt="Work Icon" class="about-icon" loading="lazy" />
           <p>
@@ -244,7 +234,7 @@
             models, data analytics strategies, and helped streamline business development.
           </p>
         </div>
-        <!-- About Item 2: SPI Energy -->
+        <!-- About Item 2 -->
         <div class="about-item">
           <img src="images/bitcoin.png" alt="Crypto Icon" class="about-icon" loading="lazy" />
           <p>
@@ -253,7 +243,7 @@
             data analysis. Learned about the evolving energy market and blockchain tech.
           </p>
         </div>
-        <!-- About Item 3: Favorite Reads -->
+        <!-- About Item 3 -->
         <div class="about-item">
           <img src="images/book.png" alt="Book Icon" class="about-icon" loading="lazy" />
           <p>
@@ -262,7 +252,7 @@
             "Strangers from a Different Shore" fuel my imagination and expand my worldview.
           </p>
         </div>
-        <!-- About Item 4: Gaming Interests -->
+        <!-- About Item 4 -->
         <div class="about-item">
           <img src="images/controller.png" alt="Controller Icon" class="about-icon" loading="lazy" />
           <p>
@@ -272,7 +262,7 @@
             strategic thinking.
           </p>
         </div>
-        <!-- About Item 5: Volunteering -->
+        <!-- About Item 5 -->
         <div class="about-item">
           <img src="images/garden.png" alt="Garden Icon" class="about-icon" loading="lazy" />
           <p>
@@ -281,7 +271,7 @@
             It’s a hands‑on way to give back and cultivate green spaces.
           </p>
         </div>
-        <!-- About Item 6: Academic Achievements -->
+        <!-- About Item 6 -->
         <div class="about-item">
           <img src="images/hat.png" alt="Academic Icon" class="about-icon" loading="lazy" />
           <p>
@@ -290,7 +280,7 @@
             UC Berkeley ML & AI Certificate.
           </p>
         </div>
-        <!-- About Item 7: Tennis Passion -->
+        <!-- About Item 7 -->
         <div class="about-item">
           <img src="images/tennis.png" alt="Tennis Icon" class="about-icon" loading="lazy" />
           <p>
@@ -299,7 +289,7 @@
             discipline, strategy, and the value of continuous improvement.
           </p>
         </div>
-        <!-- About Item 8: Music & Production -->
+        <!-- About Item 8 -->
         <div class="about-item">
           <img src="images/music.png" alt="Music Icon" class="about-icon" loading="lazy" />
           <p>
@@ -315,7 +305,7 @@
     <!-- Blog Section -->
     <section id="blog" class="section blog-section">
       <!-- Section Header with Typewriter Effect -->
-      <h1 class="section-header glitch-intro" data-text="Blog">Blog</h1>
+      <h1 class="section-header" data-text="Blog">Blog</h1>
       <p>My thoughts on anything...</p>
       <ul class="blog-list">
         <!-- Blog Post 1 -->
@@ -327,7 +317,7 @@ This turn towards the mystical reflects a deeper human desire for balance. In a 
 
 Art and science fiction have always played a crucial role in exploring these themes. They create spaces where the boundaries between science and magic blur, where impossible things happen in plausible ways. These genres resonate because they mirror our longing for a universe filled with undiscovered wonders, where the limits of what’s possible are constantly expanding.
 
-This interest in the mystical is also a form of rebellion – a rebellion against a world that can feel too structured and predictable. Embracing the mystical provides a space for imagination and belief to thrive, outside the confines of logic and science. It’s not a retreat into superstition but an embrace of the unknown, a celebration of the human spirit’s quest for the extraordinary.
+This interest in the mystical is also a form of rebellion – a rebellion against a world that can feel too structured and predictable.Embracing the mystical provides a space for imagination and belief to thrive, outside the confines of logic and science. It’s not a retreat into superstition but an embrace of the unknown, a celebration of the human spirit’s quest for the extraordinary.
 
 So, as we embrace the wonders of science and technology, let's not forget the magic that exists around us. It’s in this balance between understanding and wonder that we find the true richness of the human experience – a journey that’s as much about exploring the world around us as it is about cherishing the magic within.">
           Finding Wonder in a World of Logic
@@ -346,8 +336,7 @@ This narrative parallels the life of a young adult today. Just like Sisyphus, th
 Here's the rundown: Stakeholder capitalism used to mean something transformative. The whole point was that companies should focus on more than just raking in profits for shareholders. They should also give a damn about societal issues, environment, employees — you know, the greater good. But as this concept's gotten more popular, something's gotten lost in translation. What was once a revolutionary concept is now becoming a marketing tagline, a check‑box exercise that corporations go through to appear woke.
 
 Why is this problematic? Well, think about it. The essence of stakeholder capitalism challenges the gospel according to Milton Friedman, who's basically the high priest of shareholder capitalism. He preached that a company's sole purpose was to generate profits for shareholders, no questions asked. Stakeholder capitalism was supposed to be the antidote to that philosophy. Yet, here we are, the champions of stakeholder capitalism diluting its meaning to fit neatly into corporate slide decks.
-
-And Friedman's cautionary words? They're becoming eerily prescient. He warned us that shifting focus from profits could make companies less efficient, less effective, ultimately hurting society at large. The diluted version of stakeholder capitalism we're seeing could make Friedman's fears a reality. Companies might still chase profits, now under the guise of also serving broader societal goals. But if those goals are just lip service, we're fooling ourselves and doing a disservice to society.">
+">
           On Stakeholder Capitalism
         </li>
         <!-- Blog Post 4 -->
@@ -355,15 +344,17 @@ And Friedman's cautionary words? They're becoming eerily prescient. He warned us
 
 With the emergence of Web3 technologies, the concept of a network state is becoming a reality. The decentralized nature of Web3 technologies creates a more inclusive and diverse environment, where everyone has an equal opportunity to participate and contribute. Pseudonyms are a key tool in this new environment, allowing individuals to participate in online communities without revealing their true identity. This helps to protect their privacy and personal information, and also allows them to participate in communities that they might not otherwise have access to.
 
-Moreover, pseudonyms can help to level the playing field and promote equal opportunities for all individuals in a network state. When people use pseudonyms in online discussions, they are judged based on the quality of their ideas and contributions, rather than their gender, ethnicity, or nationality. This can create a more inclusive and diverse environment, where everyone has an equal opportunity to participate and contribute.">
+Moreover, pseudonyms can help to level the playing field and promote equal opportunities for all individuals in a network state. When people use pseudonyms in online discussions, they are judged based on the quality of their ideas and contributions, rather than their gender, ethnicity, or nationality. This can create a more inclusive and diverse environment, where everyone has an equal opportunity to participate and contribute.
+">
           On Pseudonyms
         </li>
         <!-- Blog Post 5 -->
         <li class="blog-post" data-title="On Regression Theory" data-content="The Great Depression was something spurred up from the very actions the government took to prevent it. To Austrian economists, if the Federal Reserve had handled the monetary policy differently, the entire situation could have been prevented. Now the way Austrian Economics piqued my interests is in the way they seem to value deflationary economies over Keynesian economics. Although by far the less popular form of thinking about the economy, it seems as though the deflationary characteristic of Bitcoin aligns well with the Austrian. Another evident similarity is that the very core ideology of Austrian economics is that governments should stay as hands off as possible and let the market reach an equilibrium with itself.
 
-There’s a lot to discuss about how these two relate, but I wanted to focus on one specific aspect, and that is the regression theory that Ludwig Von Mises, a renowned economist, used to apply the subjective theory of money to the objective‑exchange value. In other words, he tried to explore the value of money. For products and services in a market, the price heavily depends on the supply and demand of whatever item is in focus. Money, however, doesn’t fit into this model very well. After all, it isn’t a product that can be used, or a service that can be provided. Money is simply something that is traded for with the future prospect that someone else would likewise exchange for. The supply is taken care of as there is a “finite” amount distributed in a market, but you can’t possibly attach a demand to money as it’s merely a proxy. Furthermore, currency such as silver and gold are different from the type of currency in discussion since they themselves can be melted down into a commodity that has demand. Gold and silver have both been used to make jewelry and home decor for centuries, if not longer. This brings us to the main idea of regression theory, which is the idea of how currency must originate from a previous non‑monetary state that had a meaningful value in society, thus the value today is derived from that previous value.
+There’s a lot to discuss about how these two relate, but I wanted to focus on one specific aspect, and that is the regression theory that Ludwig Von Mises, a renowned economist, used to apply the subjective theory of money to the objective‑exchange value. In other words, he tried to explore the value of money. For products and services in a market, the price heavily depends on the supply and demand of whatever item is in focus. Money, however, doesn’t fit into this model very well. After all, it isn’t a product that can be used, or a service that can be provided. Money is simply something that is traded for with the future prospect that someone else would likewise exchange for. The supply is taken care of as there is a “finite” amount distributed in a market, but you can’t possibly attach a demand to money as it’s merely a proxy. Furthermore, currency such as silver and gold are different from the type of currency in discussion since they themselves can be melted down into a commodity that has demand. This brings us to the main idea of regression theory, which is the idea of how currency must originate from a previous non‑monetary state that had a meaningful value in society, thus the value today is derived from that previous value.
 
-Perhaps to look at it in a different way in order to better understand it; Money seems objective in a way, since my $10 equals your $10. However, I could use my $10 to buy a nice meal, and you could use your $10 to buy a hat. The subjective value in this case might seem different. Mises’ view was that the objective value and subjective value must have been correlated at some point, so the value would be derived from the value as a commodity before it was a monetary use.">
+Perhaps to look at it in a different way in order to better understand it; Money seems objective in a way, since my $10 equals your $10. However, I could use my $10 to buy a nice meal, and you could use your $10 to buy a hat. The subjective value in this case might seem different. Mises’ view was that the objective value and subjective value must have been correlated at some point, so the value would be derived from the value as a commodity before it was a monetary use.
+">
           On Regression Theory
         </li>
         <!-- Blog Post 6 -->
@@ -371,9 +362,10 @@ Perhaps to look at it in a different way in order to better understand it; Money
 
 In a traditional one person‑one vote system, minorities’ voices are shrouded by the masses, which is why a more modernized and truly democratic system is needed in order to protect the interests of all groups from an oligarchy. Most of those in the cryptocurrency and blockchain community have unified philosophical ideals and a surprising acceptance of change, which makes it an exemplary place to try new ideas.
 
-There are many different attempts at fixing the ongoing problems of governance and consensus in blockchain systems. Each has its own flaws: POW takes up too much real-world resources, POS brings the power into the hands of a few, and POA may obscure the real dedication a certain node has to the network. However, a new idea introduced called Quadratic Voting (QV) could bring a more equal conglomerate of voices to a social blockchain and alleviate the problems with governance.
+There are many different attempts at fixing the ongoing problems of governance and consensus in blockchain systems. Each has its own flaws: POW takes up too much real‑world resources, POS brings the power into the hands of a few, and POA may obscure the real dedication a certain node has to the network. However, a new idea introduced called Quadratic Voting (QV) could bring a more equal conglomerate of voices to a social blockchain and alleviate the problems with governance.
 
-Having said that, the main obstacle with implementing QV is proving the authenticity of the human identity of a particular voting entity. With constant applications of pseudonymity and anonymity in cryptocurrency networks, the challenge remains in creating a method of identification that can be proven with high enough accuracy without revealing the identity of the user.">
+Having said that, the main obstacle with implementing QV is proving the authenticity of the human identity of a particular voting entity. With constant applications of pseudonymity and anonymity in cryptocurrency networks, the challenge remains in creating a method of identification that can be proven with high enough accuracy without revealing the identity of the user.
+">
           On Quadratic Voting and Funding
         </li>
         <!-- Blog Post 7 -->
@@ -381,11 +373,8 @@ Having said that, the main obstacle with implementing QV is proving the authenti
 
 In order to better understand why Descartes’ conclusions are flawed, one must understand the concept of natural selection and how this has bred the human race into what it is today. Darwinian natural selection is defined by the change of heritable traits of an organism over time based on the survivability and reproductive chances of those particular traits. Undoubtedly, humans (homo sapiens sapiens) have not always been like we are today. At some point in time, we evolved from clusters of cells and began to develop limbs and other physical features that increase our survivability in a particular environment. From this we gained hands and feet, while fish gained fins and gills. Not long ago, in relation to the existence of the universe, the homo sapien species did not have the neuro‑physiological capacity to think as we do now, much like a fish. All of what occurs through natural selection is very physical. The fact that humans have larger brains is because of this physical change over thousands of years. Therefore, there is no possible way such a physical process could fabricate something as immaterial and non‑physical as the mind Descartes discusses.
 
-An argument against this view could be that since the human mind does not have any direct effect onto the physical world, it could not have originated from natural selection. However, even if it did not directly originate from natural selection, it could be a byproduct, or accessory, of a more direct trait that is inherited for survival. For example, male peacocks developed large but colorful feathers that seem to slow them down if a predator attacked. However, by having these colorful feathers, they would be more successful at courting a female peacock in order to breed for survival. Having these heavier feathers which may slow them down is a byproduct of a more significant trait for survival. The human mind could be just something created by the evolution of some other more significant part of the brain.
-
-Another major flaw occurs when dealing with how the mind interacts with the body if the mind were independent. Imagine a bowling ball rolling toward a pin. In order for the bowling ball to have enough force to knock over the pin on a flat surface, there must have been some sort of physical energy that gave the ball enough energy to reach and knock over the pin. In other words, the energy must come from somewhere. Based on the principle of Conservation of Energy, no energy can be created or destroyed. When a person has a desire to raise a hand in class, some form of energy must have fired the neurons within his or her brain in order to trigger the raising of the hand. However, assuming that the mind is non‑physical as Descartes pointed out, where does the energy to fire the physical neurons in one’s brain come from? Since the creation or destruction of energy is impossible in terms of physical law, the mind cannot be separate from the body; all energy must originate from somewhere.
-
-Because Descartes’ implication that the mind is independent from the body, and that it is possible for the mind to exist without the body, could not be true since it would oppose natural selection and the laws of physics. Insofar as how much we understand the world and our minds today, this Cartesian dualism made popular by Descartes only complicates the discussion about the philosophy of mind and conflicts with Ockham’s Razor.Therefore, Descartes may have showed that the body exists, but his argument that the mind is its own entity is fundamentally flawed.">
+Because Descartes’ implication that the mind is independent from the body, and that it is possible for the mind to exist without the body, could not be true since it would oppose natural selection and the laws of physics. Insofar as how much we understand the world and our minds today, this Cartesian dualism made popular by Descartes only complicates the discussion about the philosophy of mind and conflicts with Ockham’s Razor.Therefore, Descartes may have showed that the body exists, but his argument that the mind is its own entity is fundamentally flawed.
+">
           On Dualism
         </li>
       </ul>
@@ -424,11 +413,7 @@ Because Descartes’ implication that the mind is independent from the body, and
         </div>
         <div class="vcr-search">
           <select id="backroomsDropdown"></select>
-          <input
-            type="text"
-            id="backroomsSearch"
-            placeholder="Search conversation..."
-          />
+          <input type="text" id="backroomsSearch" placeholder="Search conversation..." />
           <button id="backroomsSearchBtn">Search</button>
           <button id="backroomsClearBtn">Clear Search</button>
         </div>
@@ -443,7 +428,7 @@ Because Descartes’ implication that the mind is independent from the body, and
       </div>
     </div>
 
-    <!-- Chatbox Modal -->
+    <!-- Chatbox Modal (Starts off hidden) -->
     <div id="chatboxModal" class="chat-modal hidden">
       <div class="chatbox-interface">
         <div class="chatbox-header">
@@ -456,14 +441,23 @@ Because Descartes’ implication that the mind is independent from the body, and
           </div>
         </div>
         <div class="chatbox-footer">
-          <input
-            type="text"
-            id="chatboxInput"
-            class="chatbox-input"
-            placeholder="Type your message..."
-          />
+          <input type="text" id="chatboxInput" class="chatbox-input" placeholder="Type your message..." />
           <button id="chatboxSendBtn" class="chatbox-send-btn">Send</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Minigame Modal (Draggable, starts center left) -->
+    <!-- Added tabindex="0" so it can receive focus for key events -->
+    <div id="minigameModal" class="modal hidden" tabindex="0">
+      <div class="modal-content" id="minigameModalContent">
+        <div class="modal-header" id="minigameHeader">
+          <span>Minigame</span>
+          <button class="modal-close" id="minigameClose">X</button>
+        </div>
+        <canvas id="miniDinoGame" width="300" height="150"></canvas>
+        <!-- Game Over overlay -->
+        <div id="minigameGameOver" class="game-over hidden"></div>
       </div>
     </div>
 
@@ -485,11 +479,7 @@ Because Descartes’ implication that the mind is independent from the body, and
       </div>
       <div class="music-controls">
         <button id="btnBackward" class="control-btn backward" aria-label="Backward"></button>
-        <button
-          id="btnPlayPause"
-          class="control-btn play breathing"
-          aria-label="Play/Pause"
-        ></button>
+        <button id="btnPlayPause" class="control-btn play breathing" aria-label="Play/Pause"></button>
         <button id="btnForward" class="control-btn forward" aria-label="Forward"></button>
         <button id="btnFavorite" class="control-btn favorite" aria-label="Favorite">❤️</button>
         <button id="btnFavoritesToggle" class="control-btn favorites-toggle" aria-label="Toggle Favorites">★</button>
@@ -506,9 +496,6 @@ Because Descartes’ implication that the mind is independent from the body, and
       </div>
       <audio id="audioPlayer" src="docs/sample.mp3"></audio>
     </div>
-
-    <!-- Minigame Canvas -->
-    <canvas id="miniDinoGame" width="300" height="150" class="hidden"></canvas>
 
     <!-- Load custom JavaScript with defer -->
     <script defer src="script.js"></script>
