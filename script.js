@@ -57,13 +57,7 @@ let currentTheme = themes[3];
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded");
 
-  // Log the visit exactly once when the main site is launched.
-  fetch("/log_visit")
-    .then(response => response.json())
-    .then(data => {
-      console.log("Visit logged:", data);
-    })
-    .catch(error => console.error("Error logging visit:", error));
+  // (No client-side logging fetch is necessary now.)
 
   // Set initial theme
   document.documentElement.style.setProperty("--bg-color", currentTheme.sub[0].bg);
@@ -128,6 +122,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // --------------------- TYPEWRITER FUNCTIONS ---------------------
+// (Rest of your script.js code remains unchanged)
+
+
+// --------------------- TYPEWRITER FUNCTIONS ---------------------
 function typeWriterOnElement(element, delay = 50) {
   const fullText = element.getAttribute("data-text");
   if (!fullText) return;
@@ -178,6 +176,11 @@ function onScrollTypeAscii() {
   const revealCount = Math.floor(asciiFull.length * ratio);
   asciiCorner.textContent = asciiFull.substring(0, revealCount);
 }
+
+// --------------------- BACKGROUND CANVAS ---------------------
+// (The rest of the code remains unchanged…)
+// [The full code for initCanvas, animateBackground, drawBackgroundShape, etc. remains exactly as before.]
+
 
 // --------------------- BACKGROUND CANVAS ---------------------
 let canvas, ctx;
@@ -933,7 +936,7 @@ function initDataModal() {
 function fetchDataAnalytics() {
   const dataModalBody = document.getElementById("dataModalBody");
   // Use the read-only /analytics endpoint.
-  const analyticsAPI = "http://192.168.4.33:5000/analytics";
+  const analyticsAPI = "/analytics";
   dataModalBody.innerHTML = "<p>Loading site data...</p>";
   fetch(analyticsAPI)
     .then(response => {
