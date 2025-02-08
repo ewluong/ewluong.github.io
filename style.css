@@ -4,18 +4,34 @@
   --accent-color: #222222;
   --link-glitch-color: #ffffff;
   --base-font-size: 20px;
-  --hover-bg-on-black: #ff5e00;  
+  --hover-bg-on-black: #ff5e00;
   --hover-text-on-black: #000000;
-  --hover-bg-on-orange: #000000; 
+  --hover-bg-on-orange: #000000;
   --hover-text-on-orange: #ff5e00;
 }
-:root[data-scheme="orange"] {
-  --item-hover-bg: var(--hover-bg-on-orange);
-  --item-hover-text: var(--hover-text-on-orange);
+:root[data-scheme="Orange & Black"] {
+  --item-hover-bg: #000000;
+  --item-hover-text: #ff5e00;
 }
-:root[data-scheme="black"] {
-  --item-hover-bg: var(--hover-bg-on-black);
-  --item-hover-text: var(--hover-text-on-black);
+:root[data-scheme="Black & Bright Green"] {
+  --item-hover-bg: #00ff00;
+  --item-hover-text: #000000;
+}
+:root[data-scheme="Dark Purple & Neon Green"] {
+  --item-hover-bg: #00ff00;
+  --item-hover-text: #2e003e;
+}
+:root[data-scheme="Navy Blue & Light Blue"] {
+  --item-hover-bg: #7FDBFF;
+  --item-hover-text: #001f3f;
+}
+:root[data-scheme="Dark Maroon & Amber"] {
+  --item-hover-bg: #f2a900;
+  --item-hover-text: #0d0208;
+}
+:root[data-scheme="Dark Blue & Off-White"] {
+  --item-hover-bg: #fdfffc;
+  --item-hover-text: #011627;
 }
 body {
   transition: background-color 1.2s ease, color 1.2s ease;
@@ -29,7 +45,8 @@ body {
 body::before {
   content: "";
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
@@ -76,12 +93,30 @@ body::before {
   color: var(--bg-color);
 }
 @keyframes glitchHover {
-  0% { text-shadow: 1px 0 var(--link-glitch-color), -1px 0 var(--text-color); transform: skewX(-3deg); }
-  20% { text-shadow: -2px 0 var(--text-color), 2px 0 var(--link-glitch-color); transform: skewX(3deg); }
-  40% { text-shadow: 1px 0 var(--link-glitch-color), -1px 0 var(--text-color); transform: skewX(-3deg); }
-  60% { text-shadow: -1px 0 var(--text-color), 1px 0 var(--link-glitch-color); transform: skewX(3deg); }
-  80% { text-shadow: -2px 0 var(--link-glitch-color), 2px 0 var(--text-color); transform: skewX(-3deg); }
-  100% { text-shadow: 1px 0 var(--link-glitch-color), -1px 0 var(--text-color); transform: skewX(0deg); }
+  0% {
+    text-shadow: 1px 0 var(--link-glitch-color), -1px 0 var(--text-color);
+    transform: skewX(-3deg);
+  }
+  20% {
+    text-shadow: -2px 0 var(--text-color), 2px 0 var(--link-glitch-color);
+    transform: skewX(3deg);
+  }
+  40% {
+    text-shadow: 1px 0 var(--link-glitch-color), -1px 0 var(--text-color);
+    transform: skewX(-3deg);
+  }
+  60% {
+    text-shadow: -1px 0 var(--text-color), 1px 0 var(--link-glitch-color);
+    transform: skewX(3deg);
+  }
+  80% {
+    text-shadow: -2px 0 var(--link-glitch-color), 2px 0 var(--text-color);
+    transform: skewX(-3deg);
+  }
+  100% {
+    text-shadow: 1px 0 var(--link-glitch-color), -1px 0 var(--text-color);
+    transform: skewX(0deg);
+  }
 }
 .section {
   padding: 8rem 3rem;
@@ -98,18 +133,16 @@ body::before {
   margin-bottom: 1rem;
   opacity: 0;
 }
-@keyframes glitchHeader {
-  0% { opacity: 0; transform: translateY(50px) skewX(-25deg); text-shadow: 2px 0 var(--link-glitch-color), -2px 0 var(--text-color); }
-  10% { opacity: 0.5; transform: translateY(25px) skewX(15deg); text-shadow: -2px 0 var(--text-color), 2px 0 var(--link-glitch-color); }
-  30% { opacity: 1; transform: translateY(0) skewX(-20deg); text-shadow: 1px 0 var(--text-color), -1px 0 var(--link-glitch-color); }
-  50% { transform: translateY(-10px) skewX(20deg); text-shadow: -1px 0 var(--text-color), 1px 0 var(--link-glitch-color); }
-  70% { transform: translateY(0) skewX(-5deg); text-shadow: -1px 0 var(--link-glitch-color), 1px 0 var(--text-color); }
-  100% { opacity: 1; transform: translateY(0) skewX(0deg); text-shadow: none; }
+#terminalHeader {
+  opacity: 1;
 }
-.glitch-intro { animation: glitchHeader 2s ease-in-out forwards; }
+.glitch-intro {
+  animation: none;
+}
 #bgCanvas {
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   z-index: -1;
@@ -148,7 +181,11 @@ body::before {
   color: var(--item-hover-text);
   transform: scale(1.05);
 }
-.about-icon { width: 40px; height: 40px; margin-bottom: 1rem; }
+.about-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 1rem;
+}
 .project-cards {
   display: flex;
   flex-wrap: wrap;
@@ -189,16 +226,19 @@ body::before {
 }
 .modal {
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
 }
-.hidden { display: none; }
+.hidden {
+  display: none;
+}
 .modal-content {
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -210,8 +250,12 @@ body::before {
   position: relative;
   overflow: hidden;
 }
-.modal-title { font-size: 2rem; margin-bottom: 1rem; }
-.modal-text, .modal-body {
+.modal-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.modal-text,
+.modal-body {
   font-size: 1.2rem;
   min-height: 100px;
   max-height: 500px;
@@ -231,20 +275,23 @@ body::before {
   background-color: var(--link-glitch-color);
   color: var(--text-color);
 }
+
+/* Chat Modal */
 .chat-modal {
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.7);
+  background-color: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
 }
-.chatbox-interface {
-  background-color: #000;
-  border: 2px solid #ff5e00;
+.chat-modal .chatbox-interface {
+  background-color: var(--bg-color);
+  border: 2px solid var(--text-color);
   border-radius: 8px;
   width: 400px;
   max-width: 90%;
@@ -256,96 +303,114 @@ body::before {
   left: 50%;
   transform: translate(-50%, -50%);
   cursor: grab;
-  transition: background-color 1.2s ease, color 1.2s ease;
+  box-shadow: 0 0 20px var(--text-color);
 }
-.chatbox-interface.dragging { cursor: grabbing; }
-.chatbox-header {
+.chat-modal .chatbox-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background-color: #ff5e00;
-  color: #000;
+  background: var(--text-color);
+  color: var(--bg-color);
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   cursor: move;
 }
-.chatbox-close {
+.chat-modal .chatbox-close {
   background: none;
   border: none;
-  color: #000;
+  color: var(--bg-color);
   font-size: 1.2rem;
   cursor: pointer;
 }
-.chatbox-body {
+.chat-modal .chatbox-body {
   flex: 1;
   padding: 1rem;
-  background-color: #000;
-  color: #ff5e00;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   overflow-y: auto;
 }
-.chatbox-messages {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.chatbox-message {
-  padding: 0.5rem;
-  border-radius: 4px;
-}
-.chatbox-message.user {
+.chat-modal .chatbox-messages .chatbox-message.user {
   align-self: flex-end;
-  background-color: #ff5e00;
-  color: #000;
+  background-color: var(--text-color);
+  color: var(--bg-color);
 }
-.chatbox-message.bot {
+.chat-modal .chatbox-messages .chatbox-message.bot {
   align-self: flex-start;
   background-color: #333;
-  color: #ff5e00;
+  color: var(--text-color);
 }
-.chatbox-footer {
+.chat-modal .chatbox-footer {
   display: flex;
   padding: 1rem;
-  background-color: #000;
+  background-color: var(--bg-color);
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
 }
-.chatbox-input {
+.chat-modal .chatbox-input {
   flex: 1;
   padding: 0.5rem;
-  border: 2px solid #ff5e00;
-  background-color: #000;
-  color: #ff5e00;
+  border: 2px solid var(--text-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
   border-radius: 4px;
   outline: none;
 }
-.chatbox-send-btn {
+.chat-modal .chatbox-send-btn {
   margin-left: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: #ff5e00;
-  color: #000;
+  background-color: var(--text-color);
+  color: var(--bg-color);
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
-.chatbox-send-btn:hover { background-color: #e04e00; }
+.chat-modal .chatbox-send-btn:hover {
+  background-color: var(--hover-bg-on-orange);
+  color: var(--hover-text-on-orange);
+}
+
+/* Toggle Buttons */
 .toggle-button {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
   font-size: 1.2rem;
+  font-family: 'VT323', monospace;
   color: var(--text-color);
   background: var(--bg-color);
   padding: 0.5rem 1rem;
   border: 2px solid var(--text-color);
   z-index: 9999;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
-#musicPrompt { bottom: 80px; }
-#minigamePrompt { bottom: 140px; }
-#chatboxPrompt { bottom: 200px; }
-#backroomsPrompt { bottom: 260px; }
+.toggle-button:hover {
+  transform: scale(1.1);
+  background-color: var(--text-color);
+  color: var(--bg-color);
+}
+#backroomsPrompt {
+  bottom: 260px;
+  right: 20px;
+}
+#chatboxPrompt {
+  bottom: 200px;
+  right: 20px;
+}
+#musicPrompt {
+  bottom: 140px;
+  right: 20px;
+}
+#minigamePrompt {
+  bottom: 80px;
+  right: 20px;
+}
+.top-right {
+  top: 20px;
+  right: 20px;
+}
+
+/* Retro Music Player */
 .retro-music-player {
   position: fixed;
   top: 20px;
@@ -355,18 +420,40 @@ body::before {
   border: 2px solid var(--text-color);
   border-radius: 8px;
   padding: 1rem;
-  color: var(--text-color);
+  color: var(--item-hover-text);
   z-index: 10000;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   cursor: grab;
   transition: background-color 1.2s ease, color 1.2s ease;
 }
-.retro-music-player.dragging { cursor: grabbing; }
-.music-header { width: 100%; height: 50px; background-color: #333; border-radius: 4px; overflow: hidden; }
-#waveformCanvas { width: 100%; height: 100%; }
-.music-info { margin-top: 0.5rem; text-align: left; }
-.song-title { font-weight: bold; font-size: 1.1rem; color: var(--bg-color); }
-.song-artist, .song-album { font-size: 0.9rem; color: var(--bg-color); }
+.retro-music-player.dragging {
+  cursor: grabbing;
+}
+.music-header {
+  width: 100%;
+  height: 50px;
+  background-color: #333;
+  border-radius: 4px;
+  overflow: hidden;
+}
+#waveformCanvas {
+  width: 100%;
+  height: 100%;
+}
+.music-info {
+  margin-top: 0.5rem;
+  text-align: left;
+}
+.song-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--item-hover-text);
+}
+.song-artist,
+.song-album {
+  font-size: 0.9rem;
+  color: var(--item-hover-text);
+}
 .music-controls {
   margin-top: 0.5rem;
   display: flex;
@@ -438,10 +525,17 @@ body::before {
   content: "★";
   font-size: 1rem;
 }
-.breathing { animation: breathe 1.5s infinite; }
+.breathing {
+  animation: breathe 1.5s infinite;
+}
 @keyframes breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
 }
 .music-progress {
   margin-top: 0.5rem;
@@ -449,8 +543,15 @@ body::before {
   flex-direction: column;
   align-items: center;
 }
-#progressBar { width: 100%; cursor: pointer; }
-.time-display { font-size: 0.8rem; color: var(--text-color); margin-top: 0.2rem; }
+#progressBar {
+  width: 100%;
+  cursor: pointer;
+}
+.time-display {
+  font-size: 0.8rem;
+  color: var(--item-hover-text);
+  margin-top: 0.2rem;
+}
 .favorites-dropdown {
   margin-top: 0.5rem;
   background-color: var(--bg-color);
@@ -460,8 +561,14 @@ body::before {
   max-height: 200px;
   overflow-y: auto;
 }
-.favorites-dropdown h3 { margin-bottom: 0.5rem; font-size: 1rem; color: var(--link-glitch-color); }
-.favorites-dropdown ul { list-style: none; }
+.favorites-dropdown h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: var(--link-glitch-color);
+}
+.favorites-dropdown ul {
+  list-style: none;
+}
 .favorites-dropdown li {
   padding: 0.3rem 0;
   border-bottom: 1px solid var(--text-color);
@@ -475,8 +582,12 @@ body::before {
   background-color: var(--item-hover-bg);
   color: var(--item-hover-text);
 }
-.favorites-dropdown li:last-child { border-bottom: none; }
-.hidden { display: none; }
+.favorites-dropdown li:last-child {
+  border-bottom: none;
+}
+.hidden {
+  display: none;
+}
 .retro-music-player::after {
   content: "☰";
   position: absolute;
@@ -495,61 +606,52 @@ body::before {
   background: #000;
   image-rendering: pixelated;
 }
-.hidden { display: none; }
-@media (max-width: 768px) {
-  .navbar ul { flex-direction: column; gap: 1rem; }
-  .section { padding: 4rem 1.5rem; margin: 3rem 0; }
-  .project-cards { flex-direction: column; align-items: center; }
-  .about-grid { flex-direction: column; align-items: center; }
-  #musicPrompt { bottom: 100px; }
-  #minigamePrompt { bottom: 140px; }
-  #chatboxPrompt { bottom: 180px; }
-  #backroomsPrompt { bottom: 240px; }
-  .retro-music-player { width: 90%; left: 5%; top: 10px; }
-  #miniDinoGame { right: 10px; width: 250px; height: 125px; }
-  .chatbox-interface { width: 90%; height: 80%; top: 10%; left: 50%; transform: translate(-50%, -50%); }
-}
 
-/* ======== Backrooms Modal Custom Styles (Vintage Terminal) ======== */
+/* ---------- BACKROOMS MODAL (Vintage Terminal Style) ---------- */
 .backrooms-modal-content {
   width: 90vw;
   height: 80vh;
   max-width: 1200px;
-  background: #000;
-  border: 8px solid #00aa00;
-  box-shadow: 0 0 20px #00aa00;
+  background: var(--bg-color);
+  border: 8px solid var(--text-color);
+  box-shadow: 0 0 20px var(--text-color);
   position: relative;
   font-family: 'VT323', monospace;
   display: flex;
   flex-direction: column;
 }
 .vcr-header {
-  background: #000;
-  color: #00aa00;
+  background: var(--bg-color);
+  color: var(--text-color);
   padding: 10px;
   text-align: center;
   font-size: 2rem;
   letter-spacing: 2px;
-  border-bottom: 4px solid #00aa00;
+  border-bottom: 4px solid var(--text-color);
 }
 .vcr-header .vcr-description {
   font-size: 1rem;
   margin-top: 5px;
   letter-spacing: 1px;
-  color: #00aa00;
+  color: var(--text-color);
 }
 .vcr-search {
-  margin: 20px 10px 10px; 
+  margin: 20px 10px 10px;
   text-align: center;
 }
 .vcr-search select {
   padding: 5px;
   font-family: 'VT323', monospace;
   font-size: 1.2rem;
-  background: #000;
-  border: 1px solid #00aa00;
-  color: #00aa00;
+  background: var(--bg-color);
+  border: 1px solid var(--text-color);
+  color: var(--text-color);
   margin-right: 5px;
+  transition: background 0.3s, color 0.3s;
+}
+.vcr-search select:hover {
+  background: var(--text-color);
+  color: var(--bg-color);
 }
 .vcr-search input {
   padding: 5px;
@@ -557,9 +659,14 @@ body::before {
   font-size: 1.2rem;
   width: 60%;
   margin-right: 5px;
-  background: #000;
-  border: 1px solid #00aa00;
-  color: #00aa00;
+  background: var(--bg-color);
+  border: 1px solid var(--text-color);
+  color: var(--text-color);
+  transition: background 0.3s, color 0.3s;
+}
+.vcr-search input:hover {
+  background: var(--text-color);
+  color: var(--bg-color);
 }
 .vcr-search button {
   padding: 5px 10px;
@@ -567,47 +674,93 @@ body::before {
   font-size: 1.2rem;
   cursor: pointer;
   margin-right: 5px;
-  background: #000;
-  border: 1px solid #00aa00;
-  color: #00aa00;
+  background: var(--bg-color);
+  border: 1px solid var(--text-color);
+  color: var(--text-color);
+  transition: background 0.3s, color 0.3s;
+}
+.vcr-search button:hover {
+  background: var(--text-color);
+  color: var(--bg-color);
 }
 .vcr-screen {
   flex: 1;
-  background: #000;
-  color: #00aa00;
+  background: var(--bg-color);
+  color: var(--text-color);
   padding: 20px;
   overflow-y: auto;
   position: relative;
   font-size: 1.2rem;
   line-height: 1.4;
-  background-image: none;
+  white-space: pre-wrap;
 }
 .vcr-screen::-webkit-scrollbar {
   width: 10px;
 }
 .vcr-screen::-webkit-scrollbar-track {
-  background: #000;
+  background: var(--bg-color);
 }
 .vcr-screen::-webkit-scrollbar-thumb {
-  background-color: #00aa00;
-  border: 2px solid #000;
+  background-color: var(--text-color);
+  border: 2px solid var(--bg-color);
 }
 .vcr-controls {
-  background: #000;
+  background: var(--bg-color);
   padding: 10px;
   text-align: center;
-  border-top: 4px solid #00aa00;
+  border-top: 4px solid var(--text-color);
 }
 .vcr-controls .modal-close {
-  background: #000;
-  color: #00aa00;
-  border: 2px solid #00aa00;
+  background: var(--bg-color);
+  color: var(--text-color);
+  border: 2px solid var(--text-color);
   padding: 5px 15px;
   font-family: 'VT323', monospace;
   cursor: pointer;
   transition: background 0.3s;
 }
 .vcr-controls .modal-close:hover {
-  background: #00aa00;
-  color: #000;
+  background: var(--text-color);
+  color: var(--bg-color);
+}
+
+/* Blinking Cursor */
+#cursor {
+  display: inline-block;
+  width: 10px;
+  background-color: currentColor;
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Glitch Animation on Backrooms Content */
+#backroomsContent {
+  animation: glitch 5s infinite;
+}
+@keyframes glitch {
+  0%,
+  20%,
+  100% {
+    transform: translate(0);
+  }
+  21% {
+    transform: translate(-2px, 2px);
+  }
+  22% {
+    transform: translate(2px, -2px);
+  }
+  23% {
+    transform: translate(-1px, 1px);
+  }
+  24% {
+    transform: translate(1px, -1px);
+  }
+  25% {
+    transform: translate(0);
+  }
 }
