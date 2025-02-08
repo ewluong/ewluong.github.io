@@ -589,7 +589,6 @@ body::before {
 }
 
 /* Backrooms Modal (Vintage Terminal Style) */
-/* Remove dark overlay for Backrooms modal */
 #backroomsModal {
   background-color: transparent !important;
   pointer-events: none;
@@ -597,13 +596,10 @@ body::before {
 #backroomsModal .modal-content {
   pointer-events: auto;
 }
-
-/* Widen the backrooms modal a bit */
 #backroomsModal .backrooms-modal-content {
-  max-width: 900px;
+  max-width: 1000px;
   width: 90%;
 }
-
 .vcr-header {
   background: var(--bg-color);
   color: var(--text-color);
@@ -622,7 +618,10 @@ body::before {
 }
 .vcr-search {
   margin: 20px 10px 10px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 .vcr-search select {
   padding: 5px;
@@ -631,7 +630,6 @@ body::before {
   background: var(--bg-color);
   border: 1px solid var(--text-color);
   color: var(--text-color);
-  margin-right: 5px;
   transition: background 0.3s, color 0.3s;
 }
 .vcr-search select:hover {
@@ -643,7 +641,6 @@ body::before {
   font-family: 'VT323', monospace;
   font-size: 1.2rem;
   width: 60%;
-  margin-right: 5px;
   background: var(--bg-color);
   border: 1px solid var(--text-color);
   color: var(--text-color);
@@ -658,7 +655,6 @@ body::before {
   font-family: 'VT323', monospace;
   font-size: 1.2rem;
   cursor: pointer;
-  margin-right: 5px;
   background: var(--bg-color);
   border: 1px solid var(--text-color);
   color: var(--text-color);
@@ -708,8 +704,6 @@ body::before {
   background: var(--text-color);
   color: var(--bg-color);
 }
-
-/* Blinking Cursor */
 #cursor {
   display: inline-block;
   width: 10px;
@@ -720,8 +714,6 @@ body::before {
 @keyframes blink {
   50% { opacity: 0; }
 }
-
-/* Glitch Animation on Backrooms Content */
 #backroomsContent {
   animation: glitch 5s infinite;
 }
@@ -759,8 +751,14 @@ body::before {
   }
 }
 
+/* --- Custom CSS for Minigame and Dodecagon Canvases --- */
+#dodecagonCanvas, #miniDinoGame {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 /* --- Custom CSS for Minigame Modal --- */
-/* Position the minigame modal at the center left */
 #minigameModal {
   position: fixed;
   top: 50%;
@@ -786,11 +784,9 @@ body::before {
   position: relative;
   overflow: hidden;
 }
-/* Remove focus outline from the minigame modal */
 #minigameModal:focus {
   outline: none;
 }
-/* Style the minigame modal header similar to the chat modal header */
 #minigameModal .modal-header {
   padding: 1rem;
   background: var(--text-color);
@@ -800,4 +796,3 @@ body::before {
   cursor: move;
   border-bottom: 1px solid var(--bg-color);
 }
-/* --- End Custom CSS for Minigame Modal --- */
