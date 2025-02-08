@@ -851,7 +851,7 @@ function initChatbox(API_URL) {
   const chatboxSendBtn = document.getElementById("chatboxSendBtn");
   const chatboxInput = document.getElementById("chatboxInput");
   const chatboxMessages = chatboxModal.querySelector(".chatbox-messages");
-  const chatboxInterface = chatboxModal.querySelector(".chatbox-interface");
+  const chatboxInterface = document.getElementById("chatboxModal").querySelector(".chatbox-interface");
 
   // Toggle chat modal on click.
   chatboxPrompt.addEventListener("click", () => {
@@ -943,30 +943,29 @@ function makeElementDraggable(element) {
 }
 
 // --------------------- MAKE ELEMENT DRAGGABLE WITH HANDLE ---------------------
-// Updated to use page coordinates.
+// Updated to force the target element into fixed positioning for consistent drag alignment.
 function makeElementDraggableWithHandle(handle, target) {
   let isDragging = false, offsetX, offsetY;
   handle.addEventListener("pointerdown", (e) => {
     if (e.target.closest("input, button, select, textarea")) return;
     isDragging = true;
     e.preventDefault();
-    target.style.position = "absolute";
+    // Force the target into fixed positioning for accurate dragging
+    target.style.position = "fixed";
     const rect = target.getBoundingClientRect();
-    const leftAbs = rect.left + window.scrollX;
-    const topAbs = rect.top + window.scrollY;
-    offsetX = e.pageX - leftAbs;
-    offsetY = e.pageY - topAbs;
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    target.style.left = `${rect.left}px`;
+    target.style.top = `${rect.top}px`;
     target.style.transform = "none";
-    target.style.left = `${leftAbs}px`;
-    target.style.top = `${topAbs}px`;
     target.classList.add("dragging");
     document.body.style.userSelect = "none";
     handle.setPointerCapture(e.pointerId);
   });
   handle.addEventListener("pointermove", (e) => {
     if (isDragging) {
-      let newLeft = e.pageX - offsetX;
-      let newTop = e.pageY - offsetY;
+      let newLeft = e.clientX - offsetX;
+      let newTop = e.clientY - offsetY;
       newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - target.offsetWidth));
       newTop = Math.max(0, Math.min(newTop, window.innerHeight - target.offsetHeight));
       target.style.left = `${newLeft}px`;
@@ -1242,4 +1241,3 @@ function initBackroomsModal() {
   const backroomsHeader = document.querySelector(".vcr-header");
   makeElementDraggableWithHandle(backroomsHeader, document.querySelector(".backrooms-modal-content"));
 }
-
