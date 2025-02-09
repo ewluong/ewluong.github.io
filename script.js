@@ -57,8 +57,6 @@ let currentTheme = themes[3];
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded");
 
-  // (No client-side logging fetch is necessary now.)
-
   // Set initial theme
   document.documentElement.style.setProperty("--bg-color", currentTheme.sub[0].bg);
   document.documentElement.style.setProperty("--text-color", currentTheme.sub[0].text);
@@ -122,10 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // --------------------- TYPEWRITER FUNCTIONS ---------------------
-// (Rest of your script.js code remains unchanged)
-
-
-// --------------------- TYPEWRITER FUNCTIONS ---------------------
 function typeWriterOnElement(element, delay = 50) {
   const fullText = element.getAttribute("data-text");
   if (!fullText) return;
@@ -176,11 +170,6 @@ function onScrollTypeAscii() {
   const revealCount = Math.floor(asciiFull.length * ratio);
   asciiCorner.textContent = asciiFull.substring(0, revealCount);
 }
-
-// --------------------- BACKGROUND CANVAS ---------------------
-// (The rest of the code remains unchanged…)
-// [The full code for initCanvas, animateBackground, drawBackgroundShape, etc. remains exactly as before.]
-
 
 // --------------------- BACKGROUND CANVAS ---------------------
 let canvas, ctx;
@@ -935,7 +924,6 @@ function initDataModal() {
 
 function fetchDataAnalytics() {
   const dataModalBody = document.getElementById("dataModalBody");
-  // Use the read-only /analytics endpoint.
   const analyticsAPI = "/analytics";
   dataModalBody.innerHTML = "<p>Loading site data...</p>";
   fetch(analyticsAPI)
@@ -950,7 +938,6 @@ function fetchDataAnalytics() {
     })
     .catch(error => {
       console.error("Error fetching analytics from server:", error);
-      // Fallback: load local analytics_data.json
       fetch("analytics_data.json")
         .then(response => {
           if (!response.ok) {
@@ -970,11 +957,9 @@ function fetchDataAnalytics() {
 
 function processAnalyticsData(data) {
   const dataModalBody = document.getElementById("dataModalBody");
-  // Aggregate visits by hour.
   const countsByHour = {};
   data.timeseries.forEach(record => {
     const date = new Date(record.timestamp);
-    // Format the hour string as "YYYY-MM-DD HH:00"
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
@@ -982,7 +967,6 @@ function processAnalyticsData(data) {
     const key = `${year}-${month}-${day} ${hour}:00`;
     countsByHour[key] = (countsByHour[key] || 0) + 1;
   });
-  // Sort the hour keys in chronological order.
   const sortedLabels = Object.keys(countsByHour).sort();
   const counts = sortedLabels.map(label => countsByHour[label]);
   dataModalBody.innerHTML = `<canvas id="analyticsChart" width="400" height="200"></canvas>`;
@@ -1087,7 +1071,6 @@ function makeElementDraggable(element) {
   });
 }
 
-// --------------------- MAKE ELEMENT DRAGGABLE WITH HANDLE ---------------------
 function makeElementDraggableWithHandle(handle, target) {
   let isDragging = false, offsetX, offsetY;
   handle.addEventListener("pointerdown", (e) => {
@@ -1381,144 +1364,4 @@ function initBackroomsModal() {
 
   const backroomsHeader = document.querySelector(".vcr-header");
   makeElementDraggableWithHandle(backroomsHeader, document.querySelector(".backrooms-modal-content"));
-}
-
-// --------------------- PLOT ANALYTICS CHART (Using Chart.js) ---------------------
-// (Duplicate definition kept as per original code)
-function plotAnalyticsChart(labels, dataPoints) {
-  const ctx = document.getElementById("analyticsChart").getContext("2d");
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Visits per Hour',
-        data: dataPoints,
-        backgroundColor: 'rgba(255, 94, 0, 0.2)',
-        borderColor: 'rgba(255, 94, 0, 1)',
-        borderWidth: 2,
-        pointBackgroundColor: 'rgba(0,0,0,1)',
-      }]
-    },
-    options: {
-      scales: {
-        x: {
-          ticks: {
-            color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-            font: { family: 'VT323, monospace' }
-          },
-          grid: { color: 'rgba(0,0,0,0.2)' }
-        },
-        y: {
-          ticks: {
-            color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-            font: { family: 'VT323, monospace' }
-          },
-          grid: { color: 'rgba(0,0,0,0.2)' }
-        }
-      },
-      plugins: {
-        legend: {
-          labels: {
-            color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-            font: { family: 'VT323, monospace' }
-          }
-        }
-      }
-    }
-  });
-}
-
-// --------------------- MAKE ELEMENT DRAGGABLE ---------------------
-// (Duplicate definition kept as per original code)
-function makeElementDraggable(element) {
-  let isDragging = false, offsetX, offsetY;
-  element.addEventListener("pointerdown", (e) => {
-    if (e.target.closest("button, input, select, textarea")) return;
-    isDragging = true;
-    e.preventDefault();
-    const rect = element.getBoundingClientRect();
-    const computedPos = getComputedStyle(element).position;
-    if (computedPos === "fixed") {
-      offsetX = e.clientX - rect.left;
-      offsetY = e.clientY - rect.top;
-      element.style.left = `${rect.left}px`;
-      element.style.top = `${rect.top}px`;
-    } else {
-      const leftAbs = rect.left + window.scrollX;
-      const topAbs = rect.top + window.scrollY;
-      offsetX = e.pageX - leftAbs;
-      offsetY = e.pageY - topAbs;
-      element.style.left = `${leftAbs}px`;
-      element.style.top = `${topAbs}px`;
-    }
-    element.style.transform = "none";
-    element.classList.add("dragging");
-    document.body.style.userSelect = "none";
-    element.setPointerCapture(e.pointerId);
-  });
-  element.addEventListener("pointermove", (e) => {
-    if (isDragging) {
-      let newLeft, newTop;
-      const computedPos = getComputedStyle(element).position;
-      if (computedPos === "fixed") {
-        newLeft = e.clientX - offsetX;
-        newTop = e.clientY - offsetY;
-      } else {
-        newLeft = e.pageX - offsetX;
-        newTop = e.pageY - offsetY;
-      }
-      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - element.offsetWidth));
-      newTop = Math.max(0, Math.min(newTop, window.innerHeight - element.offsetHeight));
-      element.style.left = `${newLeft}px`;
-      element.style.top = `${newTop}px`;
-    }
-  });
-  element.addEventListener("pointerup", (e) => {
-    if (isDragging) {
-      isDragging = false;
-      element.classList.remove("dragging");
-      document.body.style.userSelect = "auto";
-      element.releasePointerCapture(e.pointerId);
-    }
-  });
-}
-
-// --------------------- MAKE ELEMENT DRAGGABLE WITH HANDLE ---------------------
-// (Duplicate definition kept as per original code)
-function makeElementDraggableWithHandle(handle, target) {
-  let isDragging = false, offsetX, offsetY;
-  handle.addEventListener("pointerdown", (e) => {
-    if (e.target.closest("input, button, select, textarea")) return;
-    isDragging = true;
-    e.preventDefault();
-    target.style.position = "fixed";
-    const rect = target.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-    target.style.left = `${rect.left}px`;
-    target.style.top = `${rect.top}px`;
-    target.style.transform = "none";
-    target.classList.add("dragging");
-    document.body.style.userSelect = "none";
-    handle.setPointerCapture(e.pointerId);
-  });
-  handle.addEventListener("pointermove", (e) => {
-    if (isDragging) {
-      let newLeft = e.clientX - offsetX;
-      let newTop = e.clientY - offsetY;
-      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - target.offsetWidth));
-      newTop = Math.max(0, Math.min(newTop, window.innerHeight - target.offsetHeight));
-      target.style.left = `${newLeft}px`;
-      target.style.top = `${newTop}px`;
-    }
-  });
-  handle.addEventListener("pointerup", (e) => {
-    if (isDragging) {
-      isDragging = false;
-      target.classList.remove("dragging");
-      document.body.style.userSelect = "auto";
-      handle.releasePointerCapture(e.pointerId);
-    }
-  });
 }
