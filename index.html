@@ -18,9 +18,14 @@
       <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
     </noscript>
 
+    <!-- Preconnect & preload for external JS libraries -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/marked/marked.min.js">
+    <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js">
+
     <!-- Marked.js for Markdown Parsing (loaded with defer) -->
     <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- Chart.js for plotting the analytics chart -->
+    <!-- Chart.js for plotting the analytics chart (loaded with defer) -->
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
@@ -381,13 +386,14 @@ Because Descartes’ implication that the mind is independent from the body, and
       </div>
     </div>
 
-    <!-- Toggle Buttons (Bottom Right) -->
-    <div id="chatboxPrompt" class="toggle-button">Chat</div>
-    <div id="musicPrompt" class="toggle-button">Music</div>
-    <!-- Data toggle remains a button -->
-    <button type="button" id="dataPrompt" class="toggle-button">Data</button>
-    <div id="minigamePrompt" class="toggle-button">Minigame</div>
-    <div id="backroomsPrompt" class="toggle-button">Backrooms</div>
+    <!-- Toggle Buttons Container (Bottom Right) -->
+    <div id="toggleButtonsContainer">
+      <div id="chatboxPrompt" class="toggle-button">Chat</div>
+      <div id="musicPrompt" class="toggle-button">Music</div>
+      <button type="button" id="dataPrompt" class="toggle-button">Data</button>
+      <div id="minigamePrompt" class="toggle-button">Minigame</div>
+      <div id="backroomsPrompt" class="toggle-button">Backrooms</div>
+    </div>
 
     <!-- Retro‑Styled Music Player -->
     <div id="retroMusicPlayer" class="retro-music-player hidden">
