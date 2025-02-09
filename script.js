@@ -195,7 +195,7 @@ function initCanvas() {
       baseSize,
       vx,
       vy,
-      breathFactor: Math.random() * 2 * Math.PI,
+      // Removed breathing effect property
     });
   }
   window.addEventListener("mousemove", (e) => {
@@ -219,9 +219,28 @@ function animateBackground() {
   const computedStyle = getComputedStyle(document.documentElement);
   const textColor = computedStyle.getPropertyValue("--text-color").trim();
   const rgb = parseHexToRgb(textColor);
+
+  // Get music data if available
+  let musicFactor = 0;
+  if (window.audioAnalyser) {
+    let freqArray = new Uint8Array(window.audioAnalyser.frequencyBinCount);
+    window.audioAnalyser.getByteFrequencyData(freqArray);
+    let sum = 0;
+    for (let i = 0; i < freqArray.length; i++) {
+      sum += freqArray[i];
+    }
+    let avg = sum / freqArray.length; // avg value between 0 and 255
+    // Normalize and scale so that musicFactor is in a usable range
+    musicFactor = (avg / 255) * 0.5;
+  }
+  // Use a quadratic mapping for the beat amplification:
+  const MUSIC_MULTIPLIER = 60;
+  // Expose the current musicFactor globally for collision resolution
+  window.currentMusicFactor = musicFactor;
+
   shapes.forEach((shape) => {
-    shape.breathFactor += 0.02;
-    let breathSize = shape.baseSize * (1 + 0.1 * Math.sin(shape.breathFactor));
+    // Calculate dynamic size with quadratic amplification of the beat
+    let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
     shape.x += shape.vx;
     shape.y += shape.vy;
     let dx = shape.x - mouseX, dy = shape.y - mouseY;
@@ -231,29 +250,33 @@ function animateBackground() {
       shape.x += Math.cos(angle) * repelForce * (repelRadius - dist);
       shape.y += Math.sin(angle) * repelForce * (repelRadius - dist);
     }
-    if (shape.x - breathSize < 0) {
-      shape.x = breathSize;
+    // Ensure shapes stay within canvas bounds
+    if (shape.x - dynamicSize < 0) {
+      shape.x = dynamicSize;
       shape.vx = -shape.vx;
-    } else if (shape.x + breathSize > w) {
-      shape.x = w - breathSize;
+    } else if (shape.x + dynamicSize > w) {
+      shape.x = w - dynamicSize;
       shape.vx = -shape.vx;
     }
-    if (shape.y - breathSize < 0) {
-      shape.y = breathSize;
+    if (shape.y - dynamicSize < 0) {
+      shape.y = dynamicSize;
       shape.vy = -shape.vy;
-    } else if (shape.y + breathSize > h) {
-      shape.y = h - breathSize;
+    } else if (shape.y + dynamicSize > h) {
+      shape.y = h - dynamicSize;
       shape.vy = -shape.vy;
     }
   });
+
+  // Collision resolution using dynamic sizes
   for (let i = 0; i < shapes.length; i++) {
     for (let j = i + 1; j < shapes.length; j++) {
       resolveCollision(shapes[i], shapes[j]);
     }
   }
+  // Draw shapes using the same dynamic size calculation
   shapes.forEach((shape) => {
-    let breathSize = shape.baseSize * (1 + 0.1 * Math.sin(shape.breathFactor));
-    drawBackgroundShape(shapeTypes[currentShapeIndex], shape.x, shape.y, breathSize, rgb);
+    let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
+    drawBackgroundShape(shapeTypes[currentShapeIndex], shape.x, shape.y, dynamicSize, rgb);
   });
   requestAnimationFrame(animateBackground);
 }
@@ -276,8 +299,11 @@ function drawBackgroundShape(type, x, y, size, rgb) {
 }
 
 function resolveCollision(s1, s2) {
-  let r1 = s1.baseSize * (1 + 0.1 * Math.sin(s1.breathFactor));
-  let r2 = s2.baseSize * (1 + 0.1 * Math.sin(s2.breathFactor));
+  // Use the global musicFactor to compute current dynamic sizes for collision resolution
+  let effectiveMusicFactor = window.currentMusicFactor || 0;
+  const MUSIC_MULTIPLIER = 10;
+  let r1 = s1.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 2));
+  let r2 = s2.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 2));
   let dx = s2.x - s1.x, dy = s2.y - s1.y;
   let dist = Math.sqrt(dx * dx + dy * dy);
   let minDist = r1 + r2;
@@ -288,6 +314,7 @@ function resolveCollision(s1, s2) {
     s1.y -= overlap * ny;
     s2.x += overlap * nx;
     s2.y += overlap * ny;
+    // Swap velocities for a simple collision response
     let tempVx = s1.vx, tempVy = s1.vy;
     s1.vx = s2.vx;
     s1.vy = s2.vy;
@@ -646,6 +673,8 @@ function initRetroMusicPlayer() {
     analyser.fftSize = 256;
     bufferLength = analyser.frequencyBinCount;
     dataArray = new Uint8Array(bufferLength);
+    // Expose the analyser globally so the background animation can use it
+    window.audioAnalyser = analyser;
   }
 
   function drawWaveform() {
