@@ -1,27 +1,3 @@
-/* NEW RULE: Container for top-right buttons */
-#topRightButtons {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  gap: 10px;
-  z-index: 11000;
-}
-
-/* NEW RULE: Position chat modal like other modals and prevent it from blocking pointer events */
-.chat-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 11000;
-  pointer-events: none;
-}
-.chat-modal .chatbox-interface {
-  pointer-events: auto;
-}
-
 :root {
   --bg-color: #ff5e00;
   --text-color: #000000;
@@ -251,7 +227,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: transparent; /* No dark overlay */
+  background-color: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -399,28 +375,7 @@ body::before {
   color: var(--hover-text-on-orange);
 }
 
-/* ---------- NEW FIX: Ensure the Widgets container doesn’t grow due to its dropdown ---------- */
-#widgetsContainer {
-  position: relative;
-  display: inline-block;
-  width: max-content; /* Only size to the non-absolute content */
-}
-#widgetsDropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  display: none !important; /* Hide the old dropdown */
-}
-#widgetsDropdown.hidden {
-  display: none;
-}
-#widgetsDropdown .toggle-button {
-  margin: 0;
-  border-radius: 0;
-  width: 100%;
-  text-align: left;
-}
-/* ---------- Remaining Toggle Buttons ---------- */
+/* ---------- Toggle Buttons for Top-Right and Bottom-Right ---------- */
 .toggle-button {
   font-size: 1.2rem;
   font-family: 'VT323', monospace;
@@ -441,11 +396,19 @@ body::before {
   background-color: var(--text-color);
   color: var(--bg-color);
 }
+
+/* Top-right container: side by side */
 .top-right {
   position: fixed;
   top: 20px;
   right: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
 }
+
+/* Bottom-right container for remaining toggle buttons */
 #toggleButtonsContainer {
   position: fixed;
   right: 20px;
@@ -456,7 +419,161 @@ body::before {
   z-index: 9999;
 }
 
-/* ---------- Backrooms Modal (Restored from original code) ---------- */
+/* ---------- Retro Music Player ---------- */
+.retro-music-player {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 300px;
+  background-color: var(--bg-color);
+  border: 2px solid var(--text-color);
+  border-radius: 8px;
+  padding: 1rem;
+  color: var(--text-color);
+  z-index: 10000;
+  box-shadow: 0 0 20px var(--text-color);
+  cursor: grab;
+  transition: background-color 1.2s ease, color 1.2s ease;
+}
+.music-header {
+  width: 100%;
+  height: 50px;
+  background-color: #333;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Music Controls: arranged side by side */
+.music-controls {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+/* Control Buttons */
+.control-btn {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 2px solid var(--text-color);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.3s ease, color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.control-btn:hover {
+  background-color: var(--link-glitch-color);
+  color: var(--bg-color);
+  transform: scale(1.2);
+}
+/* Play and Forward Buttons */
+.control-btn.play::before,
+.control-btn.forward::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-40%, -50%);
+  border-style: solid;
+  border-width: 7.5px 0 7.5px 13px;
+  border-color: transparent transparent transparent var(--text-color);
+}
+/* Backward Button */
+.control-btn.backward::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-40%, -50%);
+  border-style: solid;
+  border-width: 7.5px 13px 7.5px 0;
+  border-color: transparent var(--text-color) transparent transparent;
+}
+/* Pause Button */
+.control-btn.pause::before {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 12px;
+  background-color: var(--text-color);
+  left: 7px;
+  top: 9px;
+}
+.control-btn.pause::after {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 12px;
+  background-color: var(--text-color);
+  left: 15px;
+  top: 9px;
+}
+.breathing {
+  animation: breathe 1.5s infinite;
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+.music-progress {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#progressBar {
+  width: 100%;
+  cursor: pointer;
+}
+.time-display {
+  font-size: 0.8rem;
+  color: var(--text-color);
+  margin-top: 0.2rem;
+}
+.favorites-dropdown {
+  margin-top: 0.5rem;
+  background-color: var(--bg-color);
+  border: 2px solid var(--text-color);
+  border-radius: 8px;
+  padding: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.favorites-dropdown h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: var(--link-glitch-color);
+}
+.favorites-dropdown ul {
+  list-style: none;
+}
+.favorites-dropdown li {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--text-color);
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+}
+.favorites-dropdown li:hover {
+  animation: glitchHover 0.4s infinite alternate;
+  background-color: var(--item-hover-bg);
+  color: var(--item-hover-text);
+}
+.favorites-dropdown li:last-child {
+  border-bottom: none;
+}
+
+/* ---------- Backrooms Modal ---------- */
 #backroomsModal {
   background-color: transparent !important;
   pointer-events: none;
@@ -579,21 +696,21 @@ body::before {
   50% { opacity: 0; }
 }
 
-/* ---------- Crypto Modal (Scaled Down) ---------- */
+/* ---------- Crypto Modal ---------- */
 .crypto-modal-content {
   background-color: #000;
   color: #f69513;
   border: 2px solid #f69513;
   box-shadow: 0 0 20px #f69513;
-  width: 300px;  /* Reduced width */
+  width: 300px;
   border-radius: 8px;
-  padding: 0.75rem;  /* Reduced padding */
+  padding: 0.75rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  font-size: 0.9rem;  /* Slightly smaller font */
+  font-size: 0.9rem;
 }
 .crypto-modal-content table {
   width: 100%;
@@ -605,7 +722,6 @@ body::before {
 .crypto-modal-content td {
   padding: 4px;
 }
-/* Style for 24hr change colors */
 .negative {
   color: red;
 }
@@ -641,15 +757,15 @@ body::before {
   color: #f69513;
 }
 
-/* ---------- Weather Modal (Scaled Down & Themed) ---------- */
+/* ---------- Weather Modal ---------- */
 .weather-modal-content {
-  background-color: var(--bg-color); /* Use theme bg */
-  color: var(--text-color);          /* Use theme text */
+  background-color: var(--bg-color);
+  color: var(--text-color);
   border: 2px solid var(--text-color);
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
-  width: 250px;  /* Reduced width */
+  width: 250px;
   border-radius: 8px;
-  padding: 0.75rem;  /* Reduced padding */
+  padding: 0.75rem;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -673,28 +789,42 @@ body::before {
   color: var(--text-color);
 }
 
-/* ---------- Widget Modal Styles (for weather and crypto modals) ---------- */
+/* ---------- Widget Modal Styles ---------- */
 .widget-modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: transparent; /* No dark overlay */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 11000;
-  pointer-events: none; /* Allow clicks to pass through outside .modal-content */
+  pointer-events: none;
 }
+
 .widget-modal .modal-content {
-  pointer-events: auto; /* Enable interaction on the modal-content */
+  pointer-events: auto;
 }
 .widget-modal.hidden {
   display: none;
 }
 
-/* ---------- New Styles for the Widgets Explorer Modal ---------- */
+/* ---------- Override for Weather Modal ---------- */
+/* This rule ensures the weather modal initially appears in the top right and is draggable */
+/* ---------- Override for Weather Modal ---------- */
+/* Ensures the weather modal starts in the top right and remains draggable */
+#weatherModal {
+  top: 80px;
+  right: 20px;
+  left: auto;
+  bottom: auto;
+  width: auto;
+  height: auto;
+  pointer-events: auto;
+}
+
+
+/* ---------- Widgets Explorer Modal ---------- */
 .widgets-modal {
   position: fixed;
   top: 100px;
@@ -704,15 +834,18 @@ body::before {
 }
 .widgets-modal .modal-content {
   pointer-events: auto;
-  width: 500px; /* widen modal to fit header in one line */
+  width: 500px;
 }
 
-/* ---------- New Styles for the Minigame Modal ---------- */
+/* ---------- Minigame Modal ---------- */
 #minigameModal .modal-content {
+  top: 50%;
+  left: 20px;
+  transform: translateY(170%);
   width: 350px;
 }
 
-/* ---------- New Styles for the Widgets Grid ---------- */
+/* ---------- Widgets Grid ---------- */
 .widgets-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
@@ -735,7 +868,6 @@ body::before {
   color: var(--item-hover-text);
 }
 
-/* On hover, update the folder icon borders to contrast with the new background */
 .folder:hover .folder-top,
 .folder:hover .folder-body {
   border-color: var(--item-hover-text);
@@ -773,7 +905,7 @@ body::before {
   font-size: 1rem;
 }
 
-/* ---------- New Draggable Widget Modals (for crypto and minigame) ---------- */
+/* ---------- Draggable Widget Modals ---------- */
 .draggable-widget-modal {
   position: fixed;
   top: 100px;
@@ -786,27 +918,14 @@ body::before {
   pointer-events: auto !important;
 }
 
+
 /* ---------- Custom Modal Initial Positions ---------- */
-/* Crypto Modal: bottom left */
 #cryptoModal {
   top: auto;
   bottom: 20px;
   left: 20px;
 }
 
-/* Weather Modal: top right just under the top buttons */
-#weatherModal {
-  top: 80px;
-  right: 20px;
-  bottom: auto;
-  left: auto;
-  width: auto;
-  height: auto;
-  display: block;
-  pointer-events: auto;
-}
-
-/* Chat Modal: center right */
 #chatboxModal .chatbox-interface {
   position: fixed;
   top: 50%;
@@ -814,10 +933,8 @@ body::before {
   transform: translateY(-50%);
 }
 
-/* Music Player Modal: top left (already set) */
 #retroMusicPlayer {
+  position: fixed;
   top: 20px;
   left: 20px;
 }
-
-/* ---------- End of Styles ---------- */

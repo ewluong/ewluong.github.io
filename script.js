@@ -14,7 +14,8 @@ let pendingBringToFrontTimeout = null;
 
 // Function to bring a modal to the front
 function bringModalToFront(modal) {
-  if (modal.id === "retroMusicPlayer") return; // locked in front
+  // Skip if it's the locked modal
+  if (modal.id === "retroMusicPlayer") return;
   currentTopZ++;
   modal.style.zIndex = currentTopZ;
 }
@@ -52,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initRetroMusicPlayer();
   initDataModal();
 
-  // Initialize Weather Modal (draggable, themed & scaled) and Crypto Modal (draggable, scaled)
+  // Initialize Weather Modal (draggable, themed & scaled) and Crypto Modal (draggable & scaled)
   initWeatherModal();
   initCryptoModal();
 
@@ -86,8 +87,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, { passive: true });
 
-  // Attach pointerdown listeners on modals using a short delay
-  const draggableModalSelectors = [".modal", ".chat-modal", ".widget-modal"];
+  // ----------------- DRAGGABLE MODALS (EXCLUDING CHAT MODALS) -----------------
+  // Note: Chat modals are handled separately because the fixed element inside them needs to be brought forward.
+  const draggableModalSelectors = [".modal", ".widget-modal"];
   draggableModalSelectors.forEach(selector => {
     document.querySelectorAll(selector).forEach(modal => {
       if (modal.id === "retroMusicPlayer") return;
@@ -102,14 +104,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Extra fix for chat modal inner interface.
+  // ----------------- EXTRA FIX FOR CHAT MODAL -----------------
+  // Attach pointerdown to the fixed chatbox interface so it comes to the front when clicked.
   const chatboxInterface = document.querySelector("#chatboxModal .chatbox-interface");
   if (chatboxInterface) {
     chatboxInterface.addEventListener("pointerdown", (e) => {
       if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
       pendingBringToFrontTimeout = setTimeout(() => {
-        currentActiveModal = document.getElementById("chatboxModal");
-        bringModalToFront(document.getElementById("chatboxModal"));
+        // Bring the fixed chat interface to the front.
+        currentActiveModal = chatboxInterface;
+        bringModalToFront(chatboxInterface);
         pendingBringToFrontTimeout = null;
       }, 50);
     }, true);
@@ -909,14 +913,7 @@ function initChatbox(API_URL) {
     chatboxMessages.appendChild(messageDiv);
     chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
   }
-  chatboxInterface.addEventListener("pointerdown", (e) => {
-    if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
-    pendingBringToFrontTimeout = setTimeout(() => {
-      currentActiveModal = chatboxModal;
-      bringModalToFront(chatboxModal);
-      pendingBringToFrontTimeout = null;
-    }, 50);
-  }, true);
+  // The chat modal's pointerdown is handled by the extra fix above.
   makeElementDraggable(chatboxInterface);
 }
 
@@ -1057,6 +1054,19 @@ function makeElementDraggable(element) {
     if (getComputedStyle(element).position !== "fixed") {
       element.style.position = "fixed";
     }
+    const computedStyle = getComputedStyle(element);
+    if (computedStyle.bottom !== "auto") {
+      let bottomValue = parseInt(computedStyle.bottom, 10);
+      let topValue = window.innerHeight - bottomValue - element.offsetHeight;
+      element.style.top = `${topValue}px`;
+    }
+    if (computedStyle.right !== "auto") {
+      let rightValue = parseInt(computedStyle.right, 10);
+      let leftValue = window.innerWidth - rightValue - element.offsetWidth;
+      element.style.left = `${leftValue}px`;
+    }
+    element.style.bottom = "auto";
+    element.style.right = "auto";
     const rect = element.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
@@ -1094,6 +1104,19 @@ function makeElementDraggableWithHandle(handle, target) {
     isDragging = true;
     e.preventDefault();
     target.style.position = "fixed";
+    const computedStyle = getComputedStyle(target);
+    if (computedStyle.bottom !== "auto") {
+      let bottomValue = parseInt(computedStyle.bottom, 10);
+      let topValue = window.innerHeight - bottomValue - target.offsetHeight;
+      target.style.top = `${topValue}px`;
+    }
+    if (computedStyle.right !== "auto") {
+      let rightValue = parseInt(computedStyle.right, 10);
+      let leftValue = window.innerWidth - rightValue - target.offsetWidth;
+      target.style.left = `${leftValue}px`;
+    }
+    target.style.bottom = "auto";
+    target.style.right = "auto";
     const rect = target.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
@@ -1403,7 +1426,6 @@ function initBackroomsModal() {
 }
 
 // --------------------- CRYPTO MODAL (CoinGecko API, Bloomberg Terminal Style) ---------------------
-// Helper function to format the 24hr change with color coding
 function formatChange(value) {
   return `<span class="${value < 0 ? 'negative' : 'positive'}">${value.toFixed(2)}%</span>`;
 }
@@ -1449,10 +1471,9 @@ function openCryptoModal() {
 
 function initCryptoModal() {
   const cryptoModal = document.getElementById("cryptoModal");
-  const cryptoModalContent = cryptoModal.querySelector(".modal-content");
   const cryptoOption = document.getElementById("cryptoOption");
   
-  cryptoModalContent.addEventListener("pointerdown", (e) => {
+  cryptoModal.addEventListener("pointerdown", (e) => {
     if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
     pendingBringToFrontTimeout = setTimeout(() => {
       currentActiveModal = cryptoModal;
@@ -1463,10 +1484,9 @@ function initCryptoModal() {
 
   cryptoOption.addEventListener("click", openCryptoModal);
 
-  // Make the crypto modal draggable
-  makeElementDraggable(cryptoModalContent);
+  // Make the crypto modal draggable by applying it to the container.
+  makeElementDraggable(cryptoModal);
 
-  // Attach click listeners to the refresh and close buttons
   document.getElementById("cryptoRefreshBtn").addEventListener("click", (e) => {
     e.stopPropagation();
     fetchCryptoPrices();
@@ -1532,7 +1552,6 @@ function initWidgetsModal() {
     }
   });
 
-  // Make only the modal title draggable so folder clicks work
   const widgetsModalTitle = document.querySelector("#widgetsModal .modal-title");
   makeElementDraggableWithHandle(widgetsModalTitle, widgetsModal);
 }
@@ -1540,12 +1559,11 @@ function initWidgetsModal() {
 // --------------------- WEATHER MODAL (Widget-Style, Draggable, Themed & Scaled) ---------------------
 function initWeatherModal() {
   const weatherModal = document.getElementById("weatherModal");
-  const weatherModalContent = weatherModal.querySelector(".modal-content");
   const weatherClose = document.getElementById("weatherClose");
   weatherClose.addEventListener("click", () => {
     weatherModal.classList.add("hidden");
   });
-  weatherModalContent.addEventListener("pointerdown", (e) => {
+  weatherModal.addEventListener("pointerdown", (e) => {
     if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
     pendingBringToFrontTimeout = setTimeout(() => {
       currentActiveModal = weatherModal;
@@ -1553,7 +1571,8 @@ function initWeatherModal() {
       pendingBringToFrontTimeout = null;
     }, 50);
   }, true);
-  makeElementDraggable(weatherModalContent);
+  // IMPORTANT: Apply draggable to the outer container.
+  makeElementDraggable(weatherModal);
 }
 
 function openWeatherModal() {
