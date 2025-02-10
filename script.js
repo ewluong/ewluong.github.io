@@ -104,7 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("retroMusicPlayer").style.zIndex = 99999;
 });
 
-
 // --------------------- TYPEWRITER FUNCTIONS ---------------------
 function typeWriterOnElement(element, delay = 0) {
   const fullText = element.getAttribute("data-text");
@@ -577,6 +576,11 @@ function initMusicPrompt() {
   const retroMusicPlayer = document.getElementById("retroMusicPlayer");
   musicButton.addEventListener("click", () => {
     retroMusicPlayer.classList.toggle("hidden");
+    if (!retroMusicPlayer.classList.contains("hidden")) {
+      musicButton.classList.add("active");
+    } else {
+      musicButton.classList.remove("active");
+    }
   });
 }
 
@@ -809,14 +813,13 @@ function initRetroMusicPlayer() {
   initRetroMusicPlayerFunc();
 }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    if (window.innerWidth <= 600) {
-      const retroMusicPlayer = document.getElementById("retroMusicPlayer");
-      // Force it to be closed by adding the "hidden" class
-      retroMusicPlayer.classList.add("hidden");
-    }
-  });
-
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.innerWidth <= 600) {
+    const retroMusicPlayer = document.getElementById("retroMusicPlayer");
+    // Force it to be closed by adding the "hidden" class
+    retroMusicPlayer.classList.add("hidden");
+  }
+});
 
 // --------------------- CHATBOX MODAL ---------------------
 function initChatbox(API_URL) {
@@ -838,13 +841,16 @@ function initChatbox(API_URL) {
       currentActiveModal = chatboxModal;
       bringModalToFront(chatboxModal);
       chatboxInput.focus();
+      chatboxPrompt.classList.add("active");
     } else {
       chatboxModal.classList.add("hidden");
+      chatboxPrompt.classList.remove("active");
     }
   });
 
   chatboxCloseBtn.addEventListener("click", () => {
     chatboxModal.classList.add("hidden");
+    chatboxPrompt.classList.remove("active");
   });
   chatboxCloseBtn.addEventListener("mousedown", e => e.stopPropagation());
   
@@ -906,15 +912,18 @@ function initDataModal() {
     currentActiveModal = dataModal;
     bringModalToFront(dataModal);
     fetchDataAnalytics();
+    dataPrompt.classList.add("active");
   });
 
   dataModalClose.addEventListener("click", () => {
     dataModal.classList.add("hidden");
+    dataPrompt.classList.remove("active");
   });
 
   dataModal.addEventListener("click", e => {
     if (!e.target.closest(".modal-content")) {
       dataModal.classList.add("hidden");
+      dataPrompt.classList.remove("active");
     }
   });
 }
@@ -1205,7 +1214,6 @@ function initProjectModal() {
 }
 
 // --------------------- BACKROOMS MODAL ---------------------
-// (Backrooms Modal code remains unchanged)
 function initBackroomsModal() {
   const backroomsPrompt = document.getElementById("backroomsPrompt");
   const backroomsModal = document.getElementById("backroomsModal");
@@ -1346,10 +1354,12 @@ function initBackroomsModal() {
       currentActiveModal = backroomsModal;
       bringModalToFront(backroomsModal);
       loadConversation(dropdown.value);
+      backroomsPrompt.classList.add("active");
     } else {
       backroomsModal.classList.add("hidden");
       stopTypewriter();
       resetBackroomsContainer();
+      backroomsPrompt.classList.remove("active");
     }
   });
 
@@ -1357,6 +1367,7 @@ function initBackroomsModal() {
     backroomsModal.classList.add("hidden");
     stopTypewriter();
     resetBackroomsContainer();
+    backroomsPrompt.classList.remove("active");
   });
 
   backroomsClose.addEventListener("mousedown", e => {
@@ -1473,10 +1484,12 @@ function initWidgetsModal() {
     widgetsModal.classList.remove("hidden");
     currentActiveModal = widgetsModal;
     bringModalToFront(widgetsModal);
+    widgetsPrompt.classList.add("active");
   });
 
   widgetsModalClose.addEventListener("click", () => {
     widgetsModal.classList.add("hidden");
+    widgetsPrompt.classList.remove("active");
   });
 
   widgetsModal.addEventListener("pointerdown", () => {
@@ -1491,16 +1504,19 @@ function initWidgetsModal() {
 
   folderWeather.addEventListener("click", () => {
     widgetsModal.classList.add("hidden");
+    widgetsPrompt.classList.remove("active");
     openWeatherModal();
   });
 
   folderCrypto.addEventListener("click", () => {
     widgetsModal.classList.add("hidden");
+    widgetsPrompt.classList.remove("active");
     openCryptoModal();
   });
 
   folderMinigame.addEventListener("click", () => {
     widgetsModal.classList.add("hidden");
+    widgetsPrompt.classList.remove("active");
     const minigameModal = document.getElementById("minigameModal");
     if (minigameModal.classList.contains("hidden")) {
       if (pendingBringToFrontTimeout) {
@@ -1521,7 +1537,6 @@ function initWidgetsModal() {
 }
 
 // --------------------- WEATHER MODAL ---------------------
-// Updated to use ip-api.com for geolocation.
 function initWeatherModal() {
   const weatherModal = document.getElementById("weatherModal");
   const weatherClose = document.getElementById("weatherClose");
@@ -1551,8 +1566,6 @@ function openWeatherModal() {
   currentActiveModal = weatherModal;
   bringModalToFront(weatherModal);
   weatherContent.innerHTML = "<p>Loading weather data...</p>";
-  // Use ip-api.com for geolocation
-
   fetch("https://ipapi.co/json/")
     .then(response => {
       if (!response.ok) throw new Error("IP API response not ok");
@@ -1562,7 +1575,6 @@ function openWeatherModal() {
       const lat = ipData.latitude;
       const lon = ipData.longitude;
       const city = ipData.city || "your area";
-      // Then fetch weather data using Open-Meteo...
       return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
         .then(response => {
           if (!response.ok) throw new Error("Weather API response not ok");
@@ -1592,109 +1604,7 @@ function openWeatherModal() {
     });
 }
 
+// --------------------- MAKE ELEMENT DRAGGABLE (Duplicate for clarity) ---------------------
+// (These functions have already been defined above; if needed, you can reuse them.)
 
-
-
-// --------------------- MAKE ELEMENT DRAGGABLE ---------------------
-// Updated to ignore interactive elements (buttons, inputs, selects, textareas, and .folder elements)
-function makeElementDraggable(element) {
-  let isDragging = false, offsetX, offsetY;
-  element.addEventListener("pointerdown", e => {
-    if (e.target.closest("button, input, select, textarea, .folder")) return;
-    isDragging = true;
-    e.preventDefault();
-    if (getComputedStyle(element).position !== "fixed") {
-      element.style.position = "fixed";
-    }
-    const computedStyle = getComputedStyle(element);
-    if (computedStyle.bottom !== "auto") {
-      const bottomValue = parseInt(computedStyle.bottom, 10);
-      const topValue = window.innerHeight - bottomValue - element.offsetHeight;
-      element.style.top = `${topValue}px`;
-    }
-    if (computedStyle.right !== "auto") {
-      const rightValue = parseInt(computedStyle.right, 10);
-      const leftValue = window.innerWidth - rightValue - element.offsetWidth;
-      element.style.left = `${leftValue}px`;
-    }
-    element.style.bottom = "auto";
-    element.style.right = "auto";
-    const rect = element.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-    element.style.left = `${rect.left}px`;
-    element.style.top = `${rect.top}px`;
-    element.style.transform = "none";
-    element.classList.add("dragging");
-    document.body.style.userSelect = "none";
-    element.setPointerCapture(e.pointerId);
-  });
-  element.addEventListener("pointermove", e => {
-    if (isDragging) {
-      let newLeft = e.clientX - offsetX;
-      let newTop = e.clientY - offsetY;
-      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - element.offsetWidth));
-      newTop = Math.max(0, Math.min(newTop, window.innerHeight - element.offsetHeight));
-      element.style.left = `${newLeft}px`;
-      element.style.top = `${newTop}px`;
-    }
-  });
-  element.addEventListener("pointerup", e => {
-    if (isDragging) {
-      isDragging = false;
-      element.classList.remove("dragging");
-      document.body.style.userSelect = "auto";
-      element.releasePointerCapture(e.pointerId);
-    }
-  });
-}
-
-function makeElementDraggableWithHandle(handle, target) {
-  let isDragging = false, offsetX, offsetY;
-  handle.addEventListener("pointerdown", e => {
-    if (e.target.closest("input, button, select, textarea, .folder")) return;
-    isDragging = true;
-    e.preventDefault();
-    target.style.position = "fixed";
-    const computedStyle = getComputedStyle(target);
-    if (computedStyle.bottom !== "auto") {
-      const bottomValue = parseInt(computedStyle.bottom, 10);
-      const topValue = window.innerHeight - bottomValue - target.offsetHeight;
-      target.style.top = `${topValue}px`;
-    }
-    if (computedStyle.right !== "auto") {
-      const rightValue = parseInt(computedStyle.right, 10);
-      const leftValue = window.innerWidth - rightValue - target.offsetWidth;
-      target.style.left = `${leftValue}px`;
-    }
-    target.style.bottom = "auto";
-    target.style.right = "auto";
-    const rect = target.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-    target.style.left = `${rect.left}px`;
-    target.style.top = `${rect.top}px`;
-    target.style.transform = "none";
-    target.classList.add("dragging");
-    document.body.style.userSelect = "none";
-    handle.setPointerCapture(e.pointerId);
-  });
-  handle.addEventListener("pointermove", e => {
-    if (isDragging) {
-      let newLeft = e.clientX - offsetX;
-      let newTop = e.clientY - offsetY;
-      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - target.offsetWidth));
-      newTop = Math.max(0, Math.min(newTop, window.innerHeight - target.offsetHeight));
-      target.style.left = `${newLeft}px`;
-      target.style.top = `${newTop}px`;
-    }
-  });
-  handle.addEventListener("pointerup", e => {
-    if (isDragging) {
-      isDragging = false;
-      target.classList.remove("dragging");
-      document.body.style.userSelect = "auto";
-      handle.releasePointerCapture(e.pointerId);
-    }
-  });
-}
+// --------------------- END OF SCRIPT ---------------------
