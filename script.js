@@ -56,10 +56,15 @@ document.addEventListener("DOMContentLoaded", () => {
   typeWriterOnElement(document.getElementById("terminalHeader"), 50);
   typeOtherHeaders();
 
+  // --------------------- RANDOMIZE THEME BUTTON ---------------------
   document.getElementById("randomizeToggle").addEventListener("click", function () {
     this.classList.add("vibrate");
     setTimeout(() => { this.classList.remove("vibrate"); }, 300);
-    const randomIndex = Math.floor(Math.random() * themes.length);
+    let randomIndex;
+    // Ensure the new theme is different from the current one.
+    do {
+      randomIndex = Math.floor(Math.random() * themes.length);
+    } while (themes[randomIndex].name === currentTheme.name);
     currentTheme = themes[randomIndex];
     document.documentElement.style.setProperty("--bg-color", currentTheme.sub[0].bg);
     document.documentElement.style.setProperty("--text-color", currentTheme.sub[0].text);
@@ -98,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Lock retro music player in front.
   document.getElementById("retroMusicPlayer").style.zIndex = 99999;
 });
+
 
 // --------------------- TYPEWRITER FUNCTIONS ---------------------
 function typeWriterOnElement(element, delay = 0) {
