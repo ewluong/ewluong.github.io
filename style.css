@@ -591,6 +591,18 @@ body::before {
 #backroomsModal .modal-content {
   pointer-events: auto;
 }
+/* Fix double scrollbar in Backrooms modal */
+#backroomsModal .backrooms-modal-content {
+  display: flex;
+  flex-direction: column;
+  max-height: 75vh; /* Sets a maximum height for the modal */
+  overflow: hidden; /* Prevents the outer container from scrolling */
+  height: 75vh;
+}
+#backroomsModal .vcr-screen {
+  flex: 1;           /* Take up remaining space */
+  overflow-y: auto;  /* Only this area scrolls if content overflows */
+}
 .vcr-header {
   background: var(--bg-color);
   color: var(--text-color);
@@ -665,6 +677,7 @@ body::before {
   font-size: 1.2rem;
   line-height: 1.4;
   white-space: pre-wrap;
+  height: 600px;
 }
 .vcr-screen::-webkit-scrollbar {
   width: 10px;
