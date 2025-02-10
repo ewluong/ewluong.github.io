@@ -7,50 +7,26 @@ function debounce(func, delay) {
   };
 }
 
-// --------------------- THEME & INITIAL SETUP ---------------------
+// Global variables for modal stacking
+let currentTopZ = 11000;
+let currentActiveModal = null;
+let pendingBringToFrontTimeout = null;
+
+// Function to bring a modal to the front
+function bringModalToFront(modal) {
+  if (modal.id === "retroMusicPlayer") return; // locked in front
+  currentTopZ++;
+  modal.style.zIndex = currentTopZ;
+}
+
+// --------------------- INITIAL SETUP & THEME ---------------------
 const themes = [
-  {
-    name: "Orange & Black",
-    sub: [
-      { bg: "#ff5e00", text: "#000000" },
-      { bg: "#000000", text: "#ff5e00" },
-    ],
-  },
-  {
-    name: "Black & Bright Green",
-    sub: [
-      { bg: "#000000", text: "#00ff00" },
-      { bg: "#00ff00", text: "#000000" },
-    ],
-  },
-  {
-    name: "Dark Purple & Neon Green",
-    sub: [
-      { bg: "#2e003e", text: "#00ff00" },
-      { bg: "#00ff00", text: "#2e003e" },
-    ],
-  },
-  {
-    name: "Navy Blue & Light Blue",
-    sub: [
-      { bg: "#001f3f", text: "#7FDBFF" },
-      { bg: "#7FDBFF", text: "#001f3f" },
-    ],
-  },
-  {
-    name: "Dark Maroon & Amber",
-    sub: [
-      { bg: "#0d0208", text: "#f2a900" },
-      { bg: "#f2a900", text: "#0d0208" },
-    ],
-  },
-  {
-    name: "Dark Blue & Off-White",
-    sub: [
-      { bg: "#011627", text: "#fdfffc" },
-      { bg: "#fdfffc", text: "#011627" },
-    ],
-  },
+  { name: "Orange & Black", sub: [ { bg: "#ff5e00", text: "#000000" }, { bg: "#000000", text: "#ff5e00" } ] },
+  { name: "Black & Bright Green", sub: [ { bg: "#000000", text: "#00ff00" }, { bg: "#00ff00", text: "#000000" } ] },
+  { name: "Dark Purple & Neon Green", sub: [ { bg: "#2e003e", text: "#00ff00" }, { bg: "#00ff00", text: "#2e003e" } ] },
+  { name: "Navy Blue & Light Blue", sub: [ { bg: "#001f3f", text: "#7FDBFF" }, { bg: "#7FDBFF", text: "#001f3f" } ] },
+  { name: "Dark Maroon & Amber", sub: [ { bg: "#0d0208", text: "#f2a900" }, { bg: "#f2a900", text: "#0d0208" } ] },
+  { name: "Dark Blue & Off-White", sub: [ { bg: "#011627", text: "#fdfffc" }, { bg: "#fdfffc", text: "#011627" } ] },
 ];
 let currentTheme = themes[3];
 
@@ -68,14 +44,20 @@ document.addEventListener("DOMContentLoaded", () => {
   initSectionObserver();
   onScrollTypeAscii();
   initBlogPosts();
-  initMinigamePrompt();
   initMinigameModal();
   initMusicPrompt();
   initChatbox("/"); // Adjust if needed
   initProjectModal();
   initBackroomsModal();
   initRetroMusicPlayer();
-  initDataModal(); // Data modal now only reads analytics data
+  initDataModal();
+
+  // Initialize Weather Modal (draggable, themed & scaled) and Crypto Modal (draggable, scaled)
+  initWeatherModal();
+  initCryptoModal();
+
+  // Initialize the Widgets Explorer modal
+  initWidgetsModal();
 
   typeWriterOnElement(document.getElementById("terminalHeader"), 50);
   typeOtherHeaders();
@@ -91,7 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.setAttribute("data-scheme", currentTheme.name);
   });
 
-  // Optimize event handling
   window.addEventListener("resize", debounce(onResize, 100));
 
   let scrollTicking = false;
@@ -105,22 +86,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, { passive: true });
 
-  // Bring-to-Front for modals
-  let currentTopZ = 11000;
-  function bringModalToFront(modal) {
-    currentTopZ++;
-    modal.style.zIndex = currentTopZ;
-  }
-  ["minigameModal", "chatboxModal", "backroomsModal"].forEach(id => {
-    const modal = document.getElementById(id);
-    modal.addEventListener("mousedown", () => {
-      bringModalToFront(modal);
+  // Attach pointerdown listeners on modals using a short delay
+  const draggableModalSelectors = [".modal", ".chat-modal", ".widget-modal"];
+  draggableModalSelectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(modal => {
+      if (modal.id === "retroMusicPlayer") return;
+      modal.addEventListener("pointerdown", (e) => {
+        if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
+        pendingBringToFrontTimeout = setTimeout(() => {
+          currentActiveModal = modal;
+          bringModalToFront(modal);
+          pendingBringToFrontTimeout = null;
+        }, 50);
+      }, true);
     });
   });
+
+  // Extra fix for chat modal inner interface.
+  const chatboxInterface = document.querySelector("#chatboxModal .chatbox-interface");
+  if (chatboxInterface) {
+    chatboxInterface.addEventListener("pointerdown", (e) => {
+      if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
+      pendingBringToFrontTimeout = setTimeout(() => {
+        currentActiveModal = document.getElementById("chatboxModal");
+        bringModalToFront(document.getElementById("chatboxModal"));
+        pendingBringToFrontTimeout = null;
+      }, 50);
+    }, true);
+  }
+
+  // Lock the music modal in front.
+  document.getElementById("retroMusicPlayer").style.zIndex = 99999;
 });
 
 // --------------------- TYPEWRITER FUNCTIONS ---------------------
-function typeWriterOnElement(element, delay = 50) {
+function typeWriterOnElement(element, delay = 0) {
   const fullText = element.getAttribute("data-text");
   if (!fullText) return;
   element.style.opacity = "1";
@@ -195,7 +195,6 @@ function initCanvas() {
       baseSize,
       vx,
       vy,
-      // Removed breathing effect property
     });
   }
   window.addEventListener("mousemove", (e) => {
@@ -220,7 +219,6 @@ function animateBackground() {
   const textColor = computedStyle.getPropertyValue("--text-color").trim();
   const rgb = parseHexToRgb(textColor);
 
-  // Get music data if available
   let musicFactor = 0;
   if (window.audioAnalyser) {
     let freqArray = new Uint8Array(window.audioAnalyser.frequencyBinCount);
@@ -229,17 +227,13 @@ function animateBackground() {
     for (let i = 0; i < freqArray.length; i++) {
       sum += freqArray[i];
     }
-    let avg = sum / freqArray.length; // avg value between 0 and 255
-    // Normalize and scale so that musicFactor is in a usable range
+    let avg = sum / freqArray.length;
     musicFactor = (avg / 255) * 0.5;
   }
-  // Use a quadratic mapping for the beat amplification:
   const MUSIC_MULTIPLIER = 60;
-  // Expose the current musicFactor globally for collision resolution
   window.currentMusicFactor = musicFactor;
 
   shapes.forEach((shape) => {
-    // Calculate dynamic size with quadratic amplification of the beat
     let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
     shape.x += shape.vx;
     shape.y += shape.vy;
@@ -250,7 +244,6 @@ function animateBackground() {
       shape.x += Math.cos(angle) * repelForce * (repelRadius - dist);
       shape.y += Math.sin(angle) * repelForce * (repelRadius - dist);
     }
-    // Ensure shapes stay within canvas bounds
     if (shape.x - dynamicSize < 0) {
       shape.x = dynamicSize;
       shape.vx = -shape.vx;
@@ -267,13 +260,11 @@ function animateBackground() {
     }
   });
 
-  // Collision resolution using dynamic sizes
   for (let i = 0; i < shapes.length; i++) {
     for (let j = i + 1; j < shapes.length; j++) {
       resolveCollision(shapes[i], shapes[j]);
     }
   }
-  // Draw shapes using the same dynamic size calculation
   shapes.forEach((shape) => {
     let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
     drawBackgroundShape(shapeTypes[currentShapeIndex], shape.x, shape.y, dynamicSize, rgb);
@@ -299,7 +290,6 @@ function drawBackgroundShape(type, x, y, size, rgb) {
 }
 
 function resolveCollision(s1, s2) {
-  // Use the global musicFactor to compute current dynamic sizes for collision resolution
   let effectiveMusicFactor = window.currentMusicFactor || 0;
   const MUSIC_MULTIPLIER = 10;
   let r1 = s1.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 2));
@@ -314,7 +304,6 @@ function resolveCollision(s1, s2) {
     s1.y -= overlap * ny;
     s2.x += overlap * nx;
     s2.y += overlap * ny;
-    // Swap velocities for a simple collision response
     let tempVx = s1.vx, tempVy = s1.vy;
     s1.vx = s2.vx;
     s1.vy = s2.vy;
@@ -435,16 +424,21 @@ function initBlogPosts() {
   const closeBtn = modal.querySelector(".modal-close");
   blogPosts.forEach((post) => {
     post.addEventListener("click", () => {
-      const title = post.dataset.title;
-      const content = post.dataset.content;
+      if (pendingBringToFrontTimeout) {
+        clearTimeout(pendingBringToFrontTimeout);
+        pendingBringToFrontTimeout = null;
+      }
+      modal.dataset.openedAt = performance.now();
       modal.classList.remove("hidden");
-      modalTitle.textContent = title;
+      currentActiveModal = modal;
+      bringModalToFront(modal);
+      modalTitle.textContent = post.dataset.title;
       if (typeTimer) {
         clearTimeout(typeTimer);
         typeTimer = null;
       }
       modalText.textContent = "";
-      typeWriterEffect(content, modalText);
+      typeWriterEffect(post.dataset.content, modalText);
     });
   });
   closeBtn.addEventListener("click", () => {
@@ -493,23 +487,7 @@ function typeWriterEffect(text, element) {
   typeChar();
 }
 
-// --------------------- MINIGAME PROMPT ---------------------
-let dinoGameStarted = false;
-function initMinigamePrompt() {
-  const minigameButton = document.getElementById("minigamePrompt");
-  const minigameModal = document.getElementById("minigameModal");
-  minigameButton.addEventListener("click", () => {
-    if (minigameModal.classList.contains("hidden")) {
-      minigameModal.classList.remove("hidden");
-      minigameModal.focus();
-      startDinoGame();
-    } else {
-      minigameModal.classList.add("hidden");
-      dinoGameStarted = false;
-    }
-  });
-}
-
+// --------------------- MINIGAME MODAL ---------------------
 function initMinigameModal() {
   const minigameClose = document.getElementById("minigameClose");
   const minigameModal = document.getElementById("minigameModal");
@@ -673,7 +651,6 @@ function initRetroMusicPlayer() {
     analyser.fftSize = 256;
     bufferLength = analyser.frequencyBinCount;
     dataArray = new Uint8Array(bufferLength);
-    // Expose the analyser globally so the background animation can use it
     window.audioAnalyser = analyser;
   }
 
@@ -876,12 +853,21 @@ function initChatbox(API_URL) {
   const chatboxSendBtn = document.getElementById("chatboxSendBtn");
   const chatboxInput = document.getElementById("chatboxInput");
   const chatboxMessages = chatboxModal.querySelector(".chatbox-messages");
-  const chatboxInterface = document.getElementById("chatboxModal").querySelector(".chatbox-interface");
+  const chatboxInterface = chatboxModal.querySelector(".chatbox-interface");
 
   chatboxPrompt.addEventListener("click", () => {
-    chatboxModal.classList.toggle("hidden");
-    if (!chatboxModal.classList.contains("hidden")) {
+    if (pendingBringToFrontTimeout) {
+      clearTimeout(pendingBringToFrontTimeout);
+      pendingBringToFrontTimeout = null;
+    }
+    if (chatboxModal.classList.contains("hidden")) {
+      chatboxModal.dataset.openedAt = performance.now();
+      chatboxModal.classList.remove("hidden");
+      currentActiveModal = chatboxModal;
+      bringModalToFront(chatboxModal);
       chatboxInput.focus();
+    } else {
+      chatboxModal.classList.add("hidden");
     }
   });
   chatboxCloseBtn.addEventListener("click", () => {
@@ -923,6 +909,14 @@ function initChatbox(API_URL) {
     chatboxMessages.appendChild(messageDiv);
     chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
   }
+  chatboxInterface.addEventListener("pointerdown", (e) => {
+    if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
+    pendingBringToFrontTimeout = setTimeout(() => {
+      currentActiveModal = chatboxModal;
+      bringModalToFront(chatboxModal);
+      pendingBringToFrontTimeout = null;
+    }, 50);
+  }, true);
   makeElementDraggable(chatboxInterface);
 }
 
@@ -936,7 +930,14 @@ function initDataModal() {
   dataPrompt.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (pendingBringToFrontTimeout) {
+      clearTimeout(pendingBringToFrontTimeout);
+      pendingBringToFrontTimeout = null;
+    }
+    dataModal.dataset.openedAt = performance.now();
     dataModal.classList.remove("hidden");
+    currentActiveModal = dataModal;
+    bringModalToFront(dataModal);
     fetchDataAnalytics();
   });
 
@@ -1053,21 +1054,14 @@ function makeElementDraggable(element) {
     if (e.target.closest("button, input, select, textarea")) return;
     isDragging = true;
     e.preventDefault();
-    const rect = element.getBoundingClientRect();
-    const computedPos = getComputedStyle(element).position;
-    if (computedPos === "fixed") {
-      offsetX = e.clientX - rect.left;
-      offsetY = e.clientY - rect.top;
-      element.style.left = `${rect.left}px`;
-      element.style.top = `${rect.top}px`;
-    } else {
-      const leftAbs = rect.left + window.scrollX;
-      const topAbs = rect.top + window.scrollY;
-      offsetX = e.pageX - leftAbs;
-      offsetY = e.pageY - topAbs;
-      element.style.left = `${leftAbs}px`;
-      element.style.top = `${topAbs}px`;
+    if (getComputedStyle(element).position !== "fixed") {
+      element.style.position = "fixed";
     }
+    const rect = element.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    element.style.left = `${rect.left}px`;
+    element.style.top = `${rect.top}px`;
     element.style.transform = "none";
     element.classList.add("dragging");
     document.body.style.userSelect = "none";
@@ -1075,15 +1069,8 @@ function makeElementDraggable(element) {
   });
   element.addEventListener("pointermove", (e) => {
     if (isDragging) {
-      let newLeft, newTop;
-      const computedPos = getComputedStyle(element).position;
-      if (computedPos === "fixed") {
-        newLeft = e.clientX - offsetX;
-        newTop = e.clientY - offsetY;
-      } else {
-        newLeft = e.pageX - offsetX;
-        newTop = e.pageY - offsetY;
-      }
+      let newLeft = e.clientX - offsetX;
+      let newTop = e.clientY - offsetY;
       newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - element.offsetWidth));
       newTop = Math.max(0, Math.min(newTop, window.innerHeight - element.offsetHeight));
       element.style.left = `${newLeft}px`;
@@ -1147,12 +1134,19 @@ function initProjectModal() {
 
   projectCards.forEach((card) => {
     card.addEventListener("click", () => {
+      if (pendingBringToFrontTimeout) {
+        clearTimeout(pendingBringToFrontTimeout);
+        pendingBringToFrontTimeout = null;
+      }
       const file = card.getAttribute("data-file");
       const projectTitle = card.querySelector("h2").textContent.trim();
 
       if (projectTitle === "Infinite Backrooms") {
         const backroomsModal = document.getElementById("backroomsModal");
+        backroomsModal.dataset.openedAt = performance.now();
         backroomsModal.classList.remove("hidden");
+        currentActiveModal = backroomsModal;
+        bringModalToFront(backroomsModal);
         if (window.loadBackrooms) {
           const dropdown = document.getElementById("backroomsDropdown");
           window.loadBackrooms(dropdown.value);
@@ -1160,10 +1154,14 @@ function initProjectModal() {
         return;
       } else if (projectTitle === "ewluong.com") {
         const chatboxModal = document.getElementById("chatboxModal");
+        chatboxModal.dataset.openedAt = performance.now();
         chatboxModal.classList.remove("hidden");
+        currentActiveModal = chatboxModal;
+        bringModalToFront(chatboxModal);
         return;
       }
 
+      projectModal.dataset.openedAt = performance.now();
       projectModalTitle.textContent = projectTitle;
       projectModalBody.innerHTML = "";
       if (file && file.endsWith(".md")) {
@@ -1195,6 +1193,8 @@ function initProjectModal() {
         projectModalBody.textContent = "Unsupported file format.";
       }
       projectModal.classList.remove("hidden");
+      currentActiveModal = projectModal;
+      bringModalToFront(projectModal);
     });
   });
 
@@ -1351,8 +1351,15 @@ function initBackroomsModal() {
   }
 
   backroomsPrompt.addEventListener("click", () => {
+    if (pendingBringToFrontTimeout) {
+      clearTimeout(pendingBringToFrontTimeout);
+      pendingBringToFrontTimeout = null;
+    }
     if (backroomsModal.classList.contains("hidden")) {
+      backroomsModal.dataset.openedAt = performance.now();
       backroomsModal.classList.remove("hidden");
+      currentActiveModal = backroomsModal;
+      bringModalToFront(backroomsModal);
       loadConversation(dropdown.value);
     } else {
       backroomsModal.classList.add("hidden");
@@ -1394,3 +1401,209 @@ function initBackroomsModal() {
   const backroomsHeader = document.querySelector(".vcr-header");
   makeElementDraggableWithHandle(backroomsHeader, document.querySelector(".backrooms-modal-content"));
 }
+
+// --------------------- CRYPTO MODAL (CoinGecko API, Bloomberg Terminal Style) ---------------------
+// Helper function to format the 24hr change with color coding
+function formatChange(value) {
+  return `<span class="${value < 0 ? 'negative' : 'positive'}">${value.toFixed(2)}%</span>`;
+}
+
+function fetchCryptoPrices() {
+  const cryptoContent = document.getElementById("cryptoContent");
+  cryptoContent.innerHTML = "<p>Loading crypto data...</p>";
+  const url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_market_cap=true&include_24hr_change=true&x_cg_demo_api_key=CG-ZLew5KBHPP9mX3ih2YcbnMrb";
+  fetch(url, { method: 'GET', headers: { accept: 'application/json' } })
+    .then(response => {
+       if (!response.ok) throw new Error("Network response was not ok");
+       return response.json();
+    })
+    .then(data => {
+       let html = "<table>";
+       html += "<tr><th>Coin</th><th>Price (USD)</th><th>Market Cap</th><th>24hr Change</th></tr>";
+       if (data.bitcoin) {
+         html += `<tr><td>Bitcoin</td><td>$${data.bitcoin.usd.toLocaleString()}</td><td>$${data.bitcoin.usd_market_cap.toLocaleString()}</td><td>${formatChange(data.bitcoin.usd_24h_change)}</td></tr>`;
+       }
+       if (data.ethereum) {
+         html += `<tr><td>Ethereum</td><td>$${data.ethereum.usd.toLocaleString()}</td><td>$${data.ethereum.usd_market_cap.toLocaleString()}</td><td>${formatChange(data.ethereum.usd_24h_change)}</td></tr>`;
+       }
+       if (data.solana) {
+         html += `<tr><td>Solana</td><td>$${data.solana.usd.toLocaleString()}</td><td>$${data.solana.usd_market_cap.toLocaleString()}</td><td>${formatChange(data.solana.usd_24h_change)}</td></tr>`;
+       }
+       html += "</table>";
+       cryptoContent.innerHTML = html;
+    })
+    .catch(error => {
+       console.error("Error fetching crypto data:", error);
+       cryptoContent.innerHTML = `<p>Error loading crypto data: ${error.message}</p>`;
+    });
+}
+
+function openCryptoModal() {
+  const cryptoModal = document.getElementById("cryptoModal");
+  cryptoModal.dataset.openedAt = performance.now();
+  cryptoModal.classList.remove("hidden");
+  currentActiveModal = cryptoModal;
+  bringModalToFront(cryptoModal);
+  fetchCryptoPrices();
+}
+
+function initCryptoModal() {
+  const cryptoModal = document.getElementById("cryptoModal");
+  const cryptoModalContent = cryptoModal.querySelector(".modal-content");
+  const cryptoOption = document.getElementById("cryptoOption");
+  
+  cryptoModalContent.addEventListener("pointerdown", (e) => {
+    if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
+    pendingBringToFrontTimeout = setTimeout(() => {
+      currentActiveModal = cryptoModal;
+      bringModalToFront(cryptoModal);
+      pendingBringToFrontTimeout = null;
+    }, 50);
+  }, true);
+
+  cryptoOption.addEventListener("click", openCryptoModal);
+
+  // Make the crypto modal draggable
+  makeElementDraggable(cryptoModalContent);
+
+  // Attach click listeners to the refresh and close buttons
+  document.getElementById("cryptoRefreshBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    fetchCryptoPrices();
+  });
+  document.getElementById("cryptoCloseBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    cryptoModal.classList.add("hidden");
+  });
+}
+
+// --------------------- WIDGETS MODAL (File Explorer Style) ---------------------
+function initWidgetsModal() {
+  const widgetsPrompt = document.getElementById("widgetsPrompt");
+  const widgetsModal = document.getElementById("widgetsModal");
+  const widgetsModalClose = document.getElementById("widgetsModalClose");
+
+  widgetsPrompt.addEventListener("click", () => {
+    if (pendingBringToFrontTimeout) {
+      clearTimeout(pendingBringToFrontTimeout);
+      pendingBringToFrontTimeout = null;
+    }
+    widgetsModal.dataset.openedAt = performance.now();
+    widgetsModal.classList.remove("hidden");
+    currentActiveModal = widgetsModal;
+    bringModalToFront(widgetsModal);
+  });
+
+  widgetsModalClose.addEventListener("click", () => {
+    widgetsModal.classList.add("hidden");
+  });
+
+  const folderWeather = document.getElementById("folderWeather");
+  const folderCrypto = document.getElementById("folderCrypto");
+  const folderMinigame = document.getElementById("folderMinigame");
+
+  folderWeather.addEventListener("click", () => {
+    widgetsModal.classList.add("hidden");
+    openWeatherModal();
+  });
+
+  folderCrypto.addEventListener("click", () => {
+    widgetsModal.classList.add("hidden");
+    openCryptoModal();
+  });
+
+  folderMinigame.addEventListener("click", () => {
+    widgetsModal.classList.add("hidden");
+    const minigameModal = document.getElementById("minigameModal");
+    if (minigameModal.classList.contains("hidden")) {
+      if (pendingBringToFrontTimeout) {
+        clearTimeout(pendingBringToFrontTimeout);
+        pendingBringToFrontTimeout = null;
+      }
+      minigameModal.dataset.openedAt = performance.now();
+      minigameModal.classList.remove("hidden");
+      currentActiveModal = minigameModal;
+      bringModalToFront(minigameModal);
+      minigameModal.focus();
+      startDinoGame();
+    } else {
+      minigameModal.classList.add("hidden");
+      dinoGameStarted = false;
+    }
+  });
+
+  // Make only the modal title draggable so folder clicks work
+  const widgetsModalTitle = document.querySelector("#widgetsModal .modal-title");
+  makeElementDraggableWithHandle(widgetsModalTitle, widgetsModal);
+}
+
+// --------------------- WEATHER MODAL (Widget-Style, Draggable, Themed & Scaled) ---------------------
+function initWeatherModal() {
+  const weatherModal = document.getElementById("weatherModal");
+  const weatherModalContent = weatherModal.querySelector(".modal-content");
+  const weatherClose = document.getElementById("weatherClose");
+  weatherClose.addEventListener("click", () => {
+    weatherModal.classList.add("hidden");
+  });
+  weatherModalContent.addEventListener("pointerdown", (e) => {
+    if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
+    pendingBringToFrontTimeout = setTimeout(() => {
+      currentActiveModal = weatherModal;
+      bringModalToFront(weatherModal);
+      pendingBringToFrontTimeout = null;
+    }, 50);
+  }, true);
+  makeElementDraggable(weatherModalContent);
+}
+
+function openWeatherModal() {
+  const weatherModal = document.getElementById("weatherModal");
+  const weatherContent = document.getElementById("weatherContent");
+  if (pendingBringToFrontTimeout) {
+    clearTimeout(pendingBringToFrontTimeout);
+    pendingBringToFrontTimeout = null;
+  }
+  weatherModal.dataset.openedAt = performance.now();
+  weatherModal.classList.remove("hidden");
+  currentActiveModal = weatherModal;
+  bringModalToFront(weatherModal);
+  weatherContent.innerHTML = "<p>Loading weather data...</p>";
+  fetch(`https://api.ipapi.com/api/check?access_key=a38b2ba43250755eb2aa75a6805fb005`)
+    .then(response => {
+      if (!response.ok) throw new Error("IP API response not ok");
+      return response.json();
+    })
+    .then(ipData => {
+      const lat = ipData.latitude;
+      const lon = ipData.longitude;
+      const city = ipData.city || "your area";
+      return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+        .then(response => {
+          if (!response.ok) throw new Error("Weather API response not ok");
+          return response.json();
+        })
+        .then(weatherData => {
+          const current = weatherData.current_weather;
+          if (current) {
+            const temperature = current.temperature;
+            const windspeed = current.windspeed;
+            const time = current.time;
+            const contentHtml = `
+              <p>Location: ${city}</p>
+              <p>Temperature: ${temperature}&deg;C</p>
+              <p>Wind Speed: ${windspeed} km/h</p>
+              <p>Time: ${time}</p>
+            `;
+            weatherContent.innerHTML = contentHtml;
+          } else {
+            weatherContent.innerHTML = "<p>Weather data not available.</p>";
+          }
+        });
+    })
+    .catch(error => {
+      console.error("Error fetching weather data:", error);
+      weatherContent.innerHTML = `<p>Error fetching weather data: ${error.message}</p>`;
+    });
+}
+
+// --------------------- END OF SCRIPT ---------------------
