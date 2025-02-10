@@ -1001,8 +1001,36 @@ body::before {
   .retro-music-player {
     width: 90%;
     left: 50%;
+    right: auto;
     transform: translateX(-50%);
     top: 10px;
+  }
+
+  /* Infinite Backrooms Header adjustments */
+  .vcr-header {
+    font-size: 1.5rem;
+    padding: 5px;
+  }
+  .vcr-header .vcr-description {
+    font-size: 0.9rem;
+  }
+
+  /* Backrooms search & button adjustments */
+  .vcr-search {
+    gap: 5px;
+    padding: 5px;
+  }
+  .vcr-search select,
+  .vcr-search input,
+  .vcr-search button {
+    font-size: 1rem;
+    padding: 5px;
+  }
+
+  /* Widgets Explorer Modal adjustments */
+  .widgets-modal .modal-content {
+    width: 90% !important;
+    max-width: 90% !important;
   }
 
   /* Chat Modal adjustments */
