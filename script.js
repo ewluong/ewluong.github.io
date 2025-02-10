@@ -300,11 +300,9 @@ function parseHexToRgb(hex) {
   return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
 }
 
-// --------------------- DODECAGON (Breathing Animation) ---------------------
+// --------------------- DODECAGON (Scroll-Controlled) ---------------------
 let dCanvas, dCtx;
 let dWidth = 400, dHeight = 400;
-let rotation = 0, breathePhase = 0;
-const breatheSpeed = 0.02, breatheAmplitude = 0.1;
 
 function initDodecagonCanvas() {
   dCanvas = document.getElementById("dodecagonCanvas");
@@ -324,21 +322,29 @@ function initDodecagonCanvas() {
   }
   resizeDodecagon();
   window.addEventListener("resize", resizeDodecagon);
-  window.addEventListener("mousemove", e => {
-    rotation = (e.clientX + e.clientY) * 0.01;
-  }, { passive: true });
+  // Removed mousemove event listener for rotation.
   requestAnimationFrame(drawDodecagonLoop);
 }
 
 function drawDodecagonLoop() {
   dCtx.clearRect(0, 0, dWidth, dHeight);
   let cx = dWidth / 2, cy = dHeight / 2;
-  breathePhase += breatheSpeed;
-  let breathScale = 1 + breatheAmplitude * Math.sin(breathePhase);
-  let baseRadius = Math.min(dWidth, dHeight) / 4, currentRadius = baseRadius * breathScale;
+  let docHeight = document.body.scrollHeight - window.innerHeight;
+  let scrollY = window.scrollY;
+  let scrollRatio = docHeight > 0 ? scrollY / docHeight : 0;
+
+  // Increase these values to speed up rotation and scaling.
+  const maxRotation = Math.PI * 7; // Was Math.PI * 2
+  const maxScale = 4; // Was 2
+
+  let rotation = maxRotation * scrollRatio;
+  let baseRadius = Math.min(dWidth, dHeight) / 4;
+  let currentRadius = baseRadius * (1 + (maxScale - 1) * scrollRatio);
+
   drawDodecagon(cx, cy, currentRadius, rotation);
   requestAnimationFrame(drawDodecagonLoop);
 }
+
 
 function drawDodecagon(cx, cy, radius, rot) {
   let sides = 12, angleStep = (Math.PI * 2) / sides;

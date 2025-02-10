@@ -620,11 +620,7 @@ body::before {
   overflow: hidden;
   height: 75vh;
 }
-#backroomsModal .vcr-screen {
-  flex: 1;
-  overflow-y: auto;
-}
-.vcr-header {
+#backroomsModal .vcr-header {
   background: var(--bg-color);
   color: var(--text-color);
   padding: 10px;
@@ -634,20 +630,20 @@ body::before {
   border-bottom: 4px solid var(--text-color);
   cursor: move;
 }
-.vcr-header .vcr-description {
+#backroomsModal .vcr-header .vcr-description {
   font-size: 1rem;
   margin-top: 5px;
   letter-spacing: 1px;
   color: var(--text-color);
 }
-.vcr-search {
+#backroomsModal .vcr-search {
   margin: 20px 10px 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
 }
-.vcr-search select {
+#backroomsModal .vcr-search select {
   padding: 5px;
   font-family: 'VT323', monospace;
   font-size: 1.2rem;
@@ -656,11 +652,11 @@ body::before {
   color: var(--text-color);
   transition: background 0.3s, color 0.3s;
 }
-.vcr-search select:hover {
+#backroomsModal .vcr-search select:hover {
   background: var(--text-color);
   color: var(--bg-color);
 }
-.vcr-search input {
+#backroomsModal .vcr-search input {
   padding: 5px;
   font-family: 'VT323', monospace;
   font-size: 1.2rem;
@@ -670,11 +666,11 @@ body::before {
   color: var(--text-color);
   transition: background 0.3s, color 0.3s;
 }
-.vcr-search input:hover {
+#backroomsModal .vcr-search input:hover {
   background: var(--text-color);
   color: var(--bg-color);
 }
-.vcr-search button {
+#backroomsModal .vcr-search button {
   padding: 5px 10px;
   font-family: 'VT323', monospace;
   font-size: 1.2rem;
@@ -684,11 +680,11 @@ body::before {
   color: var(--text-color);
   transition: background 0.3s, color 0.3s;
 }
-.vcr-search button:hover {
+#backroomsModal .vcr-search button:hover {
   background: var(--text-color);
   color: var(--bg-color);
 }
-.vcr-screen {
+#backroomsModal .vcr-screen {
   flex: 1;
   background: var(--bg-color);
   color: var(--text-color);
@@ -700,34 +696,15 @@ body::before {
   white-space: pre-wrap;
   height: 600px;
 }
-.vcr-screen::-webkit-scrollbar {
+#backroomsModal .vcr-screen::-webkit-scrollbar {
   width: 10px;
 }
-.vcr-screen::-webkit-scrollbar-track {
+#backroomsModal .vcr-screen::-webkit-scrollbar-track {
   background: var(--bg-color);
 }
-.vcr-screen::-webkit-scrollbar-thumb {
+#backroomsModal .vcr-screen::-webkit-scrollbar-thumb {
   background-color: var(--text-color);
   border: 2px solid var(--bg-color);
-}
-.vcr-controls {
-  background: var(--bg-color);
-  padding: 10px;
-  text-align: center;
-  border-top: 4px solid var(--text-color);
-}
-.vcr-controls .modal-close {
-  background: var(--bg-color);
-  color: var(--text-color);
-  border: 2px solid var(--text-color);
-  padding: 5px 15px;
-  font-family: 'VT323', monospace;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-.vcr-controls .modal-close:hover {
-  background: var(--text-color);
-  color: var(--bg-color);
 }
 #cursor {
   display: inline-block;
