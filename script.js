@@ -1537,18 +1537,17 @@ function openWeatherModal() {
   bringModalToFront(weatherModal);
   weatherContent.innerHTML = "<p>Loading weather data...</p>";
   // Use ip-api.com for geolocation
-  fetch("http://ip-api.com/json/?fields=61439")
+
+  fetch("https://ipapi.co/json/")
     .then(response => {
       if (!response.ok) throw new Error("IP API response not ok");
       return response.json();
     })
     .then(ipData => {
-      if (ipData.status !== "success") {
-        throw new Error(ipData.message || "Failed to retrieve IP data");
-      }
-      const lat = ipData.lat;
-      const lon = ipData.lon;
+      const lat = ipData.latitude;
+      const lon = ipData.longitude;
       const city = ipData.city || "your area";
+      // Then fetch weather data using Open-Meteo...
       return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
         .then(response => {
           if (!response.ok) throw new Error("Weather API response not ok");
@@ -1577,6 +1576,9 @@ function openWeatherModal() {
       weatherContent.innerHTML = `<p>Error fetching weather data: ${error.message}</p>`;
     });
 }
+
+
+
 
 // --------------------- MAKE ELEMENT DRAGGABLE ---------------------
 // Updated to ignore interactive elements (buttons, inputs, selects, textareas, and .folder elements)
