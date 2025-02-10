@@ -344,7 +344,7 @@ Critics argue that if the mind were truly independent of the body, it would cont
     </div>
 
     <!-- WEATHER MODAL (Widget-Style, Draggable) -->
-    <div id="weatherModal" class="widget-modal hidden">
+    <div id="weatherModal" class="draggable-widget-modal hidden">
       <div class="modal-content weather-modal-content">
         <!-- No header -->
         <div class="modal-body" id="weatherContent">
@@ -353,6 +353,7 @@ Critics argue that if the mind were truly independent of the body, it would cont
         <button type="button" class="modal-close" id="weatherClose">Close</button>
       </div>
     </div>
+
 
     <!-- DATA MODAL (Analytics with Chart) -->
     <div id="dataModal" class="modal hidden">
@@ -395,13 +396,15 @@ Critics argue that if the mind were truly independent of the body, it would cont
     <!-- RETRO‑STYLED MUSIC PLAYER (Locked in front) -->
     <div id="retroMusicPlayer" class="retro-music-player hidden">
       <div class="music-header">
-        <canvas id="waveformCanvas" width="300" height="50"></canvas>
+        <!-- Reduced width equalizer -->
+        <canvas id="waveformCanvas" width="250" height="50"></canvas>
       </div>
       <div class="music-info">
         <div class="song-title">Sample Song</div>
         <div class="song-artist">Artist One</div>
         <div class="song-album">Album/Playlist</div>
       </div>
+      <!-- Music controls: arranged side by side -->
       <div class="music-controls">
         <button type="button" id="btnBackward" class="control-btn backward" aria-label="Backward"></button>
         <button type="button" id="btnPlayPause" class="control-btn play breathing" aria-label="Play/Pause"></button>
