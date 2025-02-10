@@ -404,16 +404,14 @@ body::before {
   justify-content: center;
   text-align: center;
   flex-shrink: 0;
-  width: 100px;  /* Set a fixed width */
-  height: 40px;  /* Set a fixed height */
+  width: 100px;
+  height: 40px;
 }
-
 .toggle-button:hover {
   transform: scale(1.1);
   background-color: var(--text-color);
   color: var(--bg-color);
 }
-
 /* ---------- Top-Right Container ---------- */
 .top-right {
   position: fixed;
@@ -424,7 +422,6 @@ body::before {
   gap: 10px;
   align-items: center;
 }
-
 /* ---------- Bottom-Right Container ---------- */
 #toggleButtonsContainer {
   position: fixed;
@@ -435,7 +432,6 @@ body::before {
   gap: 15px;
   z-index: 9999;
 }
-
 /* ---------- Retro Music Player ---------- */
 .retro-music-player {
   position: fixed;
@@ -582,7 +578,6 @@ body::before {
 .favorites-dropdown li:last-child {
   border-bottom: none;
 }
-
 /* ---------- Backrooms Modal ---------- */
 #backroomsModal {
   background-color: transparent !important;
@@ -718,7 +713,6 @@ body::before {
 @keyframes blink {
   50% { opacity: 0; }
 }
-
 /* ---------- Crypto Modal ---------- */
 .crypto-modal-content {
   background-color: #000;
@@ -779,7 +773,6 @@ body::before {
   background-color: #000;
   color: #f69513;
 }
-
 /* ---------- Weather Modal ---------- */
 .weather-modal-content {
   background-color: var(--bg-color);
@@ -811,7 +804,6 @@ body::before {
   background-color: var(--bg-color);
   color: var(--text-color);
 }
-
 /* ---------- Widget Modal ---------- */
 .widget-modal {
   position: fixed;
@@ -830,7 +822,6 @@ body::before {
 .widget-modal.hidden {
   display: none;
 }
-
 /* ---------- Override for Weather Modal ---------- */
 #weatherModal {
   top: 80px;
@@ -841,7 +832,6 @@ body::before {
   height: auto;
   pointer-events: auto;
 }
-
 /* ---------- Widgets Explorer Modal ---------- */
 .widgets-modal {
   position: fixed;
@@ -854,7 +844,6 @@ body::before {
   pointer-events: auto;
   width: 500px;
 }
-
 /* ---------- Minigame Modal ---------- */
 #minigameModal .modal-content {
   top: 50%;
@@ -862,7 +851,6 @@ body::before {
   transform: translateY(170%);
   width: 350px;
 }
-
 /* ---------- Widgets Grid ---------- */
 .widgets-grid {
   display: grid;
@@ -870,7 +858,6 @@ body::before {
   gap: 10px;
   padding: 10px;
 }
-
 .folder {
   background-color: var(--bg-color);
   border: 2px solid var(--text-color);
@@ -880,24 +867,20 @@ body::before {
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
 }
-
 .folder:hover {
   background-color: var(--item-hover-bg);
   color: var(--item-hover-text);
 }
-
 .folder:hover .folder-top,
 .folder:hover .folder-body {
   border-color: var(--item-hover-text);
 }
-
 .folder-icon {
   width: 40px;
   height: 30px;
   margin: 0 auto 5px auto;
   position: relative;
 }
-
 .folder-top {
   position: absolute;
   top: 0;
@@ -908,7 +891,6 @@ body::before {
   border-bottom: none;
   background: transparent;
 }
-
 .folder-body {
   position: absolute;
   top: 8px;
@@ -918,11 +900,9 @@ body::before {
   border: 2px solid var(--text-color);
   background: transparent;
 }
-
 .folder-label {
   font-size: 1rem;
 }
-
 /* ---------- Draggable Widget Modals ---------- */
 .draggable-widget-modal {
   position: fixed;
@@ -935,57 +915,47 @@ body::before {
 .draggable-widget-modal .modal-content {
   pointer-events: auto !important;
 }
-
 /* ---------- Custom Modal Initial Positions ---------- */
 #cryptoModal {
   top: auto;
   bottom: 20px;
   left: 20px;
 }
-
 #retroMusicPlayer {
   position: fixed;
   top: 20px;
   left: 20px;
 }
-
 /* ================= Responsive / Mobile Styles ================= */
 @media (max-width: 600px) {
   :root {
     --base-font-size: 16px;
   }
-
   body {
     font-size: 14px;
   }
-
   .navbar a {
     font-size: 1rem;
   }
-
   .section {
     padding: 4rem 1rem;
     margin: 5rem 0;
   }
-
   .toggle-button {
     width: 80px;
     height: 35px;
     font-size: 1rem;
     padding: 0.4rem 0.8rem;
   }
-
   .modal-content {
     width: 95%;
     padding: 1rem;
   }
-  
   .project-card,
   .about-item {
     width: 90%;
     margin: 0 auto;
   }
-
   /* Adjust modals for smaller screens */
   #weatherModal,
   #cryptoModal,
@@ -996,16 +966,14 @@ body::before {
     left: 50% !important;
     transform: translateX(-50%) !important;
   }
-
-  /* Retro Music Player reposition */
+  /* Retro Music Player reposition fix */
   .retro-music-player {
-    width: 90%;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    top: 10px;
+    width: 90% !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    top: 10px !important;
   }
-
   /* Infinite Backrooms Header adjustments */
   .vcr-header {
     font-size: 1.5rem;
@@ -1014,7 +982,6 @@ body::before {
   .vcr-header .vcr-description {
     font-size: 0.9rem;
   }
-
   /* Backrooms search & button adjustments */
   .vcr-search {
     gap: 5px;
@@ -1026,13 +993,11 @@ body::before {
     font-size: 1rem;
     padding: 5px;
   }
-
   /* Widgets Explorer Modal adjustments */
   .widgets-modal .modal-content {
     width: 90% !important;
     max-width: 90% !important;
   }
-
   /* Chat Modal adjustments */
   .chat-modal {
     width: 90%;
