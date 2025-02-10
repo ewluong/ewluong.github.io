@@ -346,14 +346,12 @@ Critics argue that if the mind were truly independent of the body, it would cont
     <!-- WEATHER MODAL (Widget-Style, Draggable) -->
     <div id="weatherModal" class="draggable-widget-modal hidden">
       <div class="modal-content weather-modal-content">
-        <!-- No header -->
         <div class="modal-body" id="weatherContent">
           <p>Loading weather data...</p>
         </div>
         <button type="button" class="modal-close" id="weatherClose">Close</button>
       </div>
     </div>
-
 
     <!-- DATA MODAL (Analytics with Chart) -->
     <div id="dataModal" class="modal hidden">
@@ -369,7 +367,6 @@ Critics argue that if the mind were truly independent of the body, it would cont
     <!-- CRYPTO MODAL (Bloomberg Terminal Style, Draggable) -->
     <div id="cryptoModal" class="draggable-widget-modal hidden">
       <div class="modal-content crypto-modal-content">
-        <!-- No header -->
         <div class="modal-body" id="cryptoContent">
           <p>Loading crypto data...</p>
         </div>
@@ -387,7 +384,6 @@ Critics argue that if the mind were truly independent of the body, it would cont
           <span>Minigame</span>
           <button type="button" class="modal-close" id="minigameClose">X</button>
         </div>
-        <!-- Reduced canvas dimensions for a smaller modal -->
         <canvas id="miniDinoGame" width="250" height="120"></canvas>
         <div id="minigameGameOver" class="game-over hidden"></div>
       </div>
@@ -396,15 +392,13 @@ Critics argue that if the mind were truly independent of the body, it would cont
     <!-- RETRO‑STYLED MUSIC PLAYER (Locked in front) -->
     <div id="retroMusicPlayer" class="retro-music-player hidden">
       <div class="music-header">
-        <!-- Reduced width equalizer -->
-        <canvas id="waveformCanvas" width="250" height="50"></canvas>
+        <canvas id="waveformCanvas" width="300" height="50"></canvas>
       </div>
       <div class="music-info">
         <div class="song-title">Sample Song</div>
         <div class="song-artist">Artist One</div>
         <div class="song-album">Album/Playlist</div>
       </div>
-      <!-- Music controls: arranged side by side -->
       <div class="music-controls">
         <button type="button" id="btnBackward" class="control-btn backward" aria-label="Backward"></button>
         <button type="button" id="btnPlayPause" class="control-btn play breathing" aria-label="Play/Pause"></button>
@@ -461,20 +455,6 @@ Critics argue that if the mind were truly independent of the body, it would cont
           </div>
         </div>
         <button type="button" class="modal-close" id="widgetsModalClose">Close</button>
-      </div>
-    </div>
-
-    <!-- CRYPTO MODAL (Bloomberg Terminal Style, Draggable) -->
-    <div id="cryptoModal" class="draggable-widget-modal hidden">
-      <div class="modal-content crypto-modal-content">
-        <!-- No header -->
-        <div class="modal-body" id="cryptoContent">
-          <p>Loading crypto data...</p>
-        </div>
-        <div class="crypto-controls">
-          <button id="cryptoRefreshBtn" class="toggle-button">Refresh</button>
-          <button type="button" class="modal-close" id="cryptoCloseBtn">Close</button>
-        </div>
       </div>
     </div>
 
