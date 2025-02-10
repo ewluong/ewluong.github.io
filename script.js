@@ -1537,7 +1537,7 @@ function openWeatherModal() {
   bringModalToFront(weatherModal);
   weatherContent.innerHTML = "<p>Loading weather data...</p>";
   // Use ip-api.com for geolocation
-  fetch("http://ip-api.com/json/?fields=61439")
+  fetch("https://ip-api.com/json/?fields=61439")
     .then(response => {
       if (!response.ok) throw new Error("IP API response not ok");
       return response.json();
