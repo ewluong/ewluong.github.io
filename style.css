@@ -973,7 +973,6 @@ body::before {
   /* Retro Music Player:
      Force it to start closed using the "hidden" class.
      If the element has the class "hidden", it is hidden; if not, it shows.
-     (We now ensure via JS on DOMContentLoaded that it starts with "hidden" on mobile.)
   */
   #retroMusicPlayer {
     width: 90% !important;
@@ -987,24 +986,35 @@ body::before {
   #retroMusicPlayer:not(.hidden) {
     display: block !important;
   }
-  /* Infinite Backrooms Header adjustments */
+  /* Infinite Backrooms Header adjustments: reduce header size further */
   .vcr-header {
-    font-size: 1.5rem;
-    padding: 5px;
+    font-size: 1.2rem;
+    padding: 3px;
   }
   .vcr-header .vcr-description {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
-  /* Backrooms search & button adjustments */
+  /* Backrooms search & button adjustments: use flex proportions */
   .vcr-search {
-    gap: 5px;
-    padding: 5px;
+    display: flex;
+    gap: 3px;
+    padding: 3px;
   }
-  .vcr-search select,
-  .vcr-search input,
+  .vcr-search select {
+    flex: 1;
+    font-size: 0.9rem;
+    padding: 3px;
+  }
+  .vcr-search input {
+    flex: 2;
+    font-size: 0.9rem;
+    padding: 3px;
+  }
   .vcr-search button {
-    font-size: 1rem;
-    padding: 5px;
+    flex: 1;
+    font-size: 0.9rem;
+    padding: 3px;
+    white-space: nowrap;
   }
   /* Widgets Explorer Modal adjustments */
   .widgets-modal .modal-content {
