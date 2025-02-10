@@ -595,13 +595,13 @@ body::before {
 #backroomsModal .backrooms-modal-content {
   display: flex;
   flex-direction: column;
-  max-height: 75vh; /* Sets a maximum height for the modal */
-  overflow: hidden; /* Prevents the outer container from scrolling */
+  max-height: 75vh;
+  overflow: hidden;
   height: 75vh;
 }
 #backroomsModal .vcr-screen {
-  flex: 1;           /* Take up remaining space */
-  overflow-y: auto;  /* Only this area scrolls if content overflows */
+  flex: 1;
+  overflow-y: auto;
 }
 .vcr-header {
   background: var(--bg-color);
@@ -947,4 +947,70 @@ body::before {
   position: fixed;
   top: 20px;
   left: 20px;
+}
+
+/* ================= Responsive / Mobile Styles ================= */
+@media (max-width: 600px) {
+  :root {
+    --base-font-size: 16px;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  .navbar a {
+    font-size: 1rem;
+  }
+
+  .section {
+    padding: 4rem 1rem;
+    margin: 5rem 0;
+  }
+
+  .toggle-button {
+    width: 80px;
+    height: 35px;
+    font-size: 1rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 1rem;
+  }
+  
+  .project-card,
+  .about-item {
+    width: 90%;
+    margin: 0 auto;
+  }
+
+  /* Adjust modals for smaller screens */
+  #weatherModal,
+  #cryptoModal,
+  #minigameModal,
+  .chat-modal,
+  .widgets-modal {
+    width: 95% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+
+  /* Retro Music Player reposition */
+  .retro-music-player {
+    width: 90%;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 10px;
+  }
+
+  /* Chat Modal adjustments */
+  .chat-modal {
+    width: 90%;
+    height: 80%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
