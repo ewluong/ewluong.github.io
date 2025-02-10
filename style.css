@@ -970,18 +970,18 @@ body::before {
     left: 50% !important;
     transform: translateX(-50%) !important;
   }
-  /* Retro Music Player reposition and start off closed.
-     It will be shown when the "hidden" class is toggled off by JS. */
+  /* Retro Music Player reposition and force it to start closed.
+     It will be shown when the "hidden" class is removed by the music button's JS. */
   #retroMusicPlayer {
     width: 90% !important;
     left: 50% !important;
     right: auto !important;
     transform: translateX(-50%) !important;
     top: 10px !important;
-    display: none;
+    display: none !important;
   }
   #retroMusicPlayer:not(.hidden) {
-    display: block;
+    display: block !important;
   }
   /* Infinite Backrooms Header adjustments */
   .vcr-header {
@@ -1007,7 +1007,7 @@ body::before {
     width: 90% !important;
     max-width: 90% !important;
   }
-  /* Chat Modal fixed size on mobile so it stays the same size while scrolling */
+  /* Chat Modal fixed size on mobile */
   .chat-modal {
     width: 400px !important;
     height: 500px !important;
