@@ -29,13 +29,24 @@
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <!-- Randomize Button (styled like toggle buttons, positioned at top right) -->
-    <button id="randomizeToggle" class="toggle-button top-right">Randomize</button>
+    <!-- TOP-RIGHT BUTTONS CONTAINER -->
+    <div id="topRightButtons" class="top-right">
+      <div id="widgetsContainer">
+        <button id="widgetsPrompt" class="toggle-button">Widgets</button>
+        <!-- The old dropdown is still in the markup but hidden via CSS -->
+        <div id="widgetsDropdown" class="dropdown hidden">
+          <div id="weatherOption" class="toggle-button">Weather</div>
+          <div id="cryptoOption" class="toggle-button">Crypto</div>
+          <div id="minigameOption" class="toggle-button">Minigame</div>
+        </div>
+      </div>
+      <button id="randomizeToggle" class="toggle-button">Randomize</button>
+    </div>
 
-    <!-- Background Canvas (Bouncing, Breathing, Mouse-Repelling Shapes) -->
+    <!-- Background Canvas -->
     <canvas id="bgCanvas"></canvas>
 
-    <!-- ASCII Corner (typed on scroll) -->
+    <!-- ASCII Corner -->
     <div id="asciiCorner"></div>
 
     <!-- Navigation Bar -->
@@ -50,10 +61,8 @@
 
     <!-- Home Section -->
     <section id="home" class="section home-section">
-      <!-- Main Header with Typewriter Effect -->
       <h1 id="terminalHeader" class="section-header" data-text="> Hey there, I'm Eric!"></h1>
       <p class="tagline">Just chasing the wind...</p>
-      <!-- Dodecagon Canvas -->
       <canvas id="dodecagonCanvas" width="400" height="400" style="max-width: 400px; border: none;"></canvas>
       <p>
         Welcome. Thanks for dropping by. Check out the rest of the site for my projects and more!
@@ -62,7 +71,6 @@
 
     <!-- Projects Section -->
     <section id="projects" class="section projects-section">
-      <!-- Section Header with Typewriter Effect -->
       <h1 class="section-header" data-text="Work">Work</h1>
       <p>Check out some of my favorite projects below.</p>
       <div class="project-cards" id="project-cards">
@@ -164,56 +172,48 @@
     <section id="about" class="section about-section">
       <h1 class="section-header" data-text="About Me">About Me</h1>
       <div class="about-grid">
-        <!-- About Item 1 -->
         <div class="about-item">
           <img src="images/work.png" alt="Work Icon" class="about-icon" loading="lazy" />
           <p>
             <strong>Work Experience:</strong> My journey includes roles at Vanguard and Lifo.ai, where I've tackled financial models, data analytics strategies, and helped streamline business development.
           </p>
         </div>
-        <!-- About Item 2 -->
         <div class="about-item">
           <img src="images/bitcoin.png" alt="Crypto Icon" class="about-icon" loading="lazy" />
           <p>
             <strong>SPI Energy:</strong> Delved into cryptocurrency miner solutions, aiding strategic decision‑making with data analysis. Learned about the evolving energy market and blockchain tech.
           </p>
         </div>
-        <!-- About Item 3 -->
         <div class="about-item">
           <img src="images/book.png" alt="Book Icon" class="about-icon" loading="lazy" />
           <p>
             <strong>Favorite Reads:</strong> "There Is No Antimemetics Division," "Hitchhiker’s Guide to the Galaxy," and "Strangers from a Different Shore" fuel my imagination and expand my worldview.
           </p>
         </div>
-        <!-- About Item 4 -->
         <div class="about-item">
           <img src="images/controller.png" alt="Controller Icon" class="about-icon" loading="lazy" />
           <p>
             <strong>Gaming Interests:</strong> Whether battling in Elden Ring, building empires in Civilization VI, or theorycrafting in Path of Exile, gaming is a creative outlet that challenges my strategic thinking.
           </p>
         </div>
-        <!-- About Item 5 -->
         <div class="about-item">
           <img src="images/garden.png" alt="Garden Icon" class="about-icon" loading="lazy" />
           <p>
             <strong>Volunteering:</strong> At Berkeley’s Community Garden, I’ve done everything from mulching to planting. It’s a hands‑on way to give back and cultivate green spaces.
           </p>
         </div>
-        <!-- About Item 6 -->
         <div class="about-item">
           <img src="images/hat.png" alt="Academic Icon" class="about-icon" loading="lazy" />
           <p>
             <strong>Academic Achievements:</strong> Santa Clara University (Business Analytics), UC Berkeley (Cognitive Science), UC Berkeley ML & AI Certificate.
           </p>
         </div>
-        <!-- About Item 7 -->
         <div class="about-item">
           <img src="images/tennis.png" alt="Tennis Icon" class="about-icon" loading="lazy" />
           <p>
             <strong>Tennis Passion:</strong> I've played tennis my whole life and still train regularly. It's taught me discipline, strategy, and the value of continuous improvement.
           </p>
         </div>
-        <!-- About Item 8 -->
         <div class="about-item">
           <img src="images/music.png" alt="Music Icon" class="about-icon" loading="lazy" />
           <p>
@@ -228,7 +228,6 @@
       <h1 class="section-header" data-text="Blog">Blog</h1>
       <p>My thoughts on anything...</p>
       <ul class="blog-list">
-        <!-- Blog Post 1 -->
         <li class="blog-post" data-title="Finding Wonder in a World of Logic" data-content="In today's world, defined by rapid technological advances and a constant stream of information, there lies a curious trend. It's a time where logic and empirical evidence reign supreme, yet there’s an increasing fascination with the mystical and the magical. This isn’t a rejection of science or rational thought; rather, it's a quest for balance and wonder in an age where the line between the miraculous and the mundane is increasingly blurred.
 
 Consider the advancements we’ve witnessed: conversations with AI, self‑driving cars, and virtual realities are now part of our everyday lives. These once miraculous concepts have become commonplace. As a result, there's a growing allure towards the unexplained and the mystical. It's not about abandoning reason but about finding a sense of awe and mystery in a world where so much can be explained and predicted.
@@ -237,70 +236,51 @@ This turn towards the mystical reflects a deeper human desire for balance. In a 
 
 Art and science fiction have always played a crucial role in exploring these themes. They create spaces where the boundaries between science and magic blur, where impossible things happen in plausible ways. These genres resonate because they mirror our longing for a universe filled with undiscovered wonders, where the limits of what’s possible are constantly expanding.
 
-This interest in the mystical is also a form of rebellion – a rebellion against a world that can feel too structured and predictable.Embracing the mystical provides a space for imagination and belief to thrive, outside the confines of logic and science. It’s not a retreat into superstition but an embrace of the unknown, a celebration of the human spirit’s quest for the extraordinary.
-
-So, as we embrace the wonders of science and technology, let's not forget the magic that exists around us. It’s in this balance between understanding and wonder that we find the true richness of the human experience – a journey that’s as much about exploring the world around us as it is about cherishing the magic within.">
+This interest in the mystical is also a form of rebellion – a rebellion against a world that can feel too structured and predictable.">
           Finding Wonder in a World of Logic
         </li>
-        <!-- Blog Post 2 -->
         <li class="blog-post" data-title="Why Sisyphus Must Truly Be Happy" data-content="Imagine this: a young adult in today's world, navigating through the complexities and challenges of modern life, much like a character in the video game 'Hades'. In this game, Sisyphus, known for his eternal punishment of pushing a boulder up a hill, is reimagined. He’s not just a figure of Greek mythology anymore but a character we regularly encounter in the Underworld of the game. His story in 'Hades' is a fascinating one, and it resonates deeply with the contemporary experience of young adults.
 
 In the game, Sisyphus appears content, even in the face of his endless task. He's given personality, a sense of humor, and most importantly, a sense of acceptance. He even names his boulder 'Bouldy', a quirky yet profound act of embracing his fate. This portrayal is a stark contrast to the traditional tale, where Sisyphus is condemned to an eternity of futile labor as punishment for his deceitful nature. The game, however, gives this story a twist - Sisyphus is freed from his task, only to choose to return to it, this time on his own terms.
 
-This narrative parallels the life of a young adult today. Just like Sisyphus, they face their own boulders – be it the pressures of academia, the fast‑paced nature of technological advancements, or the quest for identity and purpose in a world brimming with endless opportunities and challenges. These boulders, though not physical, are no less real. They represent the burdens, responsibilities, and expectations that young people carry. But here's the twist – much like Sisyphus in 'Hades', there's a realization that these challenges can be approached differently. It's about finding meaning and satisfaction in the struggle, turning these burdens into something personal and worthwhile.">
+This narrative parallels the life of a young adult today. Just like Sisyphus, they face their own boulders – be it the pressures of academia, the fast‑paced nature of technological advancements, or the quest for identity and purpose in a world brimming with endless opportunities and challenges.">
           Why Sisyphus Must Truly Be Happy
         </li>
-        <!-- Blog Post 3 -->
-        <li class="blog-post" data-title="On Stakeholder Capitalism" data-content="So, we've all heard the buzzwords, right? Stakeholder Capitalism and ESG — they've become a sort of new gospel for modern corporations. But, man, what a turn we've taken. When I first started penning thoughts about these ideas, I had to act like some kind of translator, breaking down these novel terms. But now? The conversation has flipped. Everyone's heard of them, but their essence? That's been watered down, almost bastardized by the very people who claim to champion them.
+        <li class="blog-post" data-title="On Stakeholder Capitalism" data-content="So, we've all heard the buzzwords, right? Stakeholder Capitalism and ESG — they've become a sort of new gospel for modern corporations. But, man, what a turn we've taken. When I first started penning thoughts about these ideas, there was a need to break them down for clarity. Now, however, the conversation has flipped. While everyone’s aware of the terms, their true meaning has become diluted, almost reduced to a marketing exercise.
 
-Here's the rundown: Stakeholder capitalism used to mean something transformative. The whole point was that companies should focus on more than just raking in profits for shareholders. They should also give a damn about societal issues, environment, employees — you know, the greater good. But as this concept's gotten more popular, something's gotten lost in translation. What was once a revolutionary concept is now becoming a marketing tagline, a check‑box exercise that corporations go through to appear woke.
+Stakeholder capitalism was once meant to signify a shift from solely maximizing shareholder profit to addressing broader societal concerns such as environmental impact, employee welfare, and community benefits. But as the concept gained popularity, its revolutionary intent was often overshadowed by corporate buzzwords and superficial commitments.
 
-Why is this problematic? Well, think about it. The essence of stakeholder capitalism challenges the gospel according to Milton Friedman, who's basically the high priest of shareholder capitalism. He preached that a company's sole purpose was to generate profits for shareholders, no questions asked. Stakeholder capitalism was supposed to be the antidote to that philosophy. Yet, here we are, the champions of stakeholder capitalism diluting its meaning to fit neatly into corporate slide decks.
-">
+The challenge, then, is in preserving the original transformative spirit of stakeholder capitalism in the face of its commercialization.">
           On Stakeholder Capitalism
         </li>
-        <!-- Blog Post 4 -->
-        <li class="blog-post" data-title="On Pseudonyms" data-content="As the world becomes more connected, personal identifiers are becoming increasingly important. However, these identifiers can also be used to discriminate against individuals based on their gender, ethnicity, or nationality. This is where pseudonyms come in – they offer an alternative way for people to express themselves without fear of judgment or discrimination. In a network state, where the physical boundaries between countries become less relevant and the power is decentralized, the use of pseudonyms is likely to become even more important in promoting equality and diversity.
+        <li class="blog-post" data-title="On Pseudonyms" data-content="As the world becomes more connected, personal identifiers are increasingly important—but they can also be used to discriminate. This is where pseudonyms play a vital role, offering a way for individuals to express themselves without the risk of judgment based on gender, ethnicity, or nationality.
 
-With the emergence of Web3 technologies, the concept of a network state is becoming a reality. The decentralized nature of Web3 technologies creates a more inclusive and diverse environment, where everyone has an equal opportunity to participate and contribute. Pseudonyms are a key tool in this new environment, allowing individuals to participate in online communities without revealing their true identity. This helps to protect their privacy and personal information, and also allows them to participate in communities that they might not otherwise have access to.
-
-Moreover, pseudonyms can help to level the playing field and promote equal opportunities for all individuals in a network state. When people use pseudonyms in online discussions, they are judged based on the quality of their ideas and contributions, rather than their gender, ethnicity, or nationality. This can create a more inclusive and diverse environment, where everyone has an equal opportunity to participate and contribute.
+In the evolving digital landscape, particularly with the rise of Web3 technologies, pseudonyms enable greater privacy and inclusivity. They allow participants in online communities to be judged solely on the merit of their ideas, fostering an environment where creativity and equality can flourish.
 ">
           On Pseudonyms
         </li>
-        <!-- Blog Post 5 -->
-        <li class="blog-post" data-title="On Regression Theory" data-content="The Great Depression was something spurred up from the very actions the government took to prevent it. To Austrian economists, if the Federal Reserve had handled the monetary policy differently, the entire situation could have been prevented. Now the way Austrian Economics piqued my interests is in the way they seem to value deflationary economies over Keynesian economics. Although by far the less popular form of thinking about the economy, it seems as though the deflationary characteristic of Bitcoin aligns well with the Austrian. Another evident similarity is that the very core ideology of Austrian economics is that governments should stay as hands off as possible and let the market reach an equilibrium with itself.
+        <li class="blog-post" data-title="On Regression Theory" data-content="The Great Depression, many believe, was not an inevitable economic collapse but rather a consequence of specific policy decisions. Austrian economists argue that if the Federal Reserve had managed monetary policy differently, the crisis might have been averted.
 
-There’s a lot to discuss about how these two relate, but I wanted to focus on one specific aspect, and that is the regression theory that Ludwig Von Mises, a renowned economist, used to apply the subjective theory of money to the objective‑exchange value. In other words, he tried to explore the value of money. For products and services in a market, the price heavily depends on the supply and demand of whatever item is in focus. Money, however, doesn’t fit into this model very well. After all, it isn’t a product that can be used, or a service that can be provided. Money is simply something that is traded for with the future prospect that someone else would likewise exchange for. The supply is taken care of as there is a “finite” amount distributed in a market, but you can’t possibly attach a demand to money as it’s merely a proxy. Furthermore, currency such as silver and gold are different from the type of currency in discussion since they themselves can be melted down into a commodity that has demand. This brings us to the main idea of regression theory, which is the idea of how currency must originate from a previous non‑monetary state that had a meaningful value in society, thus the value today is derived from that previous value.
-
-Perhaps to look at it in a different way in order to better understand it; Money seems objective in a way, since my $10 equals your $10. However, I could use my $10 to buy a nice meal, and you could use your $10 to buy a hat. The subjective value in this case might seem different. Mises’ view was that the objective value and subjective value must have been correlated at some point, so the value would be derived from the value as a commodity before it was a monetary use.
+Ludwig Von Mises’ regression theory, which seeks to explain how currency derives its value from a previous non‑monetary state, exemplifies this perspective. According to this view, money’s current value is deeply tied to its historical usage and the intrinsic value of the commodity it once represented, rather than simply its role in facilitating exchange.
 ">
           On Regression Theory
         </li>
-        <!-- Blog Post 6 -->
-        <li class="blog-post" data-title="On Quadratic Voting and Funding" data-content="Different societies, regardless of political or economic system, face common issues such as increasing income inequality, political corruption, and monopolization of industries largely for the benefit of wealthy elites. These issues have prompted feelings of frustration and ideas of correction from the commons who suffer most from these zero‑sum games. The response consists of backlash and abandonment of the technologies that brought up the problems, but this would cause further issues with much of what is essential for modern society to function while worsening the original problems that sparked this response. Many brilliant minds have been working collectively on alternatives of governance to mitigate the chances of a political or financial elite from attaining too much influence on a particular system by adapting markets and technology to fundamentally decentralize power from the centralized authorities.
+        <li class="blog-post" data-title="On Quadratic Voting and Funding" data-content="In modern societies, issues such as income inequality and political corruption continue to challenge democratic norms. Traditional voting systems often marginalize minority voices, which has spurred interest in innovative solutions like Quadratic Voting (QV).
 
-In a traditional one person‑one vote system, minorities’ voices are shrouded by the masses, which is why a more modernized and truly democratic system is needed in order to protect the interests of all groups from an oligarchy. Most of those in the cryptocurrency and blockchain community have unified philosophical ideals and a surprising acceptance of change, which makes it an exemplary place to try new ideas.
-
-There are many different attempts at fixing the ongoing problems of governance and consensus in blockchain systems. Each has its own flaws: POW takes up too much real‑world resources, POS brings the power into the hands of a few, and POA may obscure the real dedication a certain node has to the network. However, a new idea introduced called Quadratic Voting (QV) could bring a more equal conglomerate of voices to a social blockchain and alleviate the problems with governance.
-
-Having said that, the main obstacle with implementing QV is proving the authenticity of the human identity of a particular voting entity. With constant applications of pseudonymity and anonymity in cryptocurrency networks, the challenge remains in creating a method of identification that can be proven with high enough accuracy without revealing the identity of the user.
+QV proposes that individuals allocate votes according to the intensity of their preferences, potentially balancing power among diverse groups. However, a key challenge remains in verifying the authenticity of voters without compromising privacy—a problem that persists amid the rise of pseudonymous digital identities.
 ">
           On Quadratic Voting and Funding
         </li>
-        <!-- Blog Post 7 -->
-        <li class="blog-post" data-title="On Dualism" data-content="In Descartes’ Meditations on First Philosophy, his philosophy on the mind established a conclusion that the mind and the body are two separate entities that work intricately with one another to form who we are as human. He reaches this through explaining how the body is something that can be extended but does not think, and the mind is something else that cannot be extended into the physical world and can foster imagination and free thought. Because the nature of the mind is fundamentally different from that of the body, he concludes that the mind can exist without the body. This creates a dualism where the interaction of the two entities, mind and body, is unsolved, creating a new problem as to what the mind actually is. However, this cannot be true, since if the mind was its own entity apart from the body, it would violate many of the natural and physical laws of our world.
+        <li class="blog-post" data-title="On Dualism" data-content="Descartes’ Meditations propose that the mind and body are distinct, an idea that has long fascinated philosophers. However, modern understanding of evolution and natural selection suggests that such a dualism is incompatible with the physical processes that have shaped human development.
 
-In order to better understand why Descartes’ conclusions are flawed, one must understand the concept of natural selection and how this has bred the human race into what it is today. Darwinian natural selection is defined by the change of heritable traits of an organism over time based on the survivability and reproductive chances of those particular traits. Undoubtedly, humans (homo sapiens sapiens) have not always been like we are today. At some point in time, we evolved from clusters of cells and began to develop limbs and other physical features that increase our survivability in a particular environment. From this we gained hands and feet, while fish gained fins and gills. Not long ago, in relation to the existence of the universe, the homo sapien species did not have the neuro‑physiological capacity to think as we do now, much like a fish. All of what occurs through natural selection is very physical. The fact that humans have larger brains is because of this physical change over thousands of years. Therefore, there is no possible way such a physical process could fabricate something as immaterial and non‑physical as the mind Descartes discusses.
-
-Because Descartes’ implication that the mind is independent from the body, and that it is possible for the mind to exist without the body, could not be true since it would oppose natural selection and the laws of physics. Insofar as how much we understand the world and our minds today, this Cartesian dualism made popular by Descartes only complicates the discussion about the philosophy of mind and conflicts with Ockham’s Razor.Therefore, Descartes may have showed that the body exists, but his argument that the mind is its own entity is fundamentally flawed.
+Critics argue that if the mind were truly independent of the body, it would contradict the observable physical changes that have led to our current form. In this light, Descartes’ notion of an immaterial mind becomes increasingly problematic when contrasted with scientific explanations rooted in biology and natural selection.
 ">
           On Dualism
         </li>
       </ul>
     </section>
 
-    <!-- Blog Modal -->
+    <!-- BLOG MODAL -->
     <div id="blogModal" class="modal hidden">
       <div class="modal-content">
         <h2 class="modal-title"></h2>
@@ -309,7 +289,7 @@ Because Descartes’ implication that the mind is independent from the body, and
       </div>
     </div>
 
-    <!-- Project Modal -->
+    <!-- PROJECT MODAL -->
     <div id="projectModal" class="modal hidden">
       <div class="modal-content">
         <h2 class="modal-title"></h2>
@@ -318,7 +298,7 @@ Because Descartes’ implication that the mind is independent from the body, and
       </div>
     </div>
 
-    <!-- Backrooms Modal (Vintage Terminal Style) -->
+    <!-- BACKROOMS MODAL (Vintage Terminal Style) -->
     <div id="backroomsModal" class="modal hidden">
       <div class="modal-content backrooms-modal-content">
         <div class="vcr-header">
@@ -339,12 +319,12 @@ Because Descartes’ implication that the mind is independent from the body, and
           </div>
         </div>
         <div class="vcr-controls">
-          <button type="button" class="modal-close" id="backroomsClose">Exit</button>
+          <button type="button" class="modal-close" id="backroomsClose">Close</button>
         </div>
       </div>
     </div>
 
-    <!-- Chatbox Modal -->
+    <!-- CHATBOX MODAL -->
     <div id="chatboxModal" class="chat-modal hidden">
       <div class="chatbox-interface">
         <div class="chatbox-header">
@@ -363,7 +343,18 @@ Because Descartes’ implication that the mind is independent from the body, and
       </div>
     </div>
 
-    <!-- Data Modal (Analytics with Chart) -->
+    <!-- WEATHER MODAL (Widget-Style, Draggable) -->
+    <div id="weatherModal" class="widget-modal hidden">
+      <div class="modal-content weather-modal-content">
+        <!-- No header -->
+        <div class="modal-body" id="weatherContent">
+          <p>Loading weather data...</p>
+        </div>
+        <button type="button" class="modal-close" id="weatherClose">Close</button>
+      </div>
+    </div>
+
+    <!-- DATA MODAL (Analytics with Chart) -->
     <div id="dataModal" class="modal hidden">
       <div class="modal-content">
         <h2 class="modal-title">Site Analytics</h2>
@@ -374,29 +365,34 @@ Because Descartes’ implication that the mind is independent from the body, and
       </div>
     </div>
 
-    <!-- Minigame Modal (Draggable, starts center left) -->
-    <div id="minigameModal" class="modal hidden" tabindex="0">
+    <!-- CRYPTO MODAL (Bloomberg Terminal Style, Draggable) -->
+    <div id="cryptoModal" class="draggable-widget-modal hidden">
+      <div class="modal-content crypto-modal-content">
+        <!-- No header -->
+        <div class="modal-body" id="cryptoContent">
+          <p>Loading crypto data...</p>
+        </div>
+        <div class="crypto-controls">
+          <button id="cryptoRefreshBtn" class="toggle-button">Refresh</button>
+          <button type="button" class="modal-close" id="cryptoCloseBtn">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MINIGAME MODAL -->
+    <div id="minigameModal" class="draggable-widget-modal hidden" tabindex="0">
       <div class="modal-content" id="minigameModalContent">
         <div class="modal-header" id="minigameHeader">
           <span>Minigame</span>
           <button type="button" class="modal-close" id="minigameClose">X</button>
         </div>
-        <canvas id="miniDinoGame" width="300" height="150"></canvas>
+        <!-- Reduced canvas dimensions for a smaller modal -->
+        <canvas id="miniDinoGame" width="250" height="120"></canvas>
         <div id="minigameGameOver" class="game-over hidden"></div>
       </div>
     </div>
 
-    <!-- Toggle Buttons Container (Bottom Right) -->
-    <div id="toggleButtonsContainer">
-      <div id="backroomsPrompt" class="toggle-button">Backrooms</div>
-      <div id="chatboxPrompt" class="toggle-button">Chat</div>
-      <div id="musicPrompt" class="toggle-button">Music</div>
-      <button type="button" id="dataPrompt" class="toggle-button">Data</button>
-      <div id="minigamePrompt" class="toggle-button">Minigame</div>
-      
-    </div>
-
-    <!-- Retro‑Styled Music Player -->
+    <!-- RETRO‑STYLED MUSIC PLAYER (Locked in front) -->
     <div id="retroMusicPlayer" class="retro-music-player hidden">
       <div class="music-header">
         <canvas id="waveformCanvas" width="300" height="50"></canvas>
@@ -426,7 +422,60 @@ Because Descartes’ implication that the mind is independent from the body, and
       <audio id="audioPlayer" src="docs/sample.mp3"></audio>
     </div>
 
-    <!-- Load custom JavaScript with defer -->
+    <!-- TOGGLE BUTTONS CONTAINER (Remaining buttons) -->
+    <div id="toggleButtonsContainer">
+      <div id="backroomsPrompt" class="toggle-button">Backrooms</div>
+      <div id="chatboxPrompt" class="toggle-button">Chat</div>
+      <div id="musicPrompt" class="toggle-button">Music</div>
+      <button type="button" id="dataPrompt" class="toggle-button">Data</button>
+    </div>
+
+    <!-- WIDGETS MODAL (File Explorer Style) -->
+    <div id="widgetsModal" class="widgets-modal hidden">
+      <div id="widgetsModalContent" class="modal-content">
+        <h2 class="modal-title">Widgets Explorer</h2>
+        <div class="widgets-grid">
+          <div id="folderWeather" class="folder">
+            <div class="folder-icon">
+              <div class="folder-top"></div>
+              <div class="folder-body"></div>
+            </div>
+            <div class="folder-label">Weather</div>
+          </div>
+          <div id="folderCrypto" class="folder">
+            <div class="folder-icon">
+              <div class="folder-top"></div>
+              <div class="folder-body"></div>
+            </div>
+            <div class="folder-label">Crypto</div>
+          </div>
+          <div id="folderMinigame" class="folder">
+            <div class="folder-icon">
+              <div class="folder-top"></div>
+              <div class="folder-body"></div>
+            </div>
+            <div class="folder-label">Minigame</div>
+          </div>
+        </div>
+        <button type="button" class="modal-close" id="widgetsModalClose">Close</button>
+      </div>
+    </div>
+
+    <!-- CRYPTO MODAL (Bloomberg Terminal Style, Draggable) -->
+    <div id="cryptoModal" class="draggable-widget-modal hidden">
+      <div class="modal-content crypto-modal-content">
+        <!-- No header -->
+        <div class="modal-body" id="cryptoContent">
+          <p>Loading crypto data...</p>
+        </div>
+        <div class="crypto-controls">
+          <button id="cryptoRefreshBtn" class="toggle-button">Refresh</button>
+          <button type="button" class="modal-close" id="cryptoCloseBtn">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Load custom JavaScript -->
     <script defer src="script.js"></script>
   </body>
 </html>
