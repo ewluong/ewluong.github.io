@@ -971,7 +971,7 @@ body::before {
     transform: translateX(-50%) !important;
   }
   /* Retro Music Player reposition and force it to start closed.
-     It will be shown when the "hidden" class is removed by the music button's JS. */
+     It will be shown when the "open" class is added by your music button's JS. */
   #retroMusicPlayer {
     width: 90% !important;
     left: 50% !important;
@@ -980,7 +980,7 @@ body::before {
     top: 10px !important;
     display: none !important;
   }
-  #retroMusicPlayer:not(.hidden) {
+  #retroMusicPlayer.open {
     display: block !important;
   }
   /* Infinite Backrooms Header adjustments */
