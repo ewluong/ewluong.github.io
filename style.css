@@ -935,6 +935,7 @@ body::before {
   body {
     font-size: 14px;
   }
+  /* Hide the top navigation bar */
   .navbar {
     display: none !important;
   }
@@ -970,14 +971,18 @@ body::before {
     left: 50% !important;
     transform: translateX(-50%) !important;
   }
-  /* Retro Music Player reposition and start off closed */
-  .retro-music-player {
+  /* Retro Music Player reposition and start off closed.
+     Use a rule that shows it if the "hidden" class is removed. */
+  #retroMusicPlayer {
     width: 90% !important;
     left: 50% !important;
     right: auto !important;
     transform: translateX(-50%) !important;
     top: 10px !important;
-    display: none !important;
+    display: none;
+  }
+  #retroMusicPlayer:not(.hidden) {
+    display: block;
   }
   /* Infinite Backrooms Header adjustments */
   .vcr-header {
