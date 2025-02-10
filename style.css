@@ -970,9 +970,11 @@ body::before {
     left: 50% !important;
     transform: translateX(-50%) !important;
   }
-  /* Retro Music Player: force it to start closed, but allow JS to toggle it
-     If the element has the "hidden" class (set in HTML), it remains hidden;
-     when the music button toggles off "hidden", it will show. */
+  /* Retro Music Player:
+     Force it to start closed using the "hidden" class.
+     If the element has the class "hidden", it is hidden; if not, it shows.
+     (We now ensure via JS on DOMContentLoaded that it starts with "hidden" on mobile.)
+  */
   #retroMusicPlayer {
     width: 90% !important;
     left: 50% !important;

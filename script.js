@@ -803,6 +803,15 @@ function initRetroMusicPlayer() {
   initRetroMusicPlayerFunc();
 }
 
+  document.addEventListener("DOMContentLoaded", () => {
+    if (window.innerWidth <= 600) {
+      const retroMusicPlayer = document.getElementById("retroMusicPlayer");
+      // Force it to be closed by adding the "hidden" class
+      retroMusicPlayer.classList.add("hidden");
+    }
+  });
+
+
 // --------------------- CHATBOX MODAL ---------------------
 function initChatbox(API_URL) {
   const chatboxPrompt = document.getElementById("chatboxPrompt");
