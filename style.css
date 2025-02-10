@@ -965,14 +965,13 @@ body::before {
   #weatherModal,
   #cryptoModal,
   #minigameModal,
-  .chat-modal,
   .widgets-modal {
     width: 95% !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
   }
   /* Retro Music Player reposition and start off closed.
-     Use a rule that shows it if the "hidden" class is removed. */
+     It will be shown when the "hidden" class is toggled off by JS. */
   #retroMusicPlayer {
     width: 90% !important;
     left: 50% !important;
@@ -1008,13 +1007,14 @@ body::before {
     width: 90% !important;
     max-width: 90% !important;
   }
-  /* Chat Modal adjustments */
+  /* Chat Modal fixed size on mobile so it stays the same size while scrolling */
   .chat-modal {
-    width: 90%;
-    height: 80%;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    width: 400px !important;
+    height: 500px !important;
+    max-width: 90%;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
   }
   /* Scale down the ASCII typewriter effect */
   #asciiCorner {
