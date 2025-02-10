@@ -970,17 +970,19 @@ body::before {
     left: 50% !important;
     transform: translateX(-50%) !important;
   }
-  /* Retro Music Player reposition and force it to start closed.
-     It will be shown when the "open" class is added by your music button's JS. */
+  /* Retro Music Player: force it to start closed, but allow JS to toggle it
+     If the element has the "hidden" class (set in HTML), it remains hidden;
+     when the music button toggles off "hidden", it will show. */
   #retroMusicPlayer {
     width: 90% !important;
     left: 50% !important;
-    right: auto !important;
     transform: translateX(-50%) !important;
     top: 10px !important;
+  }
+  #retroMusicPlayer.hidden {
     display: none !important;
   }
-  #retroMusicPlayer.open {
+  #retroMusicPlayer:not(.hidden) {
     display: block !important;
   }
   /* Infinite Backrooms Header adjustments */
