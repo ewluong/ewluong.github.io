@@ -926,6 +926,7 @@ body::before {
   top: 20px;
   left: 20px;
 }
+
 /* ================= Responsive / Mobile Styles ================= */
 @media (max-width: 600px) {
   :root {
@@ -933,6 +934,9 @@ body::before {
   }
   body {
     font-size: 14px;
+  }
+  .navbar {
+    display: none !important;
   }
   .navbar a {
     font-size: 1rem;
@@ -966,13 +970,14 @@ body::before {
     left: 50% !important;
     transform: translateX(-50%) !important;
   }
-  /* Retro Music Player reposition fix */
+  /* Retro Music Player reposition and start off closed */
   .retro-music-player {
     width: 90% !important;
     left: 50% !important;
     right: auto !important;
     transform: translateX(-50%) !important;
     top: 10px !important;
+    display: none !important;
   }
   /* Infinite Backrooms Header adjustments */
   .vcr-header {
@@ -1005,5 +1010,9 @@ body::before {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+  }
+  /* Scale down the ASCII typewriter effect */
+  #asciiCorner {
+    font-size: 0.8rem;
   }
 }
