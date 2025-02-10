@@ -1034,4 +1034,11 @@ body::before {
   #asciiCorner {
     font-size: 0.8rem;
   }
+  @media (max-width: 600px) {
+    #terminalHeader {
+      font-size: 1.8rem;
+      white-space: nowrap;
+    }
+  }
+  
 }
