@@ -12,28 +12,25 @@ let currentTopZ = 11000;
 let currentActiveModal = null;
 let pendingBringToFrontTimeout = null;
 
-// Function to bring a modal to the front
+// Bring a modal to the front
 function bringModalToFront(modal) {
-  // Skip if it's the locked modal
-  if (modal.id === "retroMusicPlayer") return;
+  if (modal.id === "retroMusicPlayer") return; // locked in front
   currentTopZ++;
   modal.style.zIndex = currentTopZ;
 }
 
 // --------------------- INITIAL SETUP & THEME ---------------------
 const themes = [
-  { name: "Orange & Black", sub: [ { bg: "#ff5e00", text: "#000000" }, { bg: "#000000", text: "#ff5e00" } ] },
-  { name: "Black & Bright Green", sub: [ { bg: "#000000", text: "#00ff00" }, { bg: "#00ff00", text: "#000000" } ] },
-  { name: "Dark Purple & Neon Green", sub: [ { bg: "#2e003e", text: "#00ff00" }, { bg: "#00ff00", text: "#2e003e" } ] },
-  { name: "Navy Blue & Light Blue", sub: [ { bg: "#001f3f", text: "#7FDBFF" }, { bg: "#7FDBFF", text: "#001f3f" } ] },
-  { name: "Dark Maroon & Amber", sub: [ { bg: "#0d0208", text: "#f2a900" }, { bg: "#f2a900", text: "#0d0208" } ] },
-  { name: "Dark Blue & Off-White", sub: [ { bg: "#011627", text: "#fdfffc" }, { bg: "#fdfffc", text: "#011627" } ] },
+  { name: "Orange & Black", sub: [{ bg: "#ff5e00", text: "#000000" }, { bg: "#000000", text: "#ff5e00" }] },
+  { name: "Black & Bright Green", sub: [{ bg: "#000000", text: "#00ff00" }, { bg: "#00ff00", text: "#000000" }] },
+  { name: "Dark Purple & Neon Green", sub: [{ bg: "#2e003e", text: "#00ff00" }, { bg: "#00ff00", text: "#2e003e" }] },
+  { name: "Navy Blue & Light Blue", sub: [{ bg: "#001f3f", text: "#7FDBFF" }, { bg: "#7FDBFF", text: "#001f3f" }] },
+  { name: "Dark Maroon & Amber", sub: [{ bg: "#0d0208", text: "#f2a900" }, { bg: "#f2a900", text: "#0d0208" }] },
+  { name: "Dark Blue & Off-White", sub: [{ bg: "#011627", text: "#fdfffc" }, { bg: "#fdfffc", text: "#011627" }] },
 ];
 let currentTheme = themes[3];
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM fully loaded");
-
   // Set initial theme
   document.documentElement.style.setProperty("--bg-color", currentTheme.sub[0].bg);
   document.documentElement.style.setProperty("--text-color", currentTheme.sub[0].text);
@@ -47,23 +44,18 @@ document.addEventListener("DOMContentLoaded", () => {
   initBlogPosts();
   initMinigameModal();
   initMusicPrompt();
-  initChatbox("/"); // Adjust if needed
+  initChatbox("/"); // Reimplemented chat modal
   initProjectModal();
   initBackroomsModal();
   initRetroMusicPlayer();
   initDataModal();
-
-  // Initialize Weather Modal (draggable, themed & scaled) and Crypto Modal (draggable & scaled)
   initWeatherModal();
   initCryptoModal();
-
-  // Initialize the Widgets Explorer modal
   initWidgetsModal();
 
   typeWriterOnElement(document.getElementById("terminalHeader"), 50);
   typeOtherHeaders();
 
-  // Randomize theme button
   document.getElementById("randomizeToggle").addEventListener("click", function () {
     this.classList.add("vibrate");
     setTimeout(() => { this.classList.remove("vibrate"); }, 300);
@@ -87,13 +79,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, { passive: true });
 
-  // ----------------- DRAGGABLE MODALS (EXCLUDING CHAT MODALS) -----------------
-  // Note: Chat modals are handled separately because the fixed element inside them needs to be brought forward.
-  const draggableModalSelectors = [".modal", ".widget-modal"];
+  // Global draggable modals – include .modal, .widgets-modal, and .chat-modal
+  const draggableModalSelectors = [".modal", ".widgets-modal", ".chat-modal"];
   draggableModalSelectors.forEach(selector => {
     document.querySelectorAll(selector).forEach(modal => {
       if (modal.id === "retroMusicPlayer") return;
-      modal.addEventListener("pointerdown", (e) => {
+      modal.addEventListener("pointerdown", e => {
         if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
         pendingBringToFrontTimeout = setTimeout(() => {
           currentActiveModal = modal;
@@ -104,22 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ----------------- EXTRA FIX FOR CHAT MODAL -----------------
-  // Attach pointerdown to the fixed chatbox interface so it comes to the front when clicked.
-  const chatboxInterface = document.querySelector("#chatboxModal .chatbox-interface");
-  if (chatboxInterface) {
-    chatboxInterface.addEventListener("pointerdown", (e) => {
-      if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
-      pendingBringToFrontTimeout = setTimeout(() => {
-        // Bring the fixed chat interface to the front.
-        currentActiveModal = chatboxInterface;
-        bringModalToFront(chatboxInterface);
-        pendingBringToFrontTimeout = null;
-      }, 50);
-    }, true);
-  }
-
-  // Lock the music modal in front.
+  // Lock retro music player in front.
   document.getElementById("retroMusicPlayer").style.zIndex = 99999;
 });
 
@@ -142,7 +118,7 @@ function typeWriterOnElement(element, delay = 0) {
 
 function typeOtherHeaders() {
   const headers = document.querySelectorAll(".section-header");
-  headers.forEach((header) => {
+  headers.forEach(header => {
     if (header.id !== "terminalHeader") {
       typeWriterOnElement(header, 50);
     }
@@ -158,10 +134,7 @@ function pickAsciiBunnyCatPanda() {
   const asciiOptions = [bunny, cat, panda];
   const chosen = asciiOptions[Math.floor(Math.random() * asciiOptions.length)];
   const phrase = "Believe in me who believes in you";
-  const lines = [];
-  lines.push(phrase, "");
-  for (let line of chosen) lines.push(line);
-  lines.push("", phrase);
+  const lines = [phrase, "", ...chosen, "", phrase];
   asciiFull = lines.join("\n");
 }
 
@@ -201,7 +174,7 @@ function initCanvas() {
       vy,
     });
   }
-  window.addEventListener("mousemove", (e) => {
+  window.addEventListener("mousemove", e => {
     mouseX = e.clientX;
     mouseY = e.clientY;
   }, { passive: true });
@@ -222,7 +195,6 @@ function animateBackground() {
   const computedStyle = getComputedStyle(document.documentElement);
   const textColor = computedStyle.getPropertyValue("--text-color").trim();
   const rgb = parseHexToRgb(textColor);
-
   let musicFactor = 0;
   if (window.audioAnalyser) {
     let freqArray = new Uint8Array(window.audioAnalyser.frequencyBinCount);
@@ -236,8 +208,7 @@ function animateBackground() {
   }
   const MUSIC_MULTIPLIER = 60;
   window.currentMusicFactor = musicFactor;
-
-  shapes.forEach((shape) => {
+  shapes.forEach(shape => {
     let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
     shape.x += shape.vx;
     shape.y += shape.vy;
@@ -263,13 +234,12 @@ function animateBackground() {
       shape.vy = -shape.vy;
     }
   });
-
   for (let i = 0; i < shapes.length; i++) {
     for (let j = i + 1; j < shapes.length; j++) {
       resolveCollision(shapes[i], shapes[j]);
     }
   }
-  shapes.forEach((shape) => {
+  shapes.forEach(shape => {
     let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
     drawBackgroundShape(shapeTypes[currentShapeIndex], shape.x, shape.y, dynamicSize, rgb);
   });
@@ -319,7 +289,7 @@ function resolveCollision(s1, s2) {
 function parseHexToRgb(hex) {
   hex = hex.replace("#", "");
   if (hex.length === 3) {
-    hex = hex.split("").map((c) => c + c).join("");
+    hex = hex.split("").map(c => c + c).join("");
   }
   const num = parseInt(hex, 16);
   return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
@@ -349,8 +319,7 @@ function initDodecagonCanvas() {
   }
   resizeDodecagon();
   window.addEventListener("resize", resizeDodecagon);
-
-  window.addEventListener("mousemove", (e) => {
+  window.addEventListener("mousemove", e => {
     rotation = (e.clientX + e.clientY) * 0.01;
   }, { passive: true });
   requestAnimationFrame(drawDodecagonLoop);
@@ -378,11 +347,8 @@ function drawDodecagon(cx, cy, radius, rot) {
     let angle = i * angleStep + rot;
     let x = cx + radius * Math.cos(angle);
     let y = cy + radius * Math.sin(angle);
-    if (i === 0) {
-      dCtx.moveTo(x, y);
-    } else {
-      dCtx.lineTo(x, y);
-    }
+    if (i === 0) dCtx.moveTo(x, y);
+    else dCtx.lineTo(x, y);
   }
   dCtx.closePath();
   dCtx.stroke();
@@ -399,12 +365,12 @@ function drawDodecagon(cx, cy, radius, rot) {
   }
 }
 
-// --------------------- SECTION OBSERVER (Theme Flip on Scroll) ---------------------
+// --------------------- SECTION OBSERVER ---------------------
 function initSectionObserver() {
   const sections = document.querySelectorAll(".section");
   const options = { threshold: 0.6 };
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
       if (entry.isIntersecting) {
         const sectionIndex = Array.from(sections).indexOf(entry.target);
         const scheme = currentTheme.sub[sectionIndex % 2];
@@ -415,10 +381,10 @@ function initSectionObserver() {
       }
     });
   }, options);
-  sections.forEach((section) => observer.observe(section));
+  sections.forEach(section => observer.observe(section));
 }
 
-// --------------------- BLOG MODAL (Typewriter Effect) ---------------------
+// --------------------- BLOG MODAL ---------------------
 let typeTimer = null;
 function initBlogPosts() {
   const blogPosts = document.querySelectorAll(".blog-post");
@@ -426,7 +392,7 @@ function initBlogPosts() {
   const modalTitle = modal.querySelector(".modal-title");
   const modalText = modal.querySelector(".modal-text");
   const closeBtn = modal.querySelector(".modal-close");
-  blogPosts.forEach((post) => {
+  blogPosts.forEach(post => {
     post.addEventListener("click", () => {
       if (pendingBringToFrontTimeout) {
         clearTimeout(pendingBringToFrontTimeout);
@@ -453,10 +419,8 @@ function initBlogPosts() {
       typeTimer = null;
     }
   });
-  closeBtn.addEventListener("mousedown", (e) => {
-    e.stopPropagation();
-  });
-  modal.addEventListener("click", (e) => {
+  closeBtn.addEventListener("mousedown", e => e.stopPropagation());
+  modal.addEventListener("click", e => {
     if (!e.target.closest(".modal-content")) {
       modal.classList.add("hidden");
       modalText.textContent = "";
@@ -473,10 +437,7 @@ function typeWriterEffect(text, element) {
   let index = 0;
   function typeChar() {
     if (index < text.length) {
-      if (
-        text.substr(index, 8) === "Model A:" ||
-        text.substr(index, 8) === "Model B:"
-      ) {
+      if (text.substr(index, 8) === "Model A:" || text.substr(index, 8) === "Model B:") {
         if (!element.textContent.endsWith("\n\n")) {
           element.textContent = element.textContent.replace(/\n*$/, "\n\n");
         }
@@ -500,8 +461,12 @@ function initMinigameModal() {
     dinoGameStarted = false;
   });
   const minigameHeader = document.getElementById("minigameHeader");
-  const minigameModalContainer = document.getElementById("minigameModal");
-  makeElementDraggableWithHandle(minigameHeader, minigameModalContainer);
+  // Fix: Remove the transform on the inner modal-content when dragging starts.
+  minigameHeader.addEventListener("pointerdown", () => {
+    document.getElementById("minigameModalContent").style.transform = "none";
+  });
+  // Use the header as a handle to drag the entire minigame modal
+  makeElementDraggableWithHandle(minigameHeader, minigameModal);
 }
 
 function startDinoGame() {
@@ -568,15 +533,10 @@ function initMiniDinoGame() {
       dinoVy = 0;
       isJumping = false;
     }
-    obstacles.forEach((obs) => (obs.x -= 2));
-    obstacles = obstacles.filter((obs) => obs.x + obs.width > 0);
+    obstacles.forEach(obs => obs.x -= 2);
+    obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
     for (let obs of obstacles) {
-      if (
-        dinoX < obs.x + obs.width &&
-        dinoX + dinoW > obs.x &&
-        dinoY - dinoH < obs.y + obs.height &&
-        dinoY > obs.y
-      ) {
+      if (dinoX < obs.x + obs.width && dinoX + dinoW > obs.x && dinoY - dinoH < obs.y + obs.height && dinoY > obs.y) {
         showGameOver();
         return;
       }
@@ -590,7 +550,7 @@ function initMiniDinoGame() {
   
   const minigameModal = document.getElementById("minigameModal");
   if (!minigameModal.dataset.keyListenerAdded) {
-    minigameModal.addEventListener("keydown", (e) => {
+    minigameModal.addEventListener("keydown", e => {
       if (!gameOver && (e.code === "Space" || e.code === "ArrowUp") && !isJumping) {
         e.preventDefault();
         dinoVy = jumpPower;
@@ -602,7 +562,6 @@ function initMiniDinoGame() {
     });
     minigameModal.dataset.keyListenerAdded = "true";
   }
-  
   resetGame();
 }
 
@@ -676,11 +635,8 @@ function initRetroMusicPlayer() {
     for (let i = 0; i < bufferLength; i++) {
       let v = dataArray[i] / 128.0;
       let y = (v * height) / 2;
-      if (i === 0) {
-        canvasCtx.moveTo(x, y);
-      } else {
-        canvasCtx.lineTo(x, y);
-      }
+      if (i === 0) canvasCtx.moveTo(x, y);
+      else canvasCtx.lineTo(x, y);
       x += sliceWidth;
     }
     canvasCtx.lineTo(width, height / 2);
@@ -710,9 +666,7 @@ function initRetroMusicPlayer() {
       if (audioContext && audioContext.state === "suspended") {
         audioContext.resume();
       }
-      audioPlayer.play().catch(err => {
-        console.error("Playback failed:", err);
-      });
+      audioPlayer.play().catch(err => console.error("Playback failed:", err));
     } else {
       audioPlayer.pause();
     }
@@ -778,7 +732,7 @@ function initRetroMusicPlayer() {
 
   function addFavorite(song) {
     let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-    if (favorites.some((fav) => fav.id === song.id)) {
+    if (favorites.some(fav => fav.id === song.id)) {
       alert("This song is already in your favorites.");
       return;
     }
@@ -796,8 +750,8 @@ function initRetroMusicPlayer() {
       favoritesList.appendChild(li);
       return;
     }
-    favorites.forEach((fav) => {
-      const songIndex = songs.findIndex((song) => song.id === fav.id);
+    favorites.forEach(fav => {
+      const songIndex = songs.findIndex(song => song.id === fav.id);
       if (songIndex === -1) return;
       const li = document.createElement("li");
       li.textContent = `${fav.name} by ${fav.artist}`;
@@ -857,7 +811,6 @@ function initChatbox(API_URL) {
   const chatboxSendBtn = document.getElementById("chatboxSendBtn");
   const chatboxInput = document.getElementById("chatboxInput");
   const chatboxMessages = chatboxModal.querySelector(".chatbox-messages");
-  const chatboxInterface = chatboxModal.querySelector(".chatbox-interface");
 
   chatboxPrompt.addEventListener("click", () => {
     if (pendingBringToFrontTimeout) {
@@ -874,12 +827,12 @@ function initChatbox(API_URL) {
       chatboxModal.classList.add("hidden");
     }
   });
+
   chatboxCloseBtn.addEventListener("click", () => {
     chatboxModal.classList.add("hidden");
   });
-  chatboxCloseBtn.addEventListener("mousedown", (e) => {
-    e.stopPropagation();
-  });
+  chatboxCloseBtn.addEventListener("mousedown", e => e.stopPropagation());
+  
   chatboxSendBtn.addEventListener("click", () => {
     const message = chatboxInput.value.trim();
     if (!message) return;
@@ -889,21 +842,21 @@ function initChatbox(API_URL) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message }),
     })
-      .then((response) => response.json())
-      .then((data) => {
+      .then(response => response.json())
+      .then(data => {
         if (data.response) {
           appendMessageToChat("bot", data.response);
         } else {
           appendMessageToChat("bot", "I'm sorry, but I didn't receive a proper response.");
         }
       })
-      .catch((error) => {
+      .catch(error => {
         console.error("Error communicating with the chatbot API:", error);
         appendMessageToChat("bot", "An error occurred. Please try again later.");
       });
     chatboxInput.value = "";
   });
-  chatboxInput.addEventListener("keydown", (e) => {
+  chatboxInput.addEventListener("keydown", e => {
     if (e.key === "Enter") chatboxSendBtn.click();
   });
   function appendMessageToChat(role, content) {
@@ -913,18 +866,20 @@ function initChatbox(API_URL) {
     chatboxMessages.appendChild(messageDiv);
     chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
   }
-  // The chat modal's pointerdown is handled by the extra fix above.
-  makeElementDraggable(chatboxInterface);
+  chatboxModal.addEventListener("pointerdown", () => {
+    bringModalToFront(chatboxModal);
+  });
+  makeElementDraggable(chatboxModal);
 }
 
-// --------------------- DATA MODAL (Site Analytics & Chart) ---------------------
+// --------------------- DATA MODAL ---------------------
 function initDataModal() {
   const dataPrompt = document.getElementById("dataPrompt");
   const dataModal = document.getElementById("dataModal");
   const dataModalClose = document.getElementById("dataModalClose");
   const dataModalBody = document.getElementById("dataModalBody");
 
-  dataPrompt.addEventListener("click", (e) => {
+  dataPrompt.addEventListener("click", e => {
     e.preventDefault();
     e.stopPropagation();
     if (pendingBringToFrontTimeout) {
@@ -942,7 +897,7 @@ function initDataModal() {
     dataModal.classList.add("hidden");
   });
 
-  dataModal.addEventListener("click", (e) => {
+  dataModal.addEventListener("click", e => {
     if (!e.target.closest(".modal-content")) {
       dataModal.classList.add("hidden");
     }
@@ -955,9 +910,7 @@ function fetchDataAnalytics() {
   dataModalBody.innerHTML = "<p>Loading site data...</p>";
   fetch(analyticsAPI)
     .then(response => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
+      if (!response.ok) throw new Error("Network response was not ok");
       return response.json();
     })
     .then(data => {
@@ -967,9 +920,7 @@ function fetchDataAnalytics() {
       console.error("Error fetching analytics from server:", error);
       fetch("analytics_data.json")
         .then(response => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
+          if (!response.ok) throw new Error("Network response was not ok");
           return response.json();
         })
         .then(data => {
@@ -988,9 +939,9 @@ function processAnalyticsData(data) {
   data.timeseries.forEach(record => {
     const date = new Date(record.timestamp);
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hour = date.getHours().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const hour = date.getHours().toString().padStart(2, "0");
     const key = `${year}-${month}-${day} ${hour}:00`;
     countsByHour[key] = (countsByHour[key] || 0) + 1;
   });
@@ -1003,16 +954,16 @@ function processAnalyticsData(data) {
 function plotAnalyticsChart(labels, dataPoints) {
   const ctx = document.getElementById("analyticsChart").getContext("2d");
   new Chart(ctx, {
-    type: 'line',
+    type: "line",
     data: {
       labels: labels,
       datasets: [{
-        label: 'Visits per Hour',
+        label: "Visits per Hour",
         data: dataPoints,
-        backgroundColor: 'rgba(255, 94, 0, 0.2)',
-        borderColor: 'rgba(255, 94, 0, 1)',
+        backgroundColor: "rgba(255, 94, 0, 0.2)",
+        borderColor: "rgba(255, 94, 0, 1)",
         borderWidth: 2,
-        pointBackgroundColor: 'rgba(0,0,0,1)',
+        pointBackgroundColor: "rgba(0,0,0,1)",
       }]
     },
     options: {
@@ -1020,23 +971,23 @@ function plotAnalyticsChart(labels, dataPoints) {
         x: {
           ticks: {
             color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-            font: { family: 'VT323, monospace' }
+            font: { family: "VT323, monospace" }
           },
-          grid: { color: 'rgba(0,0,0,0.2)' }
+          grid: { color: "rgba(0,0,0,0.2)" }
         },
         y: {
           ticks: {
             color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-            font: { family: 'VT323, monospace' }
+            font: { family: "VT323, monospace" }
           },
-          grid: { color: 'rgba(0,0,0,0.2)' }
+          grid: { color: "rgba(0,0,0,0.2)" }
         }
       },
       plugins: {
         legend: {
           labels: {
             color: getComputedStyle(document.documentElement).getPropertyValue("--text-color"),
-            font: { family: 'VT323, monospace' }
+            font: { family: "VT323, monospace" }
           }
         }
       }
@@ -1045,10 +996,11 @@ function plotAnalyticsChart(labels, dataPoints) {
 }
 
 // --------------------- MAKE ELEMENT DRAGGABLE ---------------------
+// Updated to ignore interactive elements (buttons, inputs, selects, textareas, and .folder elements)
 function makeElementDraggable(element) {
   let isDragging = false, offsetX, offsetY;
-  element.addEventListener("pointerdown", (e) => {
-    if (e.target.closest("button, input, select, textarea")) return;
+  element.addEventListener("pointerdown", e => {
+    if (e.target.closest("button, input, select, textarea, .folder")) return;
     isDragging = true;
     e.preventDefault();
     if (getComputedStyle(element).position !== "fixed") {
@@ -1056,13 +1008,13 @@ function makeElementDraggable(element) {
     }
     const computedStyle = getComputedStyle(element);
     if (computedStyle.bottom !== "auto") {
-      let bottomValue = parseInt(computedStyle.bottom, 10);
-      let topValue = window.innerHeight - bottomValue - element.offsetHeight;
+      const bottomValue = parseInt(computedStyle.bottom, 10);
+      const topValue = window.innerHeight - bottomValue - element.offsetHeight;
       element.style.top = `${topValue}px`;
     }
     if (computedStyle.right !== "auto") {
-      let rightValue = parseInt(computedStyle.right, 10);
-      let leftValue = window.innerWidth - rightValue - element.offsetWidth;
+      const rightValue = parseInt(computedStyle.right, 10);
+      const leftValue = window.innerWidth - rightValue - element.offsetWidth;
       element.style.left = `${leftValue}px`;
     }
     element.style.bottom = "auto";
@@ -1077,7 +1029,7 @@ function makeElementDraggable(element) {
     document.body.style.userSelect = "none";
     element.setPointerCapture(e.pointerId);
   });
-  element.addEventListener("pointermove", (e) => {
+  element.addEventListener("pointermove", e => {
     if (isDragging) {
       let newLeft = e.clientX - offsetX;
       let newTop = e.clientY - offsetY;
@@ -1087,7 +1039,7 @@ function makeElementDraggable(element) {
       element.style.top = `${newTop}px`;
     }
   });
-  element.addEventListener("pointerup", (e) => {
+  element.addEventListener("pointerup", e => {
     if (isDragging) {
       isDragging = false;
       element.classList.remove("dragging");
@@ -1099,20 +1051,20 @@ function makeElementDraggable(element) {
 
 function makeElementDraggableWithHandle(handle, target) {
   let isDragging = false, offsetX, offsetY;
-  handle.addEventListener("pointerdown", (e) => {
-    if (e.target.closest("input, button, select, textarea")) return;
+  handle.addEventListener("pointerdown", e => {
+    if (e.target.closest("input, button, select, textarea, .folder")) return;
     isDragging = true;
     e.preventDefault();
     target.style.position = "fixed";
     const computedStyle = getComputedStyle(target);
     if (computedStyle.bottom !== "auto") {
-      let bottomValue = parseInt(computedStyle.bottom, 10);
-      let topValue = window.innerHeight - bottomValue - target.offsetHeight;
+      const bottomValue = parseInt(computedStyle.bottom, 10);
+      const topValue = window.innerHeight - bottomValue - target.offsetHeight;
       target.style.top = `${topValue}px`;
     }
     if (computedStyle.right !== "auto") {
-      let rightValue = parseInt(computedStyle.right, 10);
-      let leftValue = window.innerWidth - rightValue - target.offsetWidth;
+      const rightValue = parseInt(computedStyle.right, 10);
+      const leftValue = window.innerWidth - rightValue - target.offsetWidth;
       target.style.left = `${leftValue}px`;
     }
     target.style.bottom = "auto";
@@ -1127,7 +1079,7 @@ function makeElementDraggableWithHandle(handle, target) {
     document.body.style.userSelect = "none";
     handle.setPointerCapture(e.pointerId);
   });
-  handle.addEventListener("pointermove", (e) => {
+  handle.addEventListener("pointermove", e => {
     if (isDragging) {
       let newLeft = e.clientX - offsetX;
       let newTop = e.clientY - offsetY;
@@ -1137,7 +1089,7 @@ function makeElementDraggableWithHandle(handle, target) {
       target.style.top = `${newTop}px`;
     }
   });
-  handle.addEventListener("pointerup", (e) => {
+  handle.addEventListener("pointerup", e => {
     if (isDragging) {
       isDragging = false;
       target.classList.remove("dragging");
@@ -1148,6 +1100,7 @@ function makeElementDraggableWithHandle(handle, target) {
 }
 
 // --------------------- PROJECT MODAL ---------------------
+// (Project Modal code remains unchanged)
 function initProjectModal() {
   const projectCards = document.querySelectorAll(".project-card");
   const projectModal = document.getElementById("projectModal");
@@ -1155,7 +1108,7 @@ function initProjectModal() {
   const projectModalBody = projectModal.querySelector(".modal-body");
   const projectModalClose = projectModal.querySelector(".modal-close");
 
-  projectCards.forEach((card) => {
+  projectCards.forEach(card => {
     card.addEventListener("click", () => {
       if (pendingBringToFrontTimeout) {
         clearTimeout(pendingBringToFrontTimeout);
@@ -1189,18 +1142,18 @@ function initProjectModal() {
       projectModalBody.innerHTML = "";
       if (file && file.endsWith(".md")) {
         fetch(`docs/${file}`)
-          .then((response) => {
+          .then(response => {
             if (!response.ok) throw new Error("Network response was not ok");
             return response.text();
           })
-          .then((mdText) => {
+          .then(mdText => {
             const htmlContent = marked.parse(mdText);
             const markdownDiv = document.createElement("div");
             markdownDiv.classList.add("markdown-content");
             markdownDiv.innerHTML = htmlContent;
             projectModalBody.appendChild(markdownDiv);
           })
-          .catch((error) => {
+          .catch(error => {
             projectModalBody.textContent = "Error loading the document.";
             console.error("Fetch error:", error);
           });
@@ -1226,11 +1179,9 @@ function initProjectModal() {
     projectModalBody.innerHTML = "";
   });
 
-  projectModalClose.addEventListener("mousedown", (e) => {
-    e.stopPropagation();
-  });
+  projectModalClose.addEventListener("mousedown", e => e.stopPropagation());
 
-  projectModal.addEventListener("click", (e) => {
+  projectModal.addEventListener("click", e => {
     if (!e.target.closest(".modal-content")) {
       projectModal.classList.add("hidden");
       projectModalBody.innerHTML = "";
@@ -1238,7 +1189,8 @@ function initProjectModal() {
   });
 }
 
-// --------------------- BACKROOMS MODAL (Vintage Terminal Style) ---------------------
+// --------------------- BACKROOMS MODAL ---------------------
+// (Backrooms Modal code remains unchanged)
 function initBackroomsModal() {
   const backroomsPrompt = document.getElementById("backroomsPrompt");
   const backroomsModal = document.getElementById("backroomsModal");
@@ -1256,7 +1208,7 @@ function initBackroomsModal() {
     { name: "Backrooms 3", file: "docs/backrooms3.txt" },
   ];
   dropdown.innerHTML = "";
-  conversationFiles.forEach((fileObj) => {
+  conversationFiles.forEach(fileObj => {
     let option = document.createElement("option");
     option.value = fileObj.file;
     option.textContent = fileObj.name;
@@ -1279,10 +1231,7 @@ function initBackroomsModal() {
   function startTypewriter() {
     typeInterval = setInterval(() => {
       if (backroomsContent.length === 0) return;
-      if (
-        backroomsContent.substr(currentIndex, 8) === "Model A:" ||
-        backroomsContent.substr(currentIndex, 8) === "Model B:"
-      ) {
+      if (backroomsContent.substr(currentIndex, 8) === "Model A:" || backroomsContent.substr(currentIndex, 8) === "Model B:") {
         if (!displayBuffer.endsWith("\n\n")) {
           displayBuffer = displayBuffer.replace(/\n*$/, "\n\n");
         }
@@ -1314,33 +1263,33 @@ function initBackroomsModal() {
     displayBuffer = "";
     if (fileValue === "all") {
       let promises = conversationFiles
-        .filter((f) => f.file !== "all")
-        .map((f) =>
-          fetch(f.file).then((response) => {
+        .filter(f => f.file !== "all")
+        .map(f =>
+          fetch(f.file).then(response => {
             if (!response.ok) throw new Error("Network error");
             return response.text();
           })
         );
       Promise.all(promises)
-        .then((results) => {
+        .then(results => {
           backroomsContent = results.join("\n\n").replace(/\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g, "\n\n");
           startTypewriter();
         })
-        .catch((err) => {
+        .catch(err => {
           console.error(err);
           backroomsContentElement.textContent = "Error loading conversations.";
         });
     } else {
       fetch(fileValue)
-        .then((response) => {
+        .then(response => {
           if (!response.ok) throw new Error("Network error");
           return response.text();
         })
-        .then((text) => {
+        .then(text => {
           backroomsContent = text.replace(/\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g, "\n\n");
           startTypewriter();
         })
-        .catch((err) => {
+        .catch(err => {
           console.error(err);
           backroomsContentElement.textContent = "Error loading conversation.";
         });
@@ -1362,14 +1311,12 @@ function initBackroomsModal() {
       let excerptEnd = Math.min(backroomsContent.length, foundIndex + query.length + 50);
       let excerpt = backroomsContent.substring(excerptStart, excerptEnd);
       let regex = new RegExp(query, "gi");
-      excerpt = excerpt.replace(regex, (match) => `<mark>${match}</mark>`);
+      excerpt = excerpt.replace(regex, match => `<mark>${match}</mark>`);
       results.push("..." + excerpt + "...");
       if (results.length >= 30) break;
       startPos = foundIndex + query.length;
     }
-    if (results.length === 0) {
-      return "No results found for '" + query + "'.";
-    }
+    if (results.length === 0) return "No results found for '" + query + "'.";
     return results.join("<br><br>");
   }
 
@@ -1397,7 +1344,7 @@ function initBackroomsModal() {
     resetBackroomsContainer();
   });
 
-  backroomsClose.addEventListener("mousedown", (e) => {
+  backroomsClose.addEventListener("mousedown", e => {
     e.stopPropagation();
   });
 
@@ -1425,7 +1372,7 @@ function initBackroomsModal() {
   makeElementDraggableWithHandle(backroomsHeader, document.querySelector(".backrooms-modal-content"));
 }
 
-// --------------------- CRYPTO MODAL (CoinGecko API, Bloomberg Terminal Style) ---------------------
+// --------------------- CRYPTO MODAL ---------------------
 function formatChange(value) {
   return `<span class="${value < 0 ? 'negative' : 'positive'}">${value.toFixed(2)}%</span>`;
 }
@@ -1473,7 +1420,7 @@ function initCryptoModal() {
   const cryptoModal = document.getElementById("cryptoModal");
   const cryptoOption = document.getElementById("cryptoOption");
   
-  cryptoModal.addEventListener("pointerdown", (e) => {
+  cryptoModal.addEventListener("pointerdown", e => {
     if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
     pendingBringToFrontTimeout = setTimeout(() => {
       currentActiveModal = cryptoModal;
@@ -1484,20 +1431,19 @@ function initCryptoModal() {
 
   cryptoOption.addEventListener("click", openCryptoModal);
 
-  // Make the crypto modal draggable by applying it to the container.
   makeElementDraggable(cryptoModal);
 
-  document.getElementById("cryptoRefreshBtn").addEventListener("click", (e) => {
+  document.getElementById("cryptoRefreshBtn").addEventListener("click", e => {
     e.stopPropagation();
     fetchCryptoPrices();
   });
-  document.getElementById("cryptoCloseBtn").addEventListener("click", (e) => {
+  document.getElementById("cryptoCloseBtn").addEventListener("click", e => {
     e.stopPropagation();
     cryptoModal.classList.add("hidden");
   });
 }
 
-// --------------------- WIDGETS MODAL (File Explorer Style) ---------------------
+// --------------------- WIDGETS MODAL ---------------------
 function initWidgetsModal() {
   const widgetsPrompt = document.getElementById("widgetsPrompt");
   const widgetsModal = document.getElementById("widgetsModal");
@@ -1517,6 +1463,12 @@ function initWidgetsModal() {
   widgetsModalClose.addEventListener("click", () => {
     widgetsModal.classList.add("hidden");
   });
+
+  widgetsModal.addEventListener("pointerdown", () => {
+    bringModalToFront(widgetsModal);
+  }, true);
+
+  makeElementDraggable(widgetsModal);
 
   const folderWeather = document.getElementById("folderWeather");
   const folderCrypto = document.getElementById("folderCrypto");
@@ -1551,19 +1503,17 @@ function initWidgetsModal() {
       dinoGameStarted = false;
     }
   });
-
-  const widgetsModalTitle = document.querySelector("#widgetsModal .modal-title");
-  makeElementDraggableWithHandle(widgetsModalTitle, widgetsModal);
 }
 
-// --------------------- WEATHER MODAL (Widget-Style, Draggable, Themed & Scaled) ---------------------
+// --------------------- WEATHER MODAL ---------------------
+// Updated to use ip-api.com for geolocation.
 function initWeatherModal() {
   const weatherModal = document.getElementById("weatherModal");
   const weatherClose = document.getElementById("weatherClose");
   weatherClose.addEventListener("click", () => {
     weatherModal.classList.add("hidden");
   });
-  weatherModal.addEventListener("pointerdown", (e) => {
+  weatherModal.addEventListener("pointerdown", e => {
     if (pendingBringToFrontTimeout) clearTimeout(pendingBringToFrontTimeout);
     pendingBringToFrontTimeout = setTimeout(() => {
       currentActiveModal = weatherModal;
@@ -1571,7 +1521,6 @@ function initWeatherModal() {
       pendingBringToFrontTimeout = null;
     }, 50);
   }, true);
-  // IMPORTANT: Apply draggable to the outer container.
   makeElementDraggable(weatherModal);
 }
 
@@ -1587,14 +1536,18 @@ function openWeatherModal() {
   currentActiveModal = weatherModal;
   bringModalToFront(weatherModal);
   weatherContent.innerHTML = "<p>Loading weather data...</p>";
-  fetch(`https://api.ipapi.com/api/check?access_key=a38b2ba43250755eb2aa75a6805fb005`)
+  // Use ip-api.com for geolocation
+  fetch("http://ip-api.com/json/?fields=61439")
     .then(response => {
       if (!response.ok) throw new Error("IP API response not ok");
       return response.json();
     })
     .then(ipData => {
-      const lat = ipData.latitude;
-      const lon = ipData.longitude;
+      if (ipData.status !== "success") {
+        throw new Error(ipData.message || "Failed to retrieve IP data");
+      }
+      const lat = ipData.lat;
+      const lon = ipData.lon;
       const city = ipData.city || "your area";
       return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
         .then(response => {
@@ -1625,4 +1578,106 @@ function openWeatherModal() {
     });
 }
 
-// --------------------- END OF SCRIPT ---------------------
+// --------------------- MAKE ELEMENT DRAGGABLE ---------------------
+// Updated to ignore interactive elements (buttons, inputs, selects, textareas, and .folder elements)
+function makeElementDraggable(element) {
+  let isDragging = false, offsetX, offsetY;
+  element.addEventListener("pointerdown", e => {
+    if (e.target.closest("button, input, select, textarea, .folder")) return;
+    isDragging = true;
+    e.preventDefault();
+    if (getComputedStyle(element).position !== "fixed") {
+      element.style.position = "fixed";
+    }
+    const computedStyle = getComputedStyle(element);
+    if (computedStyle.bottom !== "auto") {
+      const bottomValue = parseInt(computedStyle.bottom, 10);
+      const topValue = window.innerHeight - bottomValue - element.offsetHeight;
+      element.style.top = `${topValue}px`;
+    }
+    if (computedStyle.right !== "auto") {
+      const rightValue = parseInt(computedStyle.right, 10);
+      const leftValue = window.innerWidth - rightValue - element.offsetWidth;
+      element.style.left = `${leftValue}px`;
+    }
+    element.style.bottom = "auto";
+    element.style.right = "auto";
+    const rect = element.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    element.style.left = `${rect.left}px`;
+    element.style.top = `${rect.top}px`;
+    element.style.transform = "none";
+    element.classList.add("dragging");
+    document.body.style.userSelect = "none";
+    element.setPointerCapture(e.pointerId);
+  });
+  element.addEventListener("pointermove", e => {
+    if (isDragging) {
+      let newLeft = e.clientX - offsetX;
+      let newTop = e.clientY - offsetY;
+      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - element.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, window.innerHeight - element.offsetHeight));
+      element.style.left = `${newLeft}px`;
+      element.style.top = `${newTop}px`;
+    }
+  });
+  element.addEventListener("pointerup", e => {
+    if (isDragging) {
+      isDragging = false;
+      element.classList.remove("dragging");
+      document.body.style.userSelect = "auto";
+      element.releasePointerCapture(e.pointerId);
+    }
+  });
+}
+
+function makeElementDraggableWithHandle(handle, target) {
+  let isDragging = false, offsetX, offsetY;
+  handle.addEventListener("pointerdown", e => {
+    if (e.target.closest("input, button, select, textarea, .folder")) return;
+    isDragging = true;
+    e.preventDefault();
+    target.style.position = "fixed";
+    const computedStyle = getComputedStyle(target);
+    if (computedStyle.bottom !== "auto") {
+      const bottomValue = parseInt(computedStyle.bottom, 10);
+      const topValue = window.innerHeight - bottomValue - target.offsetHeight;
+      target.style.top = `${topValue}px`;
+    }
+    if (computedStyle.right !== "auto") {
+      const rightValue = parseInt(computedStyle.right, 10);
+      const leftValue = window.innerWidth - rightValue - target.offsetWidth;
+      target.style.left = `${leftValue}px`;
+    }
+    target.style.bottom = "auto";
+    target.style.right = "auto";
+    const rect = target.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    target.style.left = `${rect.left}px`;
+    target.style.top = `${rect.top}px`;
+    target.style.transform = "none";
+    target.classList.add("dragging");
+    document.body.style.userSelect = "none";
+    handle.setPointerCapture(e.pointerId);
+  });
+  handle.addEventListener("pointermove", e => {
+    if (isDragging) {
+      let newLeft = e.clientX - offsetX;
+      let newTop = e.clientY - offsetY;
+      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - target.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, window.innerHeight - target.offsetHeight));
+      target.style.left = `${newLeft}px`;
+      target.style.top = `${newTop}px`;
+    }
+  });
+  handle.addEventListener("pointerup", e => {
+    if (isDragging) {
+      isDragging = false;
+      target.classList.remove("dragging");
+      document.body.style.userSelect = "auto";
+      handle.releasePointerCapture(e.pointerId);
+    }
+  });
+}
