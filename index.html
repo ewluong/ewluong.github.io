@@ -1,10 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" data-scheme="Orange & Black">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- For a better mobile experience -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>...initializing...</title>
 
     <!-- Link to external CSS -->
@@ -53,15 +51,16 @@
     <nav class="navbar">
       <ul>
         <li><a href="#home" class="nav-link">Home</a></li>
-        <li><a href="#about" class="nav-link">About</a></li>
         <li><a href="#projects" class="nav-link">Projects</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
         <li><a href="#blog" class="nav-link">Blog</a></li>
       </ul>
     </nav>
 
     <!-- Home Section -->
     <section id="home" class="section home-section">
-      <h1 id="terminalHeader" class="section-header" data-text="> Hey there, I'm Eric!"></h1>
+      <!-- Removed the h1#terminalHeader from here and replaced with a container -->
+      <div id="terminalHeaderContainer"></div>
       <p class="tagline">Just chasing the wind...</p>
       <canvas id="dodecagonCanvas" width="400" height="400" style="max-width: 400px; border: none;"></canvas>
     </section>
@@ -94,7 +93,8 @@
         <div class="project-card" data-file="network.md">
           <h2>Anomaly Detection in Network Traffic</h2>
           <p>
-            Built ML models (Random Forest, XGBoost, LightGBM, Neural Networks) to detect cyber‑attacks using UNSW‑NB15. Compared precision/recall to reduce false positives, addressed class imbalance, and focused on feature engineering.
+            Built ML models (Random Forest, XGBoost, LightGBM, Neural Networks) to detect cyber‑attacks using UNSW‑NB15.
+            Compared precision/recall to reduce false positives, addressed class imbalance, and focused on feature engineering.
           </p>
           <a href="https://github.com/ewluong/project2024/tree/main/cybersecurity_threats" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
@@ -102,7 +102,8 @@
         <div class="project-card" data-file="amazon.pdf">
           <h2>Best Sellers Analysis</h2>
           <p>
-            Time-series analysis of genres, NLP‑based exploration of reviews, K‑means clustering to identify market segments, and regression modeling to link user ratings with reviews and pricing.
+            Time‑series analysis of genres, NLP‑based exploration of reviews, K‑means clustering to identify market segments,
+            and regression modeling to link user ratings with reviews and pricing.
           </p>
           <a href="https://github.com/ewluong/project2024/tree/main/best_sellers_analysis" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
@@ -110,7 +111,8 @@
         <div class="project-card" data-file="comp_centrality.pdf">
           <h2>Centrality Measures in Networks</h2>
           <p>
-            Explored leadership‑level diversity (ethnicity, gender, age) and network centrality metrics for 1,500 firms (15 years), correlating them with stock returns. Data from ISS, CRSP, and COMPUSTAT.
+            Explored leadership‑level diversity (ethnicity, gender, age) and network centrality metrics for 1,500 firms (15 years),
+            correlating them with stock returns. Data from ISS, CRSP, and COMPUSTAT.
           </p>
           <a href="https://github.com/ewluong/project2024/tree/main/centrality_measures" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
@@ -118,7 +120,8 @@
         <div class="project-card" data-file="housing.md">
           <h2>Housing Prices Prediction</h2>
           <p>
-            Predicts house prices by stacking models (LightGBM, XGBoost, Gradient Boosting, Random Forest, CatBoost). Demonstrates data preprocessing, feature engineering, hyperparameter tuning, and ensemble learning.
+            Predicts house prices by stacking models (LightGBM, XGBoost, Gradient Boosting, Random Forest, CatBoost).
+            Demonstrates data preprocessing, feature engineering, hyperparameter tuning, and ensemble learning.
           </p>
           <a href="https://github.com/ewluong/project2024/tree/main/housing_prices_prediction" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
@@ -126,7 +129,8 @@
         <div class="project-card" data-file="woolridge.html">
           <h2>Panel Data Analysis</h2>
           <p>
-            Investigated relationships between investment, capital structure, and firm performance via panel data. Employed winsorization and regressions with lag/lead variables, ensuring robustness with the Wooldridge Exogeneity Test.
+            Investigated relationships between investment, capital structure, and firm performance via panel data.
+            Employed winsorization and regressions with lag/lead variables, ensuring robustness with the Wooldridge Exogeneity Test.
           </p>
           <a href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
@@ -134,7 +138,8 @@
         <div class="project-card">
           <h2>apexprint.co</h2>
           <p>
-            Built a website and online storefront for a printing shop in the Bay Area. Fully integrated with the store’s point of sale and administrative systems.
+            Built a website and online storefront for a printing shop in the Bay Area.
+            Fully integrated with the store’s point of sale and administrative systems.
           </p>
           <a href="https://www.goabcprint.com/" class="project-link" target="_blank">**View Website**</a>
         </div>
@@ -142,7 +147,8 @@
         <div class="project-card" data-file="sudoku.pdf">
           <h2>Sudoku Linear Programming</h2>
           <p>
-            Designed and implemented a linear programming solution using Gurobi to efficiently solve standard and variant Sudoku puzzles, including 3D, diagonal, and Killer Sudoku, by developing optimization models with complex constraints.
+            Designed and implemented a linear programming solution using Gurobi to efficiently solve standard and variant Sudoku puzzles,
+            including 3D, diagonal, and Killer Sudoku, by developing optimization models with complex constraints.
           </p>
           <a href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
@@ -150,7 +156,8 @@
         <div class="project-card" data-file="nba.pdf">
           <h2>CBA‑to‑NBA Performance Correlation</h2>
           <p>
-            Used PCA on college (CBA) player stats to see correlation with NBA scoring. Spearman/Pearson tests showed statistically significant relationships, albeit low‑level correlations.
+            Used PCA on college (CBA) player stats to see correlation with NBA scoring.
+            Spearman/Pearson tests showed statistically significant relationships, albeit low‑level correlations.
           </p>
           <a href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
@@ -158,7 +165,8 @@
         <div class="project-card">
           <h2>Amber India Restaurant Case Study</h2>
           <p>
-            Optimized a $5 million ad budget using linear programming. Devised a demand management model for popular beverages, balancing raw material costs, spoilage, and profit.
+            Optimized a $5 million ad budget using linear programming.
+            Devised a demand management model for popular beverages, balancing raw material costs, spoilage, and profit.
           </p>
           <p class="no-link">Link Not Available</p>
         </div>
@@ -172,49 +180,54 @@
         <div class="about-item">
           <img src="images/work.png" alt="Work Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Work Experience:</strong> My journey includes roles at Vanguard and Lifo.ai, where I've tackled financial models, data analytics strategies, and helped streamline business development.
+            <strong>Work Experience:</strong> My journey includes roles at Vanguard and Lifo.ai, where I've tackled financial models,
+            data analytics strategies, and helped streamline business development.
           </p>
         </div>
         <div class="about-item">
           <img src="images/bitcoin.png" alt="Crypto Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>SPI Energy:</strong> Delved into cryptocurrency miner solutions, aiding strategic decision‑making with data analysis. Learned about the evolving energy market and blockchain tech.
+            <strong>SPI Energy:</strong> Delved into cryptocurrency miner solutions, aiding strategic decision‑making with data analysis.
+            Learned about the evolving energy market and blockchain tech.
           </p>
         </div>
         <div class="about-item">
           <img src="images/book.png" alt="Book Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Favorite Reads:</strong> "There Is No Antimemetics Division," "Hitchhiker’s Guide to the Galaxy," and "Strangers from a Different Shore" fuel my imagination and expand my worldview.
+            <strong>Favorite Reads:</strong> "There Is No Antimemetics Division," "Hitchhiker’s Guide to the Galaxy," and "Strangers from a Different Shore"
+            fuel my imagination and expand my worldview.
           </p>
         </div>
         <div class="about-item">
           <img src="images/controller.png" alt="Controller Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Gaming Interests:</strong> Whether battling in Elden Ring, building empires in Civilization VI, or theorycrafting in Path of Exile, gaming is a creative outlet that challenges my strategic thinking.
+            <strong>Gaming Interests:</strong> Whether battling in Elden Ring or theorycrafting in Path of Exile, gaming is a creative outlet
+            that challenges my strategic thinking.
           </p>
         </div>
         <div class="about-item">
           <img src="images/garden.png" alt="Garden Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Volunteering:</strong> At Berkeley’s Community Garden, I’ve done everything from mulching to planting. It’s a hands‑on way to give back and cultivate green spaces.
+            <strong>Volunteering:</strong> At Berkeley’s Community Garden, I’ve done everything from mulching to planting – a hands‑on way to give back.
           </p>
         </div>
         <div class="about-item">
           <img src="images/hat.png" alt="Academic Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Academic Achievements:</strong> Santa Clara University (Business Analytics), UC Berkeley (Cognitive Science), UC Berkeley ML & AI Certificate.
+            <strong>Academic Achievements:</strong> Santa Clara University (Business Analytics), UC Berkeley (Cognitive Science),
+            and UC Berkeley ML & AI Certificate.
           </p>
         </div>
         <div class="about-item">
           <img src="images/tennis.png" alt="Tennis Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Tennis Passion:</strong> I've played tennis my whole life and still train regularly. It's taught me discipline, strategy, and the value of continuous improvement.
+            <strong>Tennis Passion:</strong> I've played tennis my whole life and still train regularly.
           </p>
         </div>
         <div class="about-item">
           <img src="images/music.png" alt="Music Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Music & Production:</strong> After a lifetime of playing piano and guitar, I dove into music production. I love experimenting with beats and melodies—peek the SoundCloud link in the corner!
+            <strong>Music & Production:</strong> After years of playing instruments, I now experiment with beats and melodies in music production.
           </p>
         </div>
       </div>
@@ -225,41 +238,13 @@
       <h1 class="section-header" data-text="Blog">Blog</h1>
       <p>My thoughts on anything...</p>
       <ul class="blog-list">
-        <li class="blog-post" data-title="Finding Wonder in a World of Logic" data-content="In today's world, defined by rapid technological advances and a constant stream of information, there lies a curious trend. It's a time where logic and empirical evidence reign supreme, yet there’s an increasing fascination with the mystical and the magical. This isn’t a rejection of science or rational thought; rather, it's a quest for balance and wonder in an age where the line between the miraculous and the mundane is increasingly blurred.
-
-Consider the advancements we’ve witnessed: conversations with AI, self‑driving cars, and virtual realities are now part of our everyday lives. These once miraculous concepts have become commonplace. As a result, there's a growing allure towards the unexplained and the mystical. It's not about abandoning reason but about finding a sense of awe and mystery in a world where so much can be explained and predicted.
-
-This turn towards the mystical reflects a deeper human desire for balance. In a reality dominated by algorithms and data, the appeal of astrology, tarot, and other mystical practices lies in their unpredictability and personal touch. They offer a contrast to our digitized lives, providing a sense of mystery and control in a world that often feels pre‑determined and scripted.
-
-Art and science fiction have always played a crucial role in exploring these themes. They create spaces where the boundaries between science and magic blur, where impossible things happen in plausible ways. These genres resonate because they mirror our longing for a universe filled with undiscovered wonders, where the limits of what’s possible are constantly expanding.
-
-This interest in the mystical is also a form of rebellion – a rebellion against a world that can feel too structured and predictable.">Finding Wonder in a World of Logic</li>
-        <li class="blog-post" data-title="Why Sisyphus Must Truly Be Happy" data-content="Imagine this: a young adult in today's world, navigating through the complexities and challenges of modern life, much like a character in the video game 'Hades'. In this game, Sisyphus, known for his eternal punishment of pushing a boulder up a hill, is reimagined. He’s not just a figure of Greek mythology anymore but a character we regularly encounter in the Underworld of the game. His story in 'Hades' is a fascinating one, and it resonates deeply with the contemporary experience of young adults.
-
-In the game, Sisyphus appears content, even in the face of his endless task. He's given personality, a sense of humor, and most importantly, a sense of acceptance. He even names his boulder 'Bouldy', a quirky yet profound act of embracing his fate. This portrayal is a stark contrast to the traditional tale, where Sisyphus is condemned to an eternity of futile labor as punishment for his deceitful nature. The game, however, gives this story a twist - Sisyphus is freed from his task, only to choose to return to it, this time on his own terms.
-
-This narrative parallels the life of a young adult today. Just like Sisyphus, they face their own boulders – be it the pressures of academia, the fast‑paced nature of technological advancements, or the quest for identity and purpose in a world brimming with endless opportunities and challenges.">Why Sisyphus Must Truly Be Happy</li>
-        <li class="blog-post" data-title="On Stakeholder Capitalism" data-content="So, we've all heard the buzzwords, right? Stakeholder Capitalism and ESG — they've become a sort of new gospel for modern corporations. But, man, what a turn we've taken. When I first started penning thoughts about these ideas, there was a need to break them down for clarity. Now, however, the conversation has flipped. While everyone’s aware of the terms, their true meaning has become diluted, almost reduced to a marketing exercise.
-
-Stakeholder capitalism was once meant to signify a shift from solely maximizing shareholder profit to addressing broader societal concerns such as environmental impact, employee welfare, and community benefits. But as the concept gained popularity, its revolutionary intent was often overshadowed by corporate buzzwords and superficial commitments.
-
-The challenge, then, is in preserving the original transformative spirit of stakeholder capitalism in the face of its commercialization.">On Stakeholder Capitalism</li>
-        <li class="blog-post" data-title="On Pseudonyms" data-content="As the world becomes more connected, personal identifiers are increasingly important—but they can also be used to discriminate. This is where pseudonyms play a vital role, offering a way for individuals to express themselves without the risk of judgment based on gender, ethnicity, or nationality.
-
-In the evolving digital landscape, particularly with the rise of Web3 technologies, pseudonyms enable greater privacy and inclusivity. They allow participants in online communities to be judged solely on the merit of their ideas, fostering an environment where creativity and equality can flourish.
-">On Pseudonyms</li>
-        <li class="blog-post" data-title="On Regression Theory" data-content="The Great Depression, many believe, was not an inevitable economic collapse but rather a consequence of specific policy decisions. Austrian economists argue that if the Federal Reserve had managed monetary policy differently, the crisis might have been averted.
-
-Ludwig Von Mises’ regression theory, which seeks to explain how currency derives its value from a previous non‑monetary state, exemplifies this perspective. According to this view, money’s current value is deeply tied to its historical usage and the intrinsic value of the commodity it once represented, rather than simply its role in facilitating exchange.
-">On Regression Theory</li>
-        <li class="blog-post" data-title="On Quadratic Voting and Funding" data-content="In modern societies, issues such as income inequality and political corruption continue to challenge democratic norms. Traditional voting systems often marginalize minority voices, which has spurred interest in innovative solutions like Quadratic Voting (QV).
-
-QV proposes that individuals allocate votes according to the intensity of their preferences, potentially balancing power among diverse groups. However, a key challenge remains in verifying the authenticity of voters without compromising privacy—a problem that persists amid the rise of pseudonymous digital identities.
-">On Quadratic Voting and Funding</li>
-        <li class="blog-post" data-title="On Dualism" data-content="Descartes’ Meditations propose that the mind and body are distinct, an idea that has long fascinated philosophers. However, modern understanding of evolution and natural selection suggests that such a dualism is incompatible with the physical processes that have shaped human development.
-
-Critics argue that if the mind were truly independent of the body, it would contradict the observable physical changes that have led to our current form. In this light, Descartes’ notion of an immaterial mind becomes increasingly problematic when contrasted with scientific explanations rooted in biology and natural selection.
-">On Dualism</li>
+        <li class="blog-post" data-title="Finding Wonder in a World of Logic" data-content="In today's world, defined by rapid technological advances and a constant stream of information, there lies a curious trend...">Finding Wonder in a World of Logic</li>
+        <li class="blog-post" data-title="Why Sisyphus Must Truly Be Happy" data-content="Imagine this: a young adult in today's world, navigating through modern challenges like a character in Hades...">Why Sisyphus Must Truly Be Happy</li>
+        <li class="blog-post" data-title="On Stakeholder Capitalism" data-content="So, we've all heard the buzzwords, right? Stakeholder Capitalism and ESG—new gospel for modern corporations...">On Stakeholder Capitalism</li>
+        <li class="blog-post" data-title="On Pseudonyms" data-content="As the world becomes more connected, personal identifiers can be a source of bias—pseudonyms offer privacy...">On Pseudonyms</li>
+        <li class="blog-post" data-title="On Regression Theory" data-content="The Great Depression, many believe, was not inevitable but rather the consequence of certain policy decisions...">On Regression Theory</li>
+        <li class="blog-post" data-title="On Quadratic Voting and Funding" data-content="In modern societies, issues such as income inequality continue to challenge democratic norms—Quadratic Voting might be the answer...">On Quadratic Voting and Funding</li>
+        <li class="blog-post" data-title="On Dualism" data-content="Descartes’ Meditations propose that the mind and body are distinct, yet modern science suggests our physicality defines our cognition...">On Dualism</li>
       </ul>
     </section>
 
@@ -287,7 +272,7 @@ Critics argue that if the mind were truly independent of the body, it would cont
         <div class="vcr-header">
           <h2 class="modal-title">Infinite Backrooms</h2>
           <p class="vcr-description">
-            In a specialized environment of machine cognition, two Llama‑based language models engage in a perpetual feedback loop, exchanging tokens and refining their internal parameters. The result is an ongoing, self‑sustaining dialog that explores emergent behaviors and latent representations—visions of boundless dreams.
+            In a specialized environment of machine cognition, two Llama‑based language models engage in a perpetual feedback loop, exchanging tokens and refining their internal parameters...
           </p>
         </div>
         <div class="vcr-search">
@@ -359,23 +344,20 @@ Critics argue that if the mind were truly independent of the body, it would cont
         </div>
       </div>
     </div>
+
     <!-- TETRIS GAME MODAL -->
     <div id="gameModal" class="draggable-widget-modal hidden">
       <div class="modal-content retro-terminal" id="gameModalContent">
         <div class="modal-header retro-header" id="gameModalHeader">
-          <!-- The header title is centered via CSS -->
           <span class="header-title">TETRIS</span>
           <button type="button" class="modal-close" id="gameModalClose">X</button>
         </div>
         <div id="gameArea" class="retro-body">
-          <!-- Canvas for rendering Tetris -->
           <canvas id="tetrisCanvas" width="300" height="600"></canvas>
-          <!-- Hidden overlay for game over -->
           <div id="gameOverOverlay" class="game-over hidden">
             <p>GAME OVER</p>
             <p>Press SPACE to restart</p>
           </div>
-          <!-- Score board -->
           <div id="scoreBoard" class="score-board">
             <div class="score">Score: <span id="score">0</span></div>
             <div class="high-score">High Score: <span id="highScore">0</span></div>
@@ -383,12 +365,6 @@ Critics argue that if the mind were truly independent of the body, it would cont
         </div>
       </div>
     </div>
-
-
-
-
-
-
 
     <!-- MINIGAME MODAL -->
     <div id="minigameModal" class="draggable-widget-modal hidden" tabindex="0">
@@ -402,11 +378,7 @@ Critics argue that if the mind were truly independent of the body, it would cont
       </div>
     </div>
 
-
-
-
     <!-- Retro Music Player (example placement) -->
-    <!-- Note: The retroMusicPlayer modal now starts hidden -->
     <div id="retroMusicPlayer" class="retro-music-player">
       <div class="music-header">
         <canvas id="waveformCanvas" width="300" height="50"></canvas>
@@ -424,7 +396,6 @@ Critics argue that if the mind were truly independent of the body, it would cont
         <button type="button" id="btnFavoritesToggle" class="control-btn favorites-toggle" aria-label="Toggle Favorites">★</button>
       </div>
       <div class="music-progress">
-        <!-- Progress bar container with moving light pulse overlay behind the input -->
         <div class="progress-container">
           <div class="progress-pulse"></div>
           <input type="range" id="progressBar" value="0" min="0" max="100" />
@@ -439,8 +410,6 @@ Critics argue that if the mind were truly independent of the body, it would cont
       </div>
       <audio id="audioPlayer" src="docs/sample.mp3"></audio>
     </div>
-    
-    <!-- Other modals and website content go here -->
 
     <!-- TOGGLE BUTTONS CONTAINER (Remaining buttons) -->
     <div id="toggleButtonsContainer">
@@ -489,8 +458,25 @@ Critics argue that if the mind were truly independent of the body, it would cont
       </div>
     </div>
 
-
     <!-- Load custom JavaScript -->
     <script type="module" src="script.js"></script>
+    <!-- Inline script to insert the terminal header after page load -->
+    <script>
+      window.addEventListener('load', () => {
+        // Create and insert the terminal header element after load for improved LCP.
+        const headerContainer = document.getElementById('terminalHeaderContainer');
+        const h1 = document.createElement('h1');
+        h1.id = 'terminalHeader';
+        h1.className = 'section-header';
+        h1.setAttribute('data-text', "> Hey there, I'm Eric!");
+        h1.textContent = "> Hey there, I'm Eric!";
+        headerContainer.appendChild(h1);
+
+        // Optionally, if you have a typewriter effect defined, trigger it.
+        if (typeof typeWriterOnElement === 'function') {
+          typeWriterOnElement(h1, 50);
+        }
+      });
+    </script>
   </body>
 </html>
