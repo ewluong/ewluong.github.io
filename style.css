@@ -1277,6 +1277,11 @@ body::before {
   #chatboxModal .chatbox-interface {
     font-size: 0.8rem !important;
   }
+
+  #terminalHeader {
+    font-size: 1.5rem; /* Adjust this value as needed */
+    white-space: nowrap; /* Keeps the text on one line */
+  }
   
 }
 
@@ -1334,3 +1339,4 @@ body::before {
   bottom: 10px;  /* Adjust as needed */
   right: 10px;   /* Adjust as needed */
 }
+
