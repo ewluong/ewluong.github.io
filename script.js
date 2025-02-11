@@ -2060,6 +2060,27 @@ function updateTetrisTheme(scheme) {
   document.documentElement.style.setProperty("--tetris-header-bg", shadeColor(tetrisBg, -20));
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+  const header = document.getElementById("terminalHeader");
+  
+  function adjustHeaderFont() {
+    if (window.innerWidth <= 600) {
+      // For mobile: force a smaller, single‑line header.
+      header.style.fontSize = "1.5rem";
+      header.style.whiteSpace = "nowrap";
+      header.style.display = "inline-block"; // helps the element size to its text
+    } else {
+      // For larger screens, clear our overrides so default CSS applies.
+      header.style.fontSize = "";
+      header.style.whiteSpace = "";
+      header.style.display = "";
+    }
+  }
+  
+  // Run once on load and then whenever the window is resized.
+  adjustHeaderFont();
+  window.addEventListener("resize", adjustHeaderFont);
+});
 
 
 
