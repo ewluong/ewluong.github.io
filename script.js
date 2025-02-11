@@ -30,12 +30,30 @@ const themes = [
 ];
 let currentTheme = themes[3];
 
+// Helper function: parse hex color to RGB
+function parseHexToRgb(hex) {
+  hex = hex.replace("#", "");
+  if (hex.length === 3) {
+    hex = hex.split("").map(c => c + c).join("");
+  }
+  const num = parseInt(hex, 16);
+  return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+}
+
+// Helper function to get an RGBA string for the pulse color based on a hex color.
+function getPulseColor(hexColor, alpha = 0.6) {
+  const rgb = parseHexToRgb(hexColor);
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   // Set initial theme
   document.documentElement.style.setProperty("--bg-color", currentTheme.sub[0].bg);
   document.documentElement.style.setProperty("--text-color", currentTheme.sub[0].text);
   document.documentElement.setAttribute("data-scheme", currentTheme.name);
-
+  // Set the pulse color based on the theme's text color.
+  document.documentElement.style.setProperty("--pulse-color", getPulseColor(currentTheme.sub[0].text));
+  updateTetrisTheme();
   pickAsciiBunnyCatPanda();
   initCanvas();
   initDodecagonCanvas();
@@ -43,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
   onScrollTypeAscii();
   initBlogPosts();
   initMinigameModal();
+  initGameModal();
   initMusicPrompt();
   initChatbox("/"); // Reimplemented chat modal
   initProjectModal();
@@ -69,6 +88,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.style.setProperty("--bg-color", currentTheme.sub[0].bg);
     document.documentElement.style.setProperty("--text-color", currentTheme.sub[0].text);
     document.documentElement.setAttribute("data-scheme", currentTheme.name);
+    // Update the pulse color for the progress bar based on the new theme's text color.
+    document.documentElement.style.setProperty("--pulse-color", getPulseColor(currentTheme.sub[0].text));
+    updateTetrisTheme();
   });
 
   window.addEventListener("resize", debounce(onResize, 100));
@@ -266,6 +288,13 @@ function drawBackgroundShape(type, x, y, size, rgb) {
     ctx.closePath();
   }
   ctx.stroke();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`;
+  for (let i = 0; i < shapes.length; i++) {
+    for (let j = i + 1; j < shapes.length; j++) {
+      resolveCollision(shapes[i], shapes[j]);
+    }
+  }
 }
 
 function resolveCollision(s1, s2) {
@@ -291,15 +320,6 @@ function resolveCollision(s1, s2) {
   }
 }
 
-function parseHexToRgb(hex) {
-  hex = hex.replace("#", "");
-  if (hex.length === 3) {
-    hex = hex.split("").map(c => c + c).join("");
-  }
-  const num = parseInt(hex, 16);
-  return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
-}
-
 // --------------------- DODECAGON (Scroll-Controlled) ---------------------
 let dCanvas, dCtx;
 let dWidth = 400, dHeight = 400;
@@ -322,7 +342,6 @@ function initDodecagonCanvas() {
   }
   resizeDodecagon();
   window.addEventListener("resize", resizeDodecagon);
-  // Removed mousemove event listener for rotation.
   requestAnimationFrame(drawDodecagonLoop);
 }
 
@@ -333,9 +352,8 @@ function drawDodecagonLoop() {
   let scrollY = window.scrollY;
   let scrollRatio = docHeight > 0 ? scrollY / docHeight : 0;
 
-  // Increase these values to speed up rotation and scaling.
-  const maxRotation = Math.PI * 7; // Was Math.PI * 2
-  const maxScale = 4; // Was 2
+  const maxRotation = Math.PI * 7;
+  const maxScale = 4;
 
   let rotation = maxRotation * scrollRatio;
   let baseRadius = Math.min(dWidth, dHeight) / 4;
@@ -344,7 +362,6 @@ function drawDodecagonLoop() {
   drawDodecagon(cx, cy, currentRadius, rotation);
   requestAnimationFrame(drawDodecagonLoop);
 }
-
 
 function drawDodecagon(cx, cy, radius, rot) {
   let sides = 12, angleStep = (Math.PI * 2) / sides;
@@ -376,7 +393,6 @@ function drawDodecagon(cx, cy, radius, rot) {
   }
 }
 
-// --------------------- SECTION OBSERVER ---------------------
 function initSectionObserver() {
   const sections = document.querySelectorAll(".section");
   const options = { threshold: 0.6 };
@@ -388,12 +404,17 @@ function initSectionObserver() {
         document.documentElement.style.setProperty("--bg-color", scheme.bg);
         document.documentElement.style.setProperty("--text-color", scheme.text);
         document.documentElement.setAttribute("data-scheme", currentTheme.name);
+        document.documentElement.style.setProperty("--pulse-color", getPulseColor(scheme.text));
         currentShapeIndex = sectionIndex % shapeTypes.length;
+        
+        // Update the Tetris modal colors to match the current section scheme.
+        updateTetrisTheme(scheme);
       }
     });
   }, options);
   sections.forEach(section => observer.observe(section));
 }
+
 
 // --------------------- BLOG MODAL ---------------------
 let typeTimer = null;
@@ -463,6 +484,28 @@ function typeWriterEffect(text, element) {
   typeChar();
 }
 
+
+// --------------------- GAME MODAL ---------------------
+function initGameModal() {
+  const gameModal = document.getElementById("gameModal");
+  const gameModalClose = document.getElementById("gameModalClose");
+  
+  // Close the modal only when the close button is clicked.
+  gameModalClose.addEventListener("click", () => {
+    gameModal.classList.add("hidden");
+  });
+  
+  // Do NOT add any click listener on gameModal that closes it when clicking anywhere.
+  // (This is the same behavior as for the Crypto, Weather, and Minigame modals.)
+  
+  // Make the modal draggable (using your existing utility function)
+  makeElementDraggable(gameModal);
+}
+
+
+
+
+
 // --------------------- MINIGAME MODAL ---------------------
 function initMinigameModal() {
   const minigameClose = document.getElementById("minigameClose");
@@ -471,13 +514,8 @@ function initMinigameModal() {
     minigameModal.classList.add("hidden");
     dinoGameStarted = false;
   });
-  const minigameHeader = document.getElementById("minigameHeader");
-  // Fix: Remove the transform on the inner modal-content when dragging starts.
-  minigameHeader.addEventListener("pointerdown", () => {
-    document.getElementById("minigameModalContent").style.transform = "none";
-  });
-  // Use the header as a handle to drag the entire minigame modal
-  makeElementDraggableWithHandle(minigameHeader, minigameModal);
+  // Make the outer container draggable (like crypto and weather modals)
+  makeElementDraggable(minigameModal);
 }
 
 function startDinoGame() {
@@ -525,12 +563,13 @@ function initMiniDinoGame() {
   }
   
   function showGameOver() {
-    gameOver = true;
-    const score = Math.floor(frameCount / 10);
-    const gameOverDiv = document.getElementById("minigameGameOver");
-    gameOverDiv.innerHTML = `<p>Game Over!</p><p>Score: ${score}</p><p>Press Space to restart</p>`;
-    gameOverDiv.classList.remove("hidden");
-  }
+  gameOver = true;
+  const score = Math.floor(frameCount / 10);
+  const gameOverDiv = document.getElementById("minigameGameOver");
+  gameOverDiv.innerHTML = `<p>Game Over!</p><p>Score: ${score}</p><p>Press Space to restart</p>`;
+  gameOverDiv.classList.remove("hidden");
+}
+
   
   function update() {
     if (gameOver) return;
@@ -726,6 +765,10 @@ function initRetroMusicPlayer() {
       progressBar.value = progress;
       currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
       totalTimeSpan.textContent = formatTime(audioPlayer.duration);
+      // Set the progressBar track background to transparent so the pulse is visible
+      progressBar.style.background = "transparent";
+      // Update the moving light pulse overlay width to match progress
+      document.querySelector(".progress-pulse").style.width = progress + "%";
     }
   });
 
@@ -1026,10 +1069,10 @@ function plotAnalyticsChart(labels, dataPoints) {
 }
 
 // --------------------- MAKE ELEMENT DRAGGABLE ---------------------
-// Updated to ignore interactive elements (buttons, inputs, selects, textareas, and .folder elements)
 function makeElementDraggable(element) {
   let isDragging = false, offsetX, offsetY;
   element.addEventListener("pointerdown", e => {
+    // Exclude interactive elements
     if (e.target.closest("button, input, select, textarea, .folder")) return;
     isDragging = true;
     e.preventDefault();
@@ -1099,7 +1142,7 @@ function makeElementDraggableWithHandle(handle, target) {
     }
     target.style.bottom = "auto";
     target.style.right = "auto";
-    const rect = target.getBoundingClientRect();
+    let rect = target.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
     target.style.left = `${rect.left}px`;
@@ -1130,7 +1173,6 @@ function makeElementDraggableWithHandle(handle, target) {
 }
 
 // --------------------- PROJECT MODAL ---------------------
-// (Project Modal code remains unchanged)
 function initProjectModal() {
   const projectCards = document.querySelectorAll(".project-card");
   const projectModal = document.getElementById("projectModal");
@@ -1481,16 +1523,22 @@ function initWidgetsModal() {
   const widgetsModal = document.getElementById("widgetsModal");
   const widgetsModalClose = document.getElementById("widgetsModalClose");
 
+  // Toggle the widgets modal on button press.
   widgetsPrompt.addEventListener("click", () => {
     if (pendingBringToFrontTimeout) {
       clearTimeout(pendingBringToFrontTimeout);
       pendingBringToFrontTimeout = null;
     }
-    widgetsModal.dataset.openedAt = performance.now();
-    widgetsModal.classList.remove("hidden");
-    currentActiveModal = widgetsModal;
-    bringModalToFront(widgetsModal);
-    widgetsPrompt.classList.add("active");
+    if (widgetsModal.classList.contains("hidden")) {
+      widgetsModal.dataset.openedAt = performance.now();
+      widgetsModal.classList.remove("hidden");
+      currentActiveModal = widgetsModal;
+      bringModalToFront(widgetsModal);
+      widgetsPrompt.classList.add("active");
+    } else {
+      widgetsModal.classList.add("hidden");
+      widgetsPrompt.classList.remove("active");
+    }
   });
 
   widgetsModalClose.addEventListener("click", () => {
@@ -1504,6 +1552,7 @@ function initWidgetsModal() {
 
   makeElementDraggable(widgetsModal);
 
+  // Existing folder event listeners:
   const folderWeather = document.getElementById("folderWeather");
   const folderCrypto = document.getElementById("folderCrypto");
   const folderMinigame = document.getElementById("folderMinigame");
@@ -1540,7 +1589,27 @@ function initWidgetsModal() {
       dinoGameStarted = false;
     }
   });
+
+  // In your initWidgetsModal() function:
+  const folderTetris = document.getElementById("folderTetris");
+  folderTetris.addEventListener("click", () => {
+    widgetsModal.classList.add("hidden");
+    widgetsPrompt.classList.remove("active");
+    const gameModal = document.getElementById("gameModal");
+    if (gameModal.classList.contains("hidden")) {
+      gameModal.dataset.openedAt = performance.now();
+      gameModal.classList.remove("hidden");
+      currentActiveModal = gameModal;
+      bringModalToFront(gameModal);
+      // Start the Tetris game.
+      startTetrisGame();
+    } else {
+      gameModal.classList.add("hidden");
+    }
+  });
+
 }
+
 
 // --------------------- WEATHER MODAL ---------------------
 function initWeatherModal() {
@@ -1610,7 +1679,385 @@ function openWeatherModal() {
     });
 }
 
-// --------------------- MAKE ELEMENT DRAGGABLE (Duplicate for clarity) ---------------------
-// (These functions have already been defined above; if needed, you can reuse them.)
+// --------------------- TETRIS GAME CODE ---------------------
+function startTetrisGame() {
+  const canvas = document.getElementById("tetrisCanvas");
+  const ctx = canvas.getContext("2d");
+  const overlay = document.getElementById("gameOverOverlay");
+
+  const COLS = 10, ROWS = 20, BLOCK_SIZE = 30;
+  const COLORS = [
+    '#000000', // 0: empty
+    '#00ffff', // 1: I piece (cyan)
+    '#0000ff', // 2: J piece (blue)
+    '#ffa500', // 3: L piece (orange)
+    '#ffff00', // 4: O piece (yellow)
+    '#00ff00', // 5: S piece (green)
+    '#800080', // 6: T piece (purple)
+    '#ff0000'  // 7: Z piece (red)
+  ];
+
+  // Tetromino definitions (with rotation states)
+  const TETROMINOES = {
+    I: [
+      [
+        [0, 0, 0, 0],
+        [1, 1, 1, 1],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+      ],
+      [
+        [0, 0, 1, 0],
+        [0, 0, 1, 0],
+        [0, 0, 1, 0],
+        [0, 0, 1, 0]
+      ]
+    ],
+    J: [
+      [
+        [2, 0, 0],
+        [2, 2, 2],
+        [0, 0, 0]
+      ],
+      [
+        [0, 2, 2],
+        [0, 2, 0],
+        [0, 2, 0]
+      ],
+      [
+        [0, 0, 0],
+        [2, 2, 2],
+        [0, 0, 2]
+      ],
+      [
+        [0, 2, 0],
+        [0, 2, 0],
+        [2, 2, 0]
+      ]
+    ],
+    L: [
+      [
+        [0, 0, 3],
+        [3, 3, 3],
+        [0, 0, 0]
+      ],
+      [
+        [0, 3, 0],
+        [0, 3, 0],
+        [0, 3, 3]
+      ],
+      [
+        [0, 0, 0],
+        [3, 3, 3],
+        [3, 0, 0]
+      ],
+      [
+        [3, 3, 0],
+        [0, 3, 0],
+        [0, 3, 0]
+      ]
+    ],
+    O: [
+      [
+        [4, 4],
+        [4, 4]
+      ]
+    ],
+    S: [
+      [
+        [0, 5, 5],
+        [5, 5, 0],
+        [0, 0, 0]
+      ],
+      [
+        [0, 5, 0],
+        [0, 5, 5],
+        [0, 0, 5]
+      ]
+    ],
+    T: [
+      [
+        [0, 6, 0],
+        [6, 6, 6],
+        [0, 0, 0]
+      ],
+      [
+        [0, 6, 0],
+        [0, 6, 6],
+        [0, 6, 0]
+      ],
+      [
+        [0, 0, 0],
+        [6, 6, 6],
+        [0, 6, 0]
+      ],
+      [
+        [0, 6, 0],
+        [6, 6, 0],
+        [0, 6, 0]
+      ]
+    ],
+    Z: [
+      [
+        [7, 7, 0],
+        [0, 7, 7],
+        [0, 0, 0]
+      ],
+      [
+        [0, 0, 7],
+        [0, 7, 7],
+        [0, 7, 0]
+      ]
+    ]
+  };
+
+  const tetrominoNames = Object.keys(TETROMINOES);
+
+  // Initialize board (ROWS x COLS) with zeros.
+  let board = [];
+  function initBoard() {
+    board = [];
+    for (let r = 0; r < ROWS; r++) {
+      board[r] = [];
+      for (let c = 0; c < COLS; c++) {
+        board[r][c] = 0;
+      }
+    }
+  }
+  initBoard();
+
+  // Game state variables
+  let currentType = '';
+  let currentMatrix = null;
+  let currentRotation = 0;
+  let currentX = 0;
+  let currentY = 0;
+  let dropInterval = 1000;
+  let dropCounter = 0;
+  let lastTime = 0;
+  let gameOver = false;
+  
+  // Score variables
+  let score = 0;
+  let highScore = 0;
+  function updateScoreBoard() {
+    document.getElementById("score").innerText = score;
+    document.getElementById("highScore").innerText = highScore;
+  }
+
+  function newPiece() {
+    currentType = tetrominoNames[Math.floor(Math.random() * tetrominoNames.length)];
+    const rotations = TETROMINOES[currentType];
+    currentRotation = 0;
+    currentMatrix = rotations[currentRotation];
+    currentX = Math.floor((COLS - currentMatrix[0].length) / 2);
+    currentY = 0;
+    if (collide(board, currentMatrix, currentX, currentY)) {
+      gameOver = true;
+      overlay.classList.remove("hidden");
+    }
+  }
+
+  function collide(board, matrix, x, y) {
+    for (let r = 0; r < matrix.length; r++) {
+      for (let c = 0; c < matrix[r].length; c++) {
+        if (matrix[r][c] !== 0) {
+          let newX = x + c;
+          let newY = y + r;
+          if (newX < 0 || newX >= COLS || newY >= ROWS) return true;
+          if (newY >= 0 && board[newY][newX] !== 0) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function merge(board, matrix, x, y) {
+    for (let r = 0; r < matrix.length; r++) {
+      for (let c = 0; c < matrix[r].length; c++) {
+        if (matrix[r][c] !== 0) {
+          if (y + r >= 0) {
+            board[y + r][x + c] = matrix[r][c];
+          }
+        }
+      }
+    }
+  }
+
+  function sweep() {
+    let linesCleared = 0;
+    for (let r = ROWS - 1; r >= 0; r--) {
+      if (board[r].every(cell => cell !== 0)) {
+        board.splice(r, 1);
+        board.unshift(new Array(COLS).fill(0));
+        linesCleared++;
+        r++; // re-check the same row index
+      }
+    }
+    if (linesCleared > 0) {
+      score += linesCleared * 10;
+      if (score > highScore) highScore = score;
+      updateScoreBoard();
+    }
+  }
+
+  function draw() {
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (board[r][c] !== 0) {
+          ctx.fillStyle = COLORS[board[r][c]];
+          ctx.fillRect(c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+        } else {
+          ctx.strokeStyle = "#222";
+          ctx.strokeRect(c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        }
+      }
+    }
+    if (currentMatrix) {
+      for (let r = 0; r < currentMatrix.length; r++) {
+        for (let c = 0; c < currentMatrix[r].length; c++) {
+          if (currentMatrix[r][c] !== 0) {
+            ctx.fillStyle = COLORS[currentMatrix[r][c]];
+            ctx.fillRect((currentX + c) * BLOCK_SIZE, (currentY + r) * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+          }
+        }
+      }
+    }
+  }
+
+  function update(deltaTime) {
+    if (gameOver) return;
+    dropCounter += deltaTime;
+    if (dropCounter > dropInterval) {
+      dropPiece();
+      dropCounter = 0;
+    }
+  }
+
+  function dropPiece() {
+    currentY++;
+    if (collide(board, currentMatrix, currentX, currentY)) {
+      currentY--;
+      merge(board, currentMatrix, currentX, currentY);
+      sweep();
+      newPiece();
+    }
+  }
+
+  function loop(timestamp) {
+    const deltaTime = timestamp - lastTime;
+    lastTime = timestamp;
+    update(deltaTime);
+    draw();
+    if (!gameOver) {
+      requestAnimationFrame(loop);
+    }
+  }
+
+  function handleKeyDown(e) {
+    // Prevent default behavior for arrow keys so the page does not scroll.
+    if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp"].includes(e.code)) {
+      e.preventDefault();
+    }
+  
+    if (gameOver) {
+      if (e.code === "Space") {
+        restartGame();
+      }
+      return;
+    }
+    switch (e.code) {
+      case "ArrowLeft":
+        currentX--;
+        if (collide(board, currentMatrix, currentX, currentY)) {
+          currentX++;
+        }
+        break;
+      case "ArrowRight":
+        currentX++;
+        if (collide(board, currentMatrix, currentX, currentY)) {
+          currentX--;
+        }
+        break;
+      case "ArrowDown":
+        dropPiece();
+        dropCounter = 0;
+        break;
+      case "ArrowUp":
+        // Rotate the piece.
+        const rotations = TETROMINOES[currentType];
+        const oldRotation = currentRotation;
+        const oldMatrix = currentMatrix;
+        currentRotation = (currentRotation + 1) % rotations.length;
+        currentMatrix = rotations[currentRotation];
+        if (collide(board, currentMatrix, currentX, currentY)) {
+          if (!collide(board, currentMatrix, currentX - 1, currentY)) {
+            currentX--;
+          } else if (!collide(board, currentMatrix, currentX + 1, currentY)) {
+            currentX++;
+          } else {
+            currentMatrix = oldMatrix;
+            currentRotation = oldRotation;
+          }
+        }
+        break;
+    }
+  }
+  
+
+  function restartGame() {
+    initBoard();
+    gameOver = false;
+    dropCounter = 0;
+    lastTime = 0;
+    score = 0;
+    updateScoreBoard();
+    overlay.classList.add("hidden");
+    newPiece();
+    window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    requestAnimationFrame(loop);
+  }
+
+  newPiece();
+  window.addEventListener("keydown", handleKeyDown);
+  requestAnimationFrame(loop);
+}
+
+// Helper to shade a hex color (negative percent darkens, positive lightens)
+function shadeColor(color, percent) {
+  let num = parseInt(color.replace("#", ""), 16),
+      amt = Math.round(2.55 * percent),
+      R = (num >> 16) + amt,
+      G = (num >> 8 & 0x00FF) + amt,
+      B = (num & 0x0000FF) + amt;
+  return "#" + (
+    0x1000000 +
+    (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+    (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+    (B < 255 ? (B < 1 ? 0 : B) : 255)
+  ).toString(16).slice(1);
+}
+
+// Update the Tetris modal’s theme based on the given scheme (or default to currentTheme.sub[0])
+function updateTetrisTheme(scheme) {
+  let tetrisBg, tetrisAccent;
+  if (scheme) {
+    tetrisBg = scheme.bg;
+    tetrisAccent = scheme.text;
+  } else {
+    tetrisBg = currentTheme.sub[0].bg;
+    tetrisAccent = currentTheme.sub[0].text;
+  }
+  document.documentElement.style.setProperty("--tetris-bg", tetrisBg);
+  document.documentElement.style.setProperty("--tetris-accent", tetrisAccent);
+  // Make the header a little darker than the background
+  document.documentElement.style.setProperty("--tetris-header-bg", shadeColor(tetrisBg, -20));
+}
+
+
+
 
 // --------------------- END OF SCRIPT ---------------------
