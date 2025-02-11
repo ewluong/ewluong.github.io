@@ -1279,8 +1279,8 @@ body::before {
   }
 
   #terminalHeader {
-    font-size: 1.5rem; /* Adjust this value as needed */
-    white-space: nowrap; /* Keeps the text on one line */
+    font-size: 1.5rem !important; /* Adjust this value as needed */
+    white-space: nowrap !important; /* Keeps the text on one line */
   }
   
 }
