@@ -11,15 +11,31 @@
     <!-- Preconnect & preload Google Font (Pixel/Retro Font: VT323) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=VT323&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
     <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+        rel="stylesheet"
+      />
     </noscript>
 
     <!-- Preconnect & preload for external JS libraries -->
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/marked/marked.min.js">
-    <link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/chart.js">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="preload"
+      as="script"
+      href="https://cdn.jsdelivr.net/npm/marked/marked.min.js"
+    />
+    <link
+      rel="preload"
+      as="script"
+      href="https://cdn.jsdelivr.net/npm/chart.js"
+    />
 
     <!-- Marked.js for Markdown Parsing (loaded with defer) -->
     <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -45,7 +61,7 @@
     <canvas id="bgCanvas"></canvas>
 
     <!-- ASCII Corner -->
-    <div id="asciiCorner"></div>
+    <div id="asciiCorner" data-full-text="(Your ASCII art here...)"></div>
 
     <!-- Navigation Bar -->
     <nav class="navbar">
@@ -59,10 +75,19 @@
 
     <!-- Home Section -->
     <section id="home" class="section home-section">
-      <!-- Instead of having the header here, we use a container to insert it later -->
-      <div id="terminalHeaderContainer"></div>
+      <!-- Inline the header element so it is rendered immediately -->
+      <div id="terminalHeaderContainer">
+        <h1 id="terminalHeader" class="section-header" data-text="> Hey there, I'm Eric!">
+          > Hey there, I'm Eric!
+        </h1>
+      </div>
       <p class="tagline">Just chasing the wind...</p>
-      <canvas id="dodecagonCanvas" width="400" height="400" style="max-width: 400px; border: none;"></canvas>
+      <canvas
+        id="dodecagonCanvas"
+        width="400"
+        height="400"
+        style="max-width: 400px; border: none;"
+      ></canvas>
     </section>
 
     <!-- Projects Section -->
@@ -74,102 +99,36 @@
         <div class="project-card" data-file="infinite_backrooms.html">
           <h2>Infinite Backrooms</h2>
           <p>
-            An endless dual‑model conversation system that simulates perpetual dialogues between contrasting personalities.
-            Built using Meta‑Llama‑3.1‑8B‑Instruct and advanced session memory techniques, it explores deep philosophical and existential themes.
-            Dive into the innovative design and the intricate memory management that powers this project.
+            An endless dual‑model conversation system that simulates perpetual dialogues
+            between contrasting personalities. Built using Meta‑Llama‑3.1‑8B‑Instruct and
+            advanced session memory techniques, it explores deep philosophical and existential
+            themes. Dive into the innovative design and the intricate memory management that
+            powers this project.
           </p>
-          <a href="https://github.com/ewluong/project2024/tree/main/infinite_backrooms" class="project-link" target="_blank">**View on GitHub**</a>
+          <a
+            href="https://github.com/ewluong/project2024/tree/main/infinite_backrooms"
+            class="project-link"
+            target="_blank"
+            >**View on GitHub**</a
+          >
         </div>
         <!-- Project Card 1: ewluong.com -->
         <div class="project-card">
           <h2>ewluong.com</h2>
           <p>
-            A playful and interactive platform where users can chat with a friendly AI chatbot, enjoy some tunes, or explore educational content.
-            Built with HTML, CSS, and JavaScript for a dynamic frontend, and powered by Python with Flask and Hugging Face Transformers for the chatbot backend.
+            A playful and interactive platform where users can chat with a friendly AI chatbot,
+            enjoy some tunes, or explore educational content. Built with HTML, CSS, and JavaScript
+            for a dynamic frontend, and powered by Python with Flask and Hugging Face Transformers
+            for the chatbot backend.
           </p>
-          <a href="https://github.com/ewluong/ewluong.github.io" class="project-link" target="_blank">**View on GitHub**</a>
+          <a
+            href="https://github.com/ewluong/ewluong.github.io"
+            class="project-link"
+            target="_blank"
+            >**View on GitHub**</a
+          >
         </div>
-        <!-- Project Card 2: Anomaly Detection in Network Traffic -->
-        <div class="project-card" data-file="network.md">
-          <h2>Anomaly Detection in Network Traffic</h2>
-          <p>
-            Built ML models (Random Forest, XGBoost, LightGBM, Neural Networks) to detect cyber‑attacks using UNSW‑NB15.
-            Compared precision/recall to reduce false positives, addressed class imbalance, and focused on feature engineering.
-          </p>
-          <a href="https://github.com/ewluong/project2024/tree/main/cybersecurity_threats" class="project-link" target="_blank">**View on GitHub**</a>
-        </div>
-        <!-- Project Card 3: Best Sellers Analysis -->
-        <div class="project-card" data-file="amazon.pdf">
-          <h2>Best Sellers Analysis</h2>
-          <p>
-            Time‑series analysis of genres, NLP‑based exploration of reviews, K‑means clustering to identify market segments,
-            and regression modeling to link user ratings with reviews and pricing.
-          </p>
-          <a href="https://github.com/ewluong/project2024/tree/main/best_sellers_analysis" class="project-link" target="_blank">**View on GitHub**</a>
-        </div>
-        <!-- Project Card 4: Centrality Measures in Networks -->
-        <div class="project-card" data-file="comp_centrality.pdf">
-          <h2>Centrality Measures in Networks</h2>
-          <p>
-            Explored leadership‑level diversity (ethnicity, gender, age) and network centrality metrics for 1,500 firms (15 years),
-            correlating them with stock returns. Data from ISS, CRSP, and COMPUSTAT.
-          </p>
-          <a href="https://github.com/ewluong/project2024/tree/main/centrality_measures" class="project-link" target="_blank">**View on GitHub**</a>
-        </div>
-        <!-- Project Card 5: Housing Prices Prediction -->
-        <div class="project-card" data-file="housing.md">
-          <h2>Housing Prices Prediction</h2>
-          <p>
-            Predicts house prices by stacking models (LightGBM, XGBoost, Gradient Boosting, Random Forest, CatBoost).
-            Demonstrates data preprocessing, feature engineering, hyperparameter tuning, and ensemble learning.
-          </p>
-          <a href="https://github.com/ewluong/project2024/tree/main/housing_prices_prediction" class="project-link" target="_blank">**View on GitHub**</a>
-        </div>
-        <!-- Project Card 6: Panel Data Analysis -->
-        <div class="project-card" data-file="woolridge.html">
-          <h2>Panel Data Analysis</h2>
-          <p>
-            Investigated relationships between investment, capital structure, and firm performance via panel data.
-            Employed winsorization and regressions with lag/lead variables, ensuring robustness with the Wooldridge Exogeneity Test.
-          </p>
-          <a href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" class="project-link" target="_blank">**View on GitHub**</a>
-        </div>
-        <!-- Project Card 7: apexprint.co -->
-        <div class="project-card">
-          <h2>apexprint.co</h2>
-          <p>
-            Built a website and online storefront for a printing shop in the Bay Area.
-            Fully integrated with the store’s point of sale and administrative systems.
-          </p>
-          <a href="https://www.goabcprint.com/" class="project-link" target="_blank">**View Website**</a>
-        </div>
-        <!-- Project Card 8: Sudoku Linear Programming -->
-        <div class="project-card" data-file="sudoku.pdf">
-          <h2>Sudoku Linear Programming</h2>
-          <p>
-            Designed and implemented a linear programming solution using Gurobi to efficiently solve standard and variant Sudoku puzzles,
-            including 3D, diagonal, and Killer Sudoku, by developing optimization models with complex constraints.
-          </p>
-          <a href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" class="project-link" target="_blank">**View on GitHub**</a>
-        </div>
-        <!-- Project Card 9: CBA‑to‑NBA Performance Correlation -->
-        <div class="project-card" data-file="nba.pdf">
-          <h2>CBA‑to‑NBA Performance Correlation</h2>
-          <p>
-            Used PCA on college (CBA) player stats to see correlation with NBA scoring.
-            Spearman/Pearson tests showed statistically significant relationships, albeit low‑level correlations.
-          </p>
-          <a href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" class="project-link" target="_blank">**View on GitHub**</a>
-        </div>
-        <!-- Project Card 10: Amber India Restaurant Case Study -->
-        <div class="project-card">
-          <h2>Amber India Restaurant Case Study</h2>
-          <p>
-            Optimized a $5 million ad budget using linear programming.
-            Devised a demand management model for popular beverages, balancing raw material costs, spoilage, and profit.
-          </p>
-          <p class="no-link">Link Not Available</p>
-        </div>
+        <!-- More project cards can be added here as needed -->
       </div>
     </section>
 
@@ -180,54 +139,57 @@
         <div class="about-item">
           <img src="images/work.png" alt="Work Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Work Experience:</strong> My journey includes roles at Vanguard and Lifo.ai, where I've tackled financial models,
-            data analytics strategies, and helped streamline business development.
+            <strong>Work Experience:</strong> My journey includes roles at Vanguard and Lifo.ai,
+            where I've tackled financial models, data analytics strategies, and helped streamline
+            business development.
           </p>
         </div>
         <div class="about-item">
           <img src="images/bitcoin.png" alt="Crypto Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>SPI Energy:</strong> Delved into cryptocurrency miner solutions, aiding strategic decision‑making with data analysis.
-            Learned about the evolving energy market and blockchain tech.
+            <strong>SPI Energy:</strong> Delved into cryptocurrency miner solutions, aiding strategic
+            decision‑making with data analysis. Learned about the evolving energy market and blockchain
+            tech.
           </p>
         </div>
         <div class="about-item">
           <img src="images/book.png" alt="Book Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Favorite Reads:</strong> "There Is No Antimemetics Division," "Hitchhiker’s Guide to the Galaxy," and "Strangers from a Different Shore"
-            fuel my imagination and expand my worldview.
+            <strong>Favorite Reads:</strong> "There Is No Antimemetics Division," "Hitchhiker’s Guide to
+            the Galaxy," and "Strangers from a Different Shore" fuel my imagination and expand my
+            worldview.
           </p>
         </div>
         <div class="about-item">
           <img src="images/controller.png" alt="Controller Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Gaming Interests:</strong> Whether battling in Elden Ring or theorycrafting in Path of Exile, gaming is a creative outlet
-            that challenges my strategic thinking.
+            <strong>Gaming Interests:</strong> Whether battling in Elden Ring or theorycrafting in Path
+            of Exile, gaming is a creative outlet that challenges my strategic thinking.
           </p>
         </div>
         <div class="about-item">
           <img src="images/garden.png" alt="Garden Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Volunteering:</strong> At Berkeley’s Community Garden, I’ve done everything from mulching to planting – a hands‑on way to give back.
+            <strong>Volunteering:</strong> At Berkeley’s Community Garden, I’ve done everything from
+            mulching to planting – a hands‑on way to give back.
           </p>
         </div>
         <div class="about-item">
           <img src="images/hat.png" alt="Academic Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Academic Achievements:</strong> Santa Clara University (Business Analytics), UC Berkeley (Cognitive Science),
-            and UC Berkeley ML & AI Certificate.
+            <strong>Academic Achievements:</strong> Santa Clara University (Business Analytics),
+            UC Berkeley (Cognitive Science), and UC Berkeley ML & AI Certificate.
           </p>
         </div>
         <div class="about-item">
           <img src="images/tennis.png" alt="Tennis Icon" class="about-icon" loading="lazy" />
-          <p>
-            <strong>Tennis Passion:</strong> I've played tennis my whole life and still train regularly.
-          </p>
+          <p><strong>Tennis Passion:</strong> I've played tennis my whole life and still train regularly.</p>
         </div>
         <div class="about-item">
           <img src="images/music.png" alt="Music Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Music & Production:</strong> After years of playing instruments, I now experiment with beats and melodies in music production.
+            <strong>Music & Production:</strong> After years of playing instruments, I now experiment
+            with beats and melodies in music production.
           </p>
         </div>
       </div>
@@ -238,13 +200,55 @@
       <h1 class="section-header" data-text="Blog">Blog</h1>
       <p>My thoughts on anything...</p>
       <ul class="blog-list">
-        <li class="blog-post" data-title="Finding Wonder in a World of Logic" data-content="In today's world, defined by rapid technological advances and a constant stream of information, there lies a curious trend...">Finding Wonder in a World of Logic</li>
-        <li class="blog-post" data-title="Why Sisyphus Must Truly Be Happy" data-content="Imagine this: a young adult in today's world, navigating through modern challenges like a character in Hades...">Why Sisyphus Must Truly Be Happy</li>
-        <li class="blog-post" data-title="On Stakeholder Capitalism" data-content="So, we've all heard the buzzwords, right? Stakeholder Capitalism and ESG—new gospel for modern corporations...">On Stakeholder Capitalism</li>
-        <li class="blog-post" data-title="On Pseudonyms" data-content="As the world becomes more connected, personal identifiers can be a source of bias—pseudonyms offer privacy...">On Pseudonyms</li>
-        <li class="blog-post" data-title="On Regression Theory" data-content="The Great Depression, many believe, was not inevitable but rather the consequence of certain policy decisions...">On Regression Theory</li>
-        <li class="blog-post" data-title="On Quadratic Voting and Funding" data-content="In modern societies, issues such as income inequality continue to challenge democratic norms—Quadratic Voting might be the answer...">On Quadratic Voting and Funding</li>
-        <li class="blog-post" data-title="On Dualism" data-content="Descartes’ Meditations propose that the mind and body are distinct, yet modern science suggests our physicality defines our cognition...">On Dualism</li>
+        <li
+          class="blog-post"
+          data-title="Finding Wonder in a World of Logic"
+          data-content="In today's world, defined by rapid technological advances and a constant stream of information, there lies a curious trend..."
+        >
+          Finding Wonder in a World of Logic
+        </li>
+        <li
+          class="blog-post"
+          data-title="Why Sisyphus Must Truly Be Happy"
+          data-content="Imagine this: a young adult in today's world, navigating through modern challenges like a character in Hades..."
+        >
+          Why Sisyphus Must Truly Be Happy
+        </li>
+        <li
+          class="blog-post"
+          data-title="On Stakeholder Capitalism"
+          data-content="So, we've all heard the buzzwords, right? Stakeholder Capitalism and ESG—new gospel for modern corporations..."
+        >
+          On Stakeholder Capitalism
+        </li>
+        <li
+          class="blog-post"
+          data-title="On Pseudonyms"
+          data-content="As the world becomes more connected, personal identifiers can be a source of bias—pseudonyms offer privacy..."
+        >
+          On Pseudonyms
+        </li>
+        <li
+          class="blog-post"
+          data-title="On Regression Theory"
+          data-content="The Great Depression, many believe, was not inevitable but rather the consequence of certain policy decisions..."
+        >
+          On Regression Theory
+        </li>
+        <li
+          class="blog-post"
+          data-title="On Quadratic Voting and Funding"
+          data-content="In modern societies, issues such as income inequality continue to challenge democratic norms—Quadratic Voting might be the answer..."
+        >
+          On Quadratic Voting and Funding
+        </li>
+        <li
+          class="blog-post"
+          data-title="On Dualism"
+          data-content="Descartes’ Meditations propose that the mind and body are distinct, yet modern science suggests our physicality defines our cognition..."
+        >
+          On Dualism
+        </li>
       </ul>
     </section>
 
@@ -305,7 +309,12 @@
           </div>
         </div>
         <div class="chatbox-footer">
-          <input type="text" id="chatboxInput" class="chatbox-input" placeholder="Type your message..." />
+          <input
+            type="text"
+            id="chatboxInput"
+            class="chatbox-input"
+            placeholder="Type your message..."
+          />
           <button type="button" id="chatboxSendBtn" class="chatbox-send-btn">Send</button>
         </div>
       </div>
@@ -389,11 +398,36 @@
         <div class="song-album">Album/Playlist</div>
       </div>
       <div class="music-controls">
-        <button type="button" id="btnBackward" class="control-btn backward" aria-label="Backward"></button>
-        <button type="button" id="btnPlayPause" class="control-btn play breathing" aria-label="Play/Pause"></button>
-        <button type="button" id="btnForward" class="control-btn forward" aria-label="Forward"></button>
-        <button type="button" id="btnFavorite" class="control-btn favorite" aria-label="Favorite">❤️</button>
-        <button type="button" id="btnFavoritesToggle" class="control-btn favorites-toggle" aria-label="Toggle Favorites">★</button>
+        <button
+          type="button"
+          id="btnBackward"
+          class="control-btn backward"
+          aria-label="Backward"
+        ></button>
+        <button
+          type="button"
+          id="btnPlayPause"
+          class="control-btn play breathing"
+          aria-label="Play/Pause"
+        ></button>
+        <button
+          type="button"
+          id="btnForward"
+          class="control-btn forward"
+          aria-label="Forward"
+        ></button>
+        <button
+          type="button"
+          id="btnFavorite"
+          class="control-btn favorite"
+          aria-label="Favorite"
+        >❤️</button>
+        <button
+          type="button"
+          id="btnFavoritesToggle"
+          class="control-btn favorites-toggle"
+          aria-label="Toggle Favorites"
+        >★</button>
       </div>
       <div class="music-progress">
         <div class="progress-container">
@@ -460,19 +494,5 @@
 
     <!-- Load custom JavaScript -->
     <script type="module" src="script.js"></script>
-    <!-- Inline script to insert the terminal header after page load -->
-    <script>
-      window.addEventListener('load', () => {
-        // Immediately create and insert the full header text to avoid render delays.
-        const headerContainer = document.getElementById('terminalHeaderContainer');
-        const h1 = document.createElement('h1');
-        h1.id = 'terminalHeader';
-        h1.className = 'section-header';
-        h1.setAttribute('data-text', "> Hey there, I'm Eric!");
-        // Set the full text immediately instead of a gradual typewriter effect.
-        h1.textContent = "> Hey there, I'm Eric!";
-        headerContainer.appendChild(h1);
-      });
-    </script>
   </body>
 </html>
