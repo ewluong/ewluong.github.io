@@ -1259,25 +1259,7 @@ body::before {
     font-size: 0.6rem !important;
     margin-top: 0.2rem;
   }
-  #chatboxModal {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 90% !important;
-    max-width: 300px !important;  /* adjust as needed */
-    padding: 1rem !important;
-    box-sizing: border-box;
-    /* Optionally, if you want to reduce the height too: */
-    max-height: 80vh;
-    overflow-y: auto;
-  }
   
-  /* Optionally adjust internal font sizes for better readability */
-  #chatboxModal .chatbox-interface {
-    font-size: 0.8rem !important;
-  }
-
   #terminalHeader {
     /* Adjust these values as needed */
     font-size: clamp(1rem, 6vw, 1.5rem) !important;
@@ -1321,7 +1303,7 @@ body::before {
   }
   
   
-  
+
 }
 
 
