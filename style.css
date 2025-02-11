@@ -1082,19 +1082,19 @@ body::before {
 /* --- Game Over Overlay --- */
 .game-over {
   position: absolute;
-  top: 0;
+  top: 0px;
   left: 0;
-  width: 300px;
-  height: 600px;
+  width: 350px;
+  height: 250px;
   background-color: rgba(0, 0, 0, 0.85);
   color: var(--tetris-accent, #0f0);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 24px;
+  font-size: 18px;
   z-index: 10;
-  text-align: center;
+  text-align: center; 
 }
 
 .game-over p {
