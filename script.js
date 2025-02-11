@@ -846,6 +846,28 @@ class MusicPlayer {
     });
     loadSong(currentSongIndex);
     populateFavorites();
+
+    // ======= Music Button Toggle =======
+    // Using the toggle button with id "musicPrompt"
+    const musicButton = document.getElementById("musicPrompt");
+    if (musicButton) {
+      musicButton.addEventListener("click", () => {
+        if (ModalManager.instance.pendingBringToFrontTimeout) {
+          clearTimeout(ModalManager.instance.pendingBringToFrontTimeout);
+          ModalManager.instance.pendingBringToFrontTimeout = null;
+        }
+        if (retroMusicPlayer.classList.contains("hidden")) {
+          retroMusicPlayer.dataset.openedAt = performance.now();
+          retroMusicPlayer.classList.remove("hidden");
+          ModalManager.instance.currentActiveModal = retroMusicPlayer;
+          ModalManager.instance.bringModalToFront(retroMusicPlayer);
+          musicButton.classList.add("active");
+        } else {
+          retroMusicPlayer.classList.add("hidden");
+          musicButton.classList.remove("active");
+        }
+      });
+    }
   }
 }
 
