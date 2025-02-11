@@ -1170,24 +1170,13 @@ body::before {
   #retroMusicPlayer:not(.hidden) {
     display: block !important;
   }
-  
-  /* --- BACKROOMS MODAL HEADER: Scale Down Header Size and Text --- */
-  /* Override the VT323 font by switching to a more compact font (e.g. Arial) and forcing smaller sizes */
-  #backroomsModal .vcr-header {
-    font-family: Arial, sans-serif !important;
-    font-size: 12px !important;   /* Smaller header font size */
-    padding: 4px !important;
-    margin: 0 !important;
-    line-height: 1.2 !important;
+  .vcr-header {
+    font-size: 0.9rem;
+    padding: 2px;
   }
-  #backroomsModal .vcr-header .vcr-description {
-    font-family: Arial, sans-serif !important;
-    font-size: 10px !important;   /* Smaller description font size */
-    padding: 2px 0 !important;
-    margin: 0 !important;
-    line-height: 1 !important;
+  .vcr-header .vcr-description {
+    font-size: 0.6rem;
   }
-  
   /* --- BACKROOMS MODAL: Preserve Newlines for the Typewriter Effect --- */
   #backroomsModal .vcr-screen {
     flex: 1;
@@ -1196,11 +1185,14 @@ body::before {
     padding: 20px;
     overflow-y: auto;
     position: relative;
-    font-size: 1.2rem;
+    font-size: 1.0rem !important; 
     line-height: 1.4;
+    /* IMPORTANT: preserve newlines for Model A/B */
     white-space: pre-wrap;
     height: 600px;
   }
+  
+  /* Also ensure the inner text container preserves whitespace */
   #backroomsText {
     white-space: pre-wrap;
     min-height: 300px;
@@ -1209,13 +1201,14 @@ body::before {
   /* --- BACKROOMS MODAL SEARCH AREA: Adjusted for Smaller Mobile Elements --- */
   #backroomsModal .vcr-search {
     display: flex;
-    gap: 2px;
+    gap: 2px;       /* Slight gap adjustment */
     padding: 2px;
   }
+  
   #backroomsModal .vcr-search select {
     flex: 1;
-    min-width: 0;
-    font-size: 10px !important;
+    min-width: 0;         /* Allow shrinking */
+    font-size: 10px !important;  /* Force a smaller font size */
     padding: 2px;
     background: var(--bg-color);
     border: 1px solid var(--text-color);
@@ -1226,10 +1219,11 @@ body::before {
     background: var(--text-color);
     color: var(--bg-color);
   }
+  
   #backroomsModal .vcr-search input {
     flex: 1;
-    min-width: 0;
-    font-size: 10px !important;
+    min-width: 0;         /* Allow shrinking */
+    font-size: 10px !important;  /* Force a smaller font size */
     padding: 2px;
     background: var(--bg-color);
     border: 1px solid var(--text-color);
@@ -1240,10 +1234,11 @@ body::before {
     background: var(--text-color);
     color: var(--bg-color);
   }
+  
   #backroomsModal .vcr-search button {
     flex: 1;
-    min-width: 0;
-    font-size: 10px !important;
+    min-width: 0;         /* Allow shrinking */
+    font-size: 10px !important;  /* Force a smaller font size */
     padding: 2px;
     white-space: nowrap;
     background: var(--bg-color);
@@ -1255,6 +1250,17 @@ body::before {
     background: var(--text-color);
     color: var(--bg-color);
   }
+
+  #backroomsModal .vcr-header {
+    font-size: 0.7rem !important;
+    padding: 1px !important;
+  }
+  #backroomsModal .vcr-header .vcr-description {
+    font-size: 0.5rem !important;
+    margin-top: 0.2rem;
+  }
+
+  
 }
 
 
