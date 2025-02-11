@@ -72,7 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
   initCryptoModal();
   initWidgetsModal();
 
-  typeWriterOnElement(document.getElementById("terminalHeader"), 50);
+  window.addEventListener("load", () => {
+    typeWriterOnElement(document.getElementById("terminalHeader"), 50);
+  });
+  
   typeOtherHeaders();
 
   // --------------------- RANDOMIZE THEME BUTTON ---------------------
