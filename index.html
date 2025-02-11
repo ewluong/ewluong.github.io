@@ -398,40 +398,17 @@
         <div class="song-album">Album/Playlist</div>
       </div>
       <div class="music-controls">
-        <button
-          type="button"
-          id="btnBackward"
-          class="control-btn backward"
-          aria-label="Backward"
-        ></button>
-        <button
-          type="button"
-          id="btnPlayPause"
-          class="control-btn play breathing"
-          aria-label="Play/Pause"
-        ></button>
-        <button
-          type="button"
-          id="btnForward"
-          class="control-btn forward"
-          aria-label="Forward"
-        ></button>
-        <button
-          type="button"
-          id="btnFavorite"
-          class="control-btn favorite"
-          aria-label="Favorite"
-        >❤️</button>
-        <button
-          type="button"
-          id="btnFavoritesToggle"
-          class="control-btn favorites-toggle"
-          aria-label="Toggle Favorites"
-        >★</button>
+        <button type="button" id="btnBackward" class="control-btn backward" aria-label="Backward"></button>
+        <button type="button" id="btnPlayPause" class="control-btn play breathing" aria-label="Play/Pause"></button>
+        <button type="button" id="btnForward" class="control-btn forward" aria-label="Forward"></button>
+        <button type="button" id="btnFavorite" class="control-btn favorite" aria-label="Favorite">❤️</button>
+        <button type="button" id="btnFavoritesToggle" class="control-btn favorites-toggle" aria-label="Toggle Favorites">★</button>
       </div>
       <div class="music-progress">
         <div class="progress-container">
           <div class="progress-pulse"></div>
+          <!-- Added accessible label for the range input -->
+          <label for="progressBar" class="visually-hidden">Audio Progress</label>
           <input type="range" id="progressBar" value="0" min="0" max="100" />
         </div>
         <div class="time-display">
