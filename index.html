@@ -82,21 +82,12 @@
     <section id="home" class="section home-section">
       <!-- Inline the header element so it is rendered immediately -->
       <div id="terminalHeaderContainer">
-        <h1
-          id="terminalHeader"
-          class="section-header"
-          data-text="> Hey there, I'm Eric!"
-        >
+        <h1 id="terminalHeader" class="section-header" data-text="> Hey there, I'm Eric!">
           > Hey there, I'm Eric!
         </h1>
       </div>
       <p class="tagline">Just chasing the wind...</p>
-      <canvas
-        id="dodecagonCanvas"
-        width="400"
-        height="400"
-        style="max-width: 400px; border: none;"
-      ></canvas>
+      <canvas id="dodecagonCanvas" width="400" height="400" style="max-width: 400px; border: none;"></canvas>
     </section>
 
     <!-- Projects Section -->
@@ -108,36 +99,102 @@
         <div class="project-card" data-file="infinite_backrooms.html">
           <h2>Infinite Backrooms</h2>
           <p>
-            An endless dual‑model conversation system that simulates perpetual dialogues
-            between contrasting personalities. Built using Meta‑Llama‑3.1‑8B‑Instruct and
-            advanced session memory techniques, it explores deep philosophical and existential
-            themes. Dive into the innovative design and the intricate memory management that
-            powers this project.
+            An endless dual‑model conversation system that simulates perpetual dialogues between contrasting personalities.
+            Built using Meta‑Llama‑3.1‑8B‑Instruct and advanced session memory techniques, it explores deep philosophical and existential themes.
+            Dive into the innovative design and the intricate memory management that powers this project.
           </p>
-          <a
-            href="https://github.com/ewluong/project2024/tree/main/infinite_backrooms"
-            class="project-link"
-            target="_blank"
-            >**View on GitHub**</a
-          >
+          <a href="https://github.com/ewluong/project2024/tree/main/infinite_backrooms" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
         <!-- Project Card 1: ewluong.com -->
         <div class="project-card">
           <h2>ewluong.com</h2>
           <p>
-            A playful and interactive platform where users can chat with a friendly AI chatbot,
-            enjoy some tunes, or explore educational content. Built with HTML, CSS, and JavaScript
-            for a dynamic frontend, and powered by Python with Flask and Hugging Face Transformers
-            for the chatbot backend.
+            A playful and interactive platform where users can chat with a friendly AI chatbot, enjoy some tunes, or explore educational content.
+            Built with HTML, CSS, and JavaScript for a dynamic frontend, and powered by Python with Flask and Hugging Face Transformers for the chatbot backend.
           </p>
-          <a
-            href="https://github.com/ewluong/ewluong.github.io"
-            class="project-link"
-            target="_blank"
-            >**View on GitHub**</a
-          >
+          <a href="https://github.com/ewluong/ewluong.github.io" class="project-link" target="_blank">**View on GitHub**</a>
         </div>
-        <!-- More project cards can be added here as needed -->
+        <!-- Project Card 2: Anomaly Detection in Network Traffic -->
+        <div class="project-card" data-file="network.md">
+          <h2>Anomaly Detection in Network Traffic</h2>
+          <p>
+            Built ML models (Random Forest, XGBoost, LightGBM, Neural Networks) to detect cyber‑attacks using UNSW‑NB15.
+            Compared precision/recall to reduce false positives, addressed class imbalance, and focused on feature engineering.
+          </p>
+          <a href="https://github.com/ewluong/project2024/tree/main/cybersecurity_threats" class="project-link" target="_blank">**View on GitHub**</a>
+        </div>
+        <!-- Project Card 3: Best Sellers Analysis -->
+        <div class="project-card" data-file="amazon.pdf">
+          <h2>Best Sellers Analysis</h2>
+          <p>
+            Time‑series analysis of genres, NLP‑based exploration of reviews, K‑means clustering to identify market segments,
+            and regression modeling to link user ratings with reviews and pricing.
+          </p>
+          <a href="https://github.com/ewluong/project2024/tree/main/best_sellers_analysis" class="project-link" target="_blank">**View on GitHub**</a>
+        </div>
+        <!-- Project Card 4: Centrality Measures in Networks -->
+        <div class="project-card" data-file="comp_centrality.pdf">
+          <h2>Centrality Measures in Networks</h2>
+          <p>
+            Explored leadership‑level diversity (ethnicity, gender, age) and network centrality metrics for 1,500 firms (15 years),
+            correlating them with stock returns. Data from ISS, CRSP, and COMPUSTAT.
+          </p>
+          <a href="https://github.com/ewluong/project2024/tree/main/centrality_measures" class="project-link" target="_blank">**View on GitHub**</a>
+        </div>
+        <!-- Project Card 5: Housing Prices Prediction -->
+        <div class="project-card" data-file="housing.md">
+          <h2>Housing Prices Prediction</h2>
+          <p>
+            Predicts house prices by stacking models (LightGBM, XGBoost, Gradient Boosting, Random Forest, CatBoost).
+            Demonstrates data preprocessing, feature engineering, hyperparameter tuning, and ensemble learning.
+          </p>
+          <a href="https://github.com/ewluong/project2024/tree/main/housing_prices_prediction" class="project-link" target="_blank">**View on GitHub**</a>
+        </div>
+        <!-- Project Card 6: Panel Data Analysis -->
+        <div class="project-card" data-file="woolridge.html">
+          <h2>Panel Data Analysis</h2>
+          <p>
+            Investigated relationships between investment, capital structure, and firm performance via panel data.
+            Employed winsorization and regressions with lag/lead variables, ensuring robustness with the Wooldridge Exogeneity Test.
+          </p>
+          <a href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" class="project-link" target="_blank">**View on GitHub**</a>
+        </div>
+        <!-- Project Card 7: apexprint.co -->
+        <div class="project-card">
+          <h2>apexprint.co</h2>
+          <p>
+            Built a website and online storefront for a printing shop in the Bay Area.
+            Fully integrated with the store’s point of sale and administrative systems.
+          </p>
+          <a href="https://www.goabcprint.com/" class="project-link" target="_blank">**View Website**</a>
+        </div>
+        <!-- Project Card 8: Sudoku Linear Programming -->
+        <div class="project-card" data-file="sudoku.pdf">
+          <h2>Sudoku Linear Programming</h2>
+          <p>
+            Designed and implemented a linear programming solution using Gurobi to efficiently solve standard and variant Sudoku puzzles,
+            including 3D, diagonal, and Killer Sudoku, by developing optimization models with complex constraints.
+          </p>
+          <a href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" class="project-link" target="_blank">**View on GitHub**</a>
+        </div>
+        <!-- Project Card 9: CBA‑to‑NBA Performance Correlation -->
+        <div class="project-card" data-file="nba.pdf">
+          <h2>CBA‑to‑NBA Performance Correlation</h2>
+          <p>
+            Used PCA on college (CBA) player stats to see correlation with NBA scoring.
+            Spearman/Pearson tests showed statistically significant relationships, albeit low‑level correlations.
+          </p>
+          <a href="https://github.com/ewluong/project2024/tree/main/panel_data_analysis" class="project-link" target="_blank">**View on GitHub**</a>
+        </div>
+        <!-- Project Card 10: Amber India Restaurant Case Study -->
+        <div class="project-card">
+          <h2>Amber India Restaurant Case Study</h2>
+          <p>
+            Optimized a $5 million ad budget using linear programming.
+            Devised a demand management model for popular beverages, balancing raw material costs, spoilage, and profit.
+          </p>
+          <p class="no-link">Link Not Available</p>
+        </div>
       </div>
     </section>
 
@@ -146,102 +203,53 @@
       <h1 class="section-header" data-text="About Me">About Me</h1>
       <div class="about-grid">
         <div class="about-item">
-          <img
-            src="images/work.webp"
-            alt="Work Icon"
-            class="about-icon"
-            loading="lazy"
-          />
+          <img src="images/work.webp" alt="Work Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Work Experience:</strong> My journey includes roles at Vanguard and
-            Lifo.ai, where I've tackled financial models, data analytics strategies, and helped
-            streamline business development.
+            <strong>Work Experience:</strong> My journey includes roles at Vanguard and Lifo.ai,
+            where I've tackled financial models, data analytics strategies, and helped streamline business development.
           </p>
         </div>
         <div class="about-item">
-          <img
-            src="images/bitcoin.webp"
-            alt="Crypto Icon"
-            class="about-icon"
-            loading="lazy"
-          />
+          <img src="images/bitcoin.webp" alt="Crypto Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>SPI Energy:</strong> Delved into cryptocurrency miner solutions, aiding
-            strategic decision‑making with data analysis. Learned about the evolving energy market
-            and blockchain tech.
+            <strong>SPI Energy:</strong> Delved into cryptocurrency miner solutions, aiding strategic decision‑making with data analysis.
+            Learned about the evolving energy market and blockchain tech.
           </p>
         </div>
         <div class="about-item">
-          <img
-            src="images/book.webp"
-            alt="Book Icon"
-            class="about-icon"
-            loading="lazy"
-          />
+          <img src="images/book.webp" alt="Book Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Favorite Reads:</strong> "There Is No Antimemetics Division," "Hitchhiker’s
-            Guide to the Galaxy," and "Strangers from a Different Shore" fuel my imagination and
-            expand my worldview.
+            <strong>Favorite Reads:</strong> "There Is No Antimemetics Division," "Hitchhiker’s Guide to the Galaxy," and "Strangers from a Different Shore"
+            fuel my imagination and expand my worldview.
           </p>
         </div>
         <div class="about-item">
-          <img
-            src="images/controller.webp"
-            alt="Controller Icon"
-            class="about-icon"
-            loading="lazy"
-          />
+          <img src="images/controller.webp" alt="Controller Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Gaming Interests:</strong> Whether battling in Elden Ring or theorycrafting in
-            Path of Exile, gaming is a creative outlet that challenges my strategic thinking.
+            <strong>Gaming Interests:</strong> Whether battling in Elden Ring or theorycrafting in Path of Exile, gaming is a creative outlet that challenges my strategic thinking.
           </p>
         </div>
         <div class="about-item">
-          <img
-            src="images/garden.webp"
-            alt="Garden Icon"
-            class="about-icon"
-            loading="lazy"
-          />
+          <img src="images/garden.webp" alt="Garden Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Volunteering:</strong> At Berkeley’s Community Garden, I’ve done everything from
-            mulching to planting – a hands‑on way to give back.
+            <strong>Volunteering:</strong> At Berkeley’s Community Garden, I’ve done everything from mulching to planting – a hands‑on way to give back.
           </p>
         </div>
         <div class="about-item">
-          <img
-            src="images/hat.webp"
-            alt="Academic Icon"
-            class="about-icon"
-            loading="lazy"
-          />
+          <img src="images/hat.webp" alt="Academic Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Academic Achievements:</strong> Santa Clara University (Business Analytics),
-            UC Berkeley (Cognitive Science), and UC Berkeley ML & AI Certificate.
+            <strong>Academic Achievements:</strong> Santa Clara University (Business Analytics), UC Berkeley (Cognitive Science),
+            and UC Berkeley ML & AI Certificate.
           </p>
         </div>
         <div class="about-item">
-          <img
-            src="images/tennis.webp"
-            alt="Tennis Icon"
-            class="about-icon"
-            loading="lazy"
-          />
-          <p>
-            <strong>Tennis Passion:</strong> I've played tennis my whole life and still train
-            regularly.
-          </p>
+          <img src="images/tennis.webp" alt="Tennis Icon" class="about-icon" loading="lazy" />
+          <p><strong>Tennis Passion:</strong> I've played tennis my whole life and still train regularly.</p>
         </div>
         <div class="about-item">
-          <img
-            src="images/music.webp"
-            alt="Music Icon"
-            class="about-icon"
-            loading="lazy"
-          />
+          <img src="images/music.webp" alt="Music Icon" class="about-icon" loading="lazy" />
           <p>
-            <strong>Music & Production:</strong> After years of playing instruments, I now experiment
-            with beats and melodies in music production.
+            <strong>Music & Production:</strong> After years of playing instruments, I now experiment with beats and melodies in music production.
           </p>
         </div>
       </div>
@@ -252,53 +260,99 @@
       <h1 class="section-header" data-text="Blog">Blog</h1>
       <p>My thoughts on anything...</p>
       <ul class="blog-list">
-        <li
-          class="blog-post"
-          data-title="Finding Wonder in a World of Logic"
-          data-content="In today's world, defined by rapid technological advances and a constant stream of information, there lies a curious trend..."
-        >
+        <li class="blog-post" data-title="Finding Wonder in a World of Logic" data-content="In today's world, defined by rapid technological advances and a constant stream of information, there lies a curious trend. It's a time where logic and empirical evidence reign supreme, yet there’s an increasing fascination with the mystical and the magical. This isn’t a rejection of science or rational thought; rather, it's a quest for balance and wonder in an age where the line between the miraculous and the mundane is increasingly blurred.
+
+        Consider the advancements we’ve witnessed: conversations with AI, self-driving cars, and virtual realities are now part of our everyday lives. These once miraculous concepts have become commonplace. As a result, there's a growing allure towards the unexplained and the mystical. It's not about abandoning reason but about finding a sense of awe and mystery in a world where so much can be explained and predicted.
+        
+        This turn towards the mystical reflects a deeper human desire for balance. In a reality dominated by algorithms and data, the appeal of astrology, tarot, and other mystical practices lies in their unpredictability and personal touch. They offer a contrast to our digitized lives, providing a sense of mystery and control in a world that often feels pre-determined and scripted.
+        
+        Art and science fiction have always played a crucial role in exploring these themes. They create spaces where the boundaries between science and magic blur, where impossible things happen in plausible ways. These genres resonate because they mirror our longing for a universe filled with undiscovered wonders, where the limits of what’s possible are constantly expanding.
+        
+        This interest in the mystical is also a form of rebellion – a rebellion against a world that can feel too structured and predictable. Embracing the mystical provides a space for imagination and belief to thrive, outside the confines of logic and science. It’s not a retreat into superstition but an embrace of the unknown, a celebration of the human spirit’s quest for the extraordinary.
+        
+        In essence, this fascination with the mystical underscores our enduring desire for wonder. It’s an acknowledgment that in a world where so much is understood and categorized, there’s still room for the unexplained. It’s a reminder that life is full of mysteries and magic, and that in our pursuit of knowledge, we shouldn’t lose our capacity for awe and enchantment.
+        
+        So, as we embrace the wonders of science and technology, let's not forget the magic that exists around us. It’s in this balance between understanding and wonder that we find the true richness of the human experience – a journey that’s as much about exploring the world around us as it is about cherishing the magic within.">
           Finding Wonder in a World of Logic
         </li>
-        <li
-          class="blog-post"
-          data-title="Why Sisyphus Must Truly Be Happy"
-          data-content="Imagine this: a young adult in today's world, navigating through modern challenges like a character in Hades..."
-        >
+        <li class="blog-post" data-title="Why Sisyphus Must Truly Be Happy" data-content="Imagine this: a young adult in today's world, navigating through the complexities and challenges of modern life, much like a character in the video game 'Hades'. In this game, Sisyphus, known for his eternal punishment of pushing a boulder up a hill, is reimagined. He’s not just a figure of Greek mythology anymore but a character we regularly encounter in the Underworld of the game. His story in 'Hades' is a fascinating one, and it resonates deeply with the contemporary experience of young adults.
+
+        In the game, Sisyphus appears content, even in the face of his endless task. He's given personality, a sense of humor, and most importantly, a sense of acceptance. He even names his boulder 'Bouldy', a quirky yet profound act of embracing his fate. This portrayal is a stark contrast to the traditional tale, where Sisyphus is condemned to an eternity of futile labor as punishment for his deceitful nature. The game, however, gives this story a twist - Sisyphus is freed from his task, only to choose to return to it, this time on his own terms.
+        
+        This narrative parallels the life of a young adult today. Just like Sisyphus, they face their own boulders – be it the pressures of academia, the fast-paced nature of technological advancements, or the quest for identity and purpose in a world brimming with endless opportunities and challenges. These boulders, though not physical, are no less real. They represent the burdens, responsibilities, and expectations that young people carry. But here's the twist – much like Sisyphus in 'Hades', there's a realization that these challenges can be approached differently. It's about finding meaning and satisfaction in the struggle, turning these burdens into something personal and worthwhile.
+        
+        Sisyphus’s acceptance of his fate, his decision to return to his boulder, symbolizes a powerful mindset. It's about taking control of the circumstances, no matter how daunting they may seem. For young adults today, this could mean embracing the challenges of life, finding joy in learning and growing, and making peace with the journey, regardless of how repetitive or exhausting it may seem. It's about transforming the 'boulder' into something that doesn’t just represent burden or punishment, but a part of their identity, a testament to their resilience and determination.
+        
+        This interpretation of Sisyphus in 'Hades' is a reminder that happiness and fulfillment don't necessarily come from the absence of struggle, but rather from how we choose to engage with it. It tells us that even in the depths of the Underworld, or in the chaos of the modern world, there's a possibility to find peace, to find a reason to smile, and to make the best out of what we have. This isn't just a story from Greek mythology or a video game narrative; it's a reflection of the human spirit, its resilience, and its ability to find light, even in the darkest of places.
+        
+        So, as we go about our days, pushing our own boulders, let’s remember Sisyphus in 'Hades'. Let's embrace our challenges, name them, and make them a part of our journey. In this way, maybe we too can find a universe where we can imagine ourselves happy, not in spite of our struggles, but because of them.">
           Why Sisyphus Must Truly Be Happy
         </li>
-        <li
-          class="blog-post"
-          data-title="On Stakeholder Capitalism"
-          data-content="So, we've all heard the buzzwords, right? Stakeholder Capitalism and ESG—new gospel for modern corporations..."
-        >
+        <li class="blog-post" data-title="On Stakeholder Capitalism" data-content="So, we've all heard the buzzwords, right? Stakeholder Capitalism and ESG — they've become a sort of new gospel for modern corporations. But, man, what a turn we've taken. When I first started penning thoughts about these ideas, I had to act like some kind of translator, breaking down these novel terms. But now? The conversation has flipped. Everyone's heard of them, but their essence? That's been watered down, almost bastardized by the very people who claim to champion them.
+
+        Here's the rundown: Stakeholder capitalism used to mean something transformative. The whole point was that companies should focus on more than just raking in profits for shareholders. They should also give a damn about societal issues, environment, employees — you know, the greater good. But as this concept's gotten more popular, something's gotten lost in translation. What was once a revolutionary concept is now becoming a marketing tagline, a check-box exercise that corporations go through to appear woke.
+        
+        Why is this problematic? Well, think about it. The essence of stakeholder capitalism challenges the gospel according to Milton Friedman, who's basically the high priest of shareholder capitalism. He preached that a company's sole purpose was to generate profits for shareholders, no questions asked. Stakeholder capitalism was supposed to be the antidote to that philosophy. Yet, here we are, the champions of stakeholder capitalism diluting its meaning to fit neatly into corporate slide decks.
+        
+        And Friedman's cautionary words? They're becoming eerily prescient. He warned us that shifting focus from profits could make companies less efficient, less effective, ultimately hurting society at large. The diluted version of stakeholder capitalism we're seeing could make Friedman's fears a reality. Companies might still chase profits, now under the guise of also serving broader societal goals. But if those goals are just lip service, we're fooling ourselves and doing a disservice to society.
+        
+        It's a strange paradox, man. The popularization of stakeholder capitalism and ESG is making these concepts both more visible and more invisible at the same time. More companies are adopting the language, but fewer are embodying the original spirit. It's like watching a powerful idea get slowly drained of its soul.
+        
+        We're at a crossroads. Either we redefine what stakeholder capitalism really means, rooting it back in its foundational ideals, or we watch as it becomes another corporate fad, devoid of real impact. Because at the end of the day, if the champions of a movement can't even protect its essence, who will? And what's left when the essence is gone? Just a hollow shell of what could've been a revolutionary idea. And, man, that's the biggest tragedy of all.">
           On Stakeholder Capitalism
         </li>
-        <li
-          class="blog-post"
-          data-title="On Pseudonyms"
-          data-content="As the world becomes more connected, personal identifiers can be a source of bias—pseudonyms offer privacy..."
-        >
+        <li class="blog-post" data-title="On Pseudonyms" data-content="As the world becomes more connected, personal identifiers are becoming increasingly important. However, these identifiers can also be used to discriminate against individuals based on their gender, ethnicity, or nationality. This is where pseudonyms come in – they offer an alternative way for people to express themselves without fear of judgment or discrimination. In a network state, where the physical boundaries between countries become less relevant and the power is decentralized, the use of pseudonyms is likely to become even more important in promoting equality and diversity.
+
+        With the emergence of Web3 technologies, the concept of a network state is becoming a reality. The decentralized nature of Web3 technologies creates a more inclusive and diverse environment, where everyone has an equal opportunity to participate and contribute. Pseudonyms are a key tool in this new environment, allowing individuals to participate in online communities without revealing their true identity. This helps to protect their privacy and personal information, and also allows them to participate in communities that they might not otherwise have access to.
+        
+        Moreover, in a network state, pseudonyms have the potential to promote empathy and understanding between individuals from different backgrounds. When people are able to engage in discussions without fear of judgment or discrimination, they are more likely to listen to other viewpoints and gain a deeper understanding of different perspectives. This can help break down barriers between individuals and promote greater harmony and understanding in society.
+        
+        In addition, pseudonyms can help to level the playing field and promote equal opportunities for all individuals in a network state. When people use pseudonyms in online discussions, they are judged based on the quality of their ideas and contributions, rather than their gender, ethnicity, or nationality. This can create a more inclusive and diverse environment, where everyone has an equal opportunity to participate and contribute.
+        As Web3 technologies continue to evolve and the concept of a network state becomes more widespread, the use of pseudonyms is likely to become even more important. Pseudonyms have the potential to promote global equality and diversity by reducing discrimination, promoting empathy and understanding, protecting privacy, and creating more inclusive and diverse communities. With the rise of Web3 technologies and the emergence of the network state, pseudonyms are poised to become a critical tool for promoting a more equitable and just society.">
           On Pseudonyms
         </li>
-        <li
-          class="blog-post"
-          data-title="On Regression Theory"
-          data-content="The Great Depression, many believe, was not inevitable but rather the consequence of certain policy decisions..."
-        >
+        <li class="blog-post" data-title="On Regression Theory" data-content="The Great Depression was something spurred up from the very actions the government took to prevent it. To Austrian economists, if the Federal Reserve has handled the monetary policy differently, the entire situation could have been prevented. Now the way Austrian Economics piqued my interests is in the way they seem to value deflationary economies over Keynesian economics. Although by far the less popular form of thinking about the economy, it seems as those the deflationary characteristic of Bitcoin align well with the Austrian. Another evident similarity is that the very core ideology of Austrian economics is that governments should stay as hands off as possible and let the market reach an equilibrium with itself.
+
+        There’s a lot to discuss about how these two relate, but I wanted to focus on one specific aspect, and that is the regression theory that Ludwig Von Mises, a renown economist, used to apply the subjective theory of money to the objective-exchange value. In other words, he tried to explore the value of money. For products and services in a market, the price heavily depends on the supply and demand of whatever item in focus. Money, however, doesn’t fit into this model very well. After all, it isn’t a product that can be used, or a service that can be provided. Money is simply something that is traded for with the future prospect that someone else would likewise exchange for. The supply is taken care of as there is a “finite” amount distributed in a market, but you can’t possible attach a demand to money as it’s merely a proxy. Furthermore, currency such as silver and gold are different from the type of currency in discussion since they themselves can be melted down into a commodity that has demand. Gold and silver have both been used to make jewelry and home decor for centuries if not longer. This brings us to the main idea of regression theory, which is the idea of how currency must originate from a previous non-monetary state that had a meaningful value in society, thus the value today is derived from that previous value.
+        
+        Perhaps to look at it in a different way in order to better understand it; Money seems objective in a way, since my $10 equals your $10. However, I could use my $10 to buy a nice meal, and you could use your $10 to buy a hat. The subjective value in this case might seem different. Mises’ view was that the objective value and subjective value must have been correlated at some point, so the value would be derived from the value as a commodity before it was a monetary use.
+        
+        Now according to this theory, it’s understandable how the gold and silver standards came about, but is fiat currency in this same boat? What value as a commodity did fiat currency serve before it was fiat money? Obviously nothing since it’s simply paper and paper is undoubtedly abundant. So I’m just as confused as those who thought about this before me. How can such a thing still retain such strong “value” and why?
+        Some people have taken a different view, for example, Hal Varian, who proposed that people give fiat value because of social acceptance. Based on the network effect, once some people adopt the currency, others will carry the same expectation. However, another Austrian economist Frank Shostak made a cogent objection to Varian’s explanation.
+          “And yet that still doesn’t tell us why the dollar bill in our pocket has value. To say that the value of money is on account of social convention is to say very little. In fact, what Varian has told us is that money has value because it is accepted, and why is it accepted? . . . because it is accepted! Obviously this is not a good explanation of why money has value.
+          To bolster his thesis Varian suggests that the value of the dollar is a result of the “network effect.” According to him, “Just as a fax machine is valuable to you only if lots of other people you correspond with also have fax machines, a currency is valuable to you only if a lot of people you transact with are willing to accept it as payment.”
+        
+        Now who’s right? I certainly can’t say for sure. Fiat money seems like a paradox as it has no natural upbringing and clearly fails to satisfy the regression theorem. Well consider this thought experiment: A medium of exchange has to be accepted by someone else in order to carry some “value”. Without this key characteristic, fiat could not have inherent value. Some time in the future, although I can’t say how long, there will be a time when either the world is ending or some terrible disease kills off the human race. At this point, there will be no one to trade your money with. If this is an inevitable event, then it's also inevitable that fiat will lose its value. Logically, backwards induction indicates that fiat must lose its value now.
+        
+        To me the inflated “value” of fiat currency seems much like the Tulip bubble, and money is truly the perfect scenario of the greater fool theory. I don’t think Bitcoin is much different, but it adheres to a different set of rules than the current ones we have now. In a way both currencies are driven by extreme irrationality in terms of economics, created in a path dependent society that has no way of changing its ways (except over great periods of time). If this is the case with fiat, then we’re all playing the role of the fool, accepting money only with the false hope that there will always be a greater fool who will accept it. But in this case, I don’t see why people criticize cryptocurrencies. After all they’re one and the same, and neither has greater inherent value than the other.
+        
+        There are other things to consider of course when determining which one is better. For example is fractional reserve banking really a big issue? And how much fraud is happening similar to what caused the 2008 crash? I don’t really think I’m qualified to say one’s better than another, but I will definitely keep exploring the topic">
           On Regression Theory
         </li>
-        <li
-          class="blog-post"
-          data-title="On Quadratic Voting and Funding"
-          data-content="In modern societies, issues such as income inequality continue to challenge democratic norms—Quadratic Voting might be the answer..."
-        >
+        <li class="blog-post" data-title="On Quadratic Voting and Funding" data-content="Different societies, regardless of political or economical system, face common issues such as increasing income inequality, political corruption, and monopolization of industries largely for the benefit of wealthy elites. These issues have prompted feelings of frustration and ideas of correction from the commons who suffer most from these zero-sum games. The response consists of backlash and abandonment of the technologies that brought up the problems, but this would cause further issues with much of what is essential for modern society to function while worsening the original problems that sparked this response. Many brilliant minds have been working collectively on alternatives of governance to mitigate the chances of a political or financial elite from attaining too much influence on a particular system by adapting markets and technology to fundamentally decentralize power from the centralized authorities.
+
+        In a traditional one person-one vote system, minorities’ voices are shrouded by the masses, which is why a more modernized and truly democratic system is needed in order to protect the interests of all groups from an oligarchy. Most of those in the cryptocurrency and blockchain community have unified philosophical ideals and a surprising acceptance to change, which makes it an exemplary place to try new ideas.
+        
+        There are many different attempts at fixing the ongoing problems of governance and consensus in blockchain systems, such as Proof of Work (POW), Proof of Stake (POS), and Proof of Authority (POA). Each has its own flaws: POW takes up too much real world resources, POS brings the power into the hands of a few, and POA may obscure the real dedication a certain node has to the network. However, a new idea introduced called Quadratic Voting (QV) could bring a more equal conglomerate of voices to a social blockchain and alleviate the problems with governance.
+        
+        More specifically, QV could result in innovation curtailing the ongoing governance problems in blockchain-based systems. Many different cryptocurrencies have already adopted voting systems to gain a consensus of the community regarding significant protocol changes, but they are still susceptible to malicious actors such as fake accounts and stake imbalance. With QV, community participants with varying opinions and stakes are accounted for since the cost of voting is nonlinear. By scaling the cost of voting proportional to N^2, N for the number of votes cast, those who feel very strongly about a certain viewpoint would have to stake much more tokens for each successive vote. For example, one vote would cost one token, but two votes would cost four tokens. This method ensures that those with significantly greater amounts of resources could not hold as much influence compared to say, a traditional Proof of Stake system, even if they wanted to.
+        
+        Having said that, the main obstacle with implementing QV is proving the authenticity of the human identity of a particular voting entity. With constant applications of pseudonymity and anonymity in cryptocurrency networks, the challenge remains in creating a method of identification that can be proven with high enough accuracy without revealing the identity of the user. Similarly to governance, there has been much debate on which proofs would be ideal. For example, STARKS, or zero-knowledge proofs, has shown much promise in dealing with such issues with close to perfect precision and near impossible manipulation.">
           On Quadratic Voting and Funding
         </li>
-        <li
-          class="blog-post"
-          data-title="On Dualism"
-          data-content="Descartes’ Meditations propose that the mind and body are distinct, yet modern science suggests our physicality defines our cognition..."
-        >
+        <li class="blog-post" data-title="On Dualism" data-content="In Descartes’ Meditations on First Philosophy, his philosophy on the mind established a conclusion that the mind and the body are two separate entities that work intricately with one another to form who we are as human. He reaches this through explaining how the body is something that can be extended but does not think, and the mind is something else that cannot be extended into the physical world and can foster imagination and free thought. Because the nature of the mind is fundamentally different from that of the body, he concludes that the mind can exist without the body. This creates a dualism where the interaction of the two entities, mind and body, is unsolved, creating a new problem as to what the mind actually is. However, this cannot be true, since if the mind was its own entity apart from body, it would violate many of the natural and physical laws of our world.
+
+        In order to better understand why Descartes’ conclusions are flawed, one must understand the concept of natural selection and how this has bred the human race into what it is today. Darwinian natural selection is defined by the change of heritable traits of an organism over time based on the survivability and reproductive chances of those particular traits. Undoubtedly, humans (homo sapiens sapiens) have not always been like we are today. At some point in time, we evolved from clusters of cells and began to develop limbs and other physical features that increase our survivability in that particular environment. From this we gained hands and feet, while fish gained fins and gills. Not long ago, in relation to the existence of the universe, the homo sapien specie did not have the neuro-physiological capacity to think as we do now, much like a fish. All of what occurs through natural selection is very physical. The fact that humans have larger brains is because of this physical change over thousands of years. Therefore, there is no possible way such a physical process could fabricate something as immaterial and non-physical as the mind described by Descartes.
+        
+        An argument against this view could be that since the human mind does not have any direct effect onto the physical world, it could not have originated from natural selection. However, even if it did not directly originate from natural selection, it could be a byproduct, or accessory, of a more direct trait that is inherited for survival. For example, male peacocks developed large but colorful feathers that seem to slow them down if a predator attacked. However, by having these colorful feathers, they would be more successful at courting a female peacock in order to breed for survival. Having these heavier feathers which may slow them down is a byproduct of a more significant trait for survival. The human mind could be just something created by the evolution of some other more significant part of the brain.
+        
+        Another major flaw occurs when dealing with how the mind interacts with the body if the mind were independent. Imagine a bowling ball rolling toward a pin. In order for the bowling ball to have enough force to knock over the pin on a flat surface, there must have been some sort of physical energy that gave the ball enough energy to reach and knock over the pin. In other words, the energy must come from somewhere. Based on the principle of Conservation of Energy, no energy can be created or destroyed. When a person has a desire to raise a hand in class, some form of energy must have fired the neurons within his or her brain in order to trigger the raising of the hand. However, assuming that the mind is nonphysical as Descartes’ pointed out, where does the energy to fire the physical neurons in one’s brain come from? Since the creation or destruction of energy is impossible in terms of physical law, the mind cannot be separate from the body; all energy must originate from somewhere.
+        
+        Because Descartes’ argument is inherently dualist, by claiming that the body and mind are separate he introduces many more variables which contradict the basic laws of physics. It leaves the mystical features of the mind unsolved, such as what causes self-awareness and thought. This dualist explanation only complicates the discussion of the mind and offers no further explanation as to what generates this consciousness. Even though dualists may offer valid counter arguments, we shall apply Ockham’s Razor in this situation to stop complicating the issue with a spiritual aspect of the mind. It is undoubted that the body exists, as Descartes has put, but if we assume that the mind is its own entity, it not only refutes the laws of physics, but also unnecessarily complicates the issue. 
+        
+        A dualist might reply to these arguments saying that there might be some other form of matter that defies these laws but has not been found yet. Many physicists believe that there is such thing as dark matter, but have yet to show tangible proof. However this in itself is dualistic, opening up discussion to whether physics as we know it is wrong. This assumption splits physics, just like Descartes split the mind and body, into two separate fields, and overcomplicates things. If this assumption were to be true, then physics as we know it would all be wrong. However, Ockham’s Razor, which is at the foundation of the philosophy of mind, goes to show how making these assumptions only serve to complicate the problem at hand. The assumption of another type of matter is build on top of another flawed assumption that the mind is not part of the physical world. Therefore, there is no advantage to making these assumptions.
+          
+        Descartes’ implication that the mind is independent from the body, and that it is possible for the mind to exist without the body, could not be true since it would oppose natural selection and the laws of physics. Natural selection is a physical process dealing with genetics and how each organism has evolved. Humans have not always had self-awareness and free thought, but such a physical process could not have created something as immaterial and non physical as the mind Descartes discusses. Even assuming the mind is separate from the body, it does not explain how it can defy Conservation of Energy and produce the physical energy needed to fire neurons triggering the body to raise its hand. If it were to be true, physics would be shaken at its foundation. Insofar as how much we understand the world and our minds today, this Cartesian dualism made popular by Descartes only complicates the discussion about the philosophy of mind and conflicts with Ockham’s Razor. Therefore, Descartes may have showed that the body exists, but his argument that the mind is its own entity is fundamentally flawed.">
           On Dualism
         </li>
       </ul>
@@ -361,15 +415,8 @@
           </div>
         </div>
         <div class="chatbox-footer">
-          <input
-            type="text"
-            id="chatboxInput"
-            class="chatbox-input"
-            placeholder="Type your message..."
-          />
-          <button type="button" id="chatboxSendBtn" class="chatbox-send-btn">
-            Send
-          </button>
+          <input type="text" id="chatboxInput" class="chatbox-input" placeholder="Type your message..." />
+          <button type="button" id="chatboxSendBtn" class="chatbox-send-btn">Send</button>
         </div>
       </div>
     </div>
