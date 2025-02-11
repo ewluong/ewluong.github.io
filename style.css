@@ -1279,8 +1279,11 @@ body::before {
   }
 
   #terminalHeader {
-    font-size: 1.5rem !important; /* Adjust this value as needed */
-    white-space: nowrap !important; /* Keeps the text on one line */
+    /* Adjust these values as needed */
+    font-size: clamp(1rem, 6vw, 1.5rem) !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
 }
