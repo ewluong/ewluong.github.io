@@ -59,7 +59,7 @@
 
     <!-- Home Section -->
     <section id="home" class="section home-section">
-      <!-- Removed the h1#terminalHeader from here and replaced with a container -->
+      <!-- Instead of having the header here, we use a container to insert it later -->
       <div id="terminalHeaderContainer"></div>
       <p class="tagline">Just chasing the wind...</p>
       <canvas id="dodecagonCanvas" width="400" height="400" style="max-width: 400px; border: none;"></canvas>
@@ -463,19 +463,15 @@
     <!-- Inline script to insert the terminal header after page load -->
     <script>
       window.addEventListener('load', () => {
-        // Create and insert the terminal header element after load for improved LCP.
+        // Immediately create and insert the full header text to avoid render delays.
         const headerContainer = document.getElementById('terminalHeaderContainer');
         const h1 = document.createElement('h1');
         h1.id = 'terminalHeader';
         h1.className = 'section-header';
         h1.setAttribute('data-text', "> Hey there, I'm Eric!");
+        // Set the full text immediately instead of a gradual typewriter effect.
         h1.textContent = "> Hey there, I'm Eric!";
         headerContainer.appendChild(h1);
-
-        // Optionally, if you have a typewriter effect defined, trigger it.
-        if (typeof typeWriterOnElement === 'function') {
-          typeWriterOnElement(h1, 50);
-        }
       });
     </script>
   </body>
