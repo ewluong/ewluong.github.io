@@ -1191,24 +1191,25 @@ body::before {
     white-space: pre-wrap;
     height: 600px;
   }
-
+  
   /* Also ensure the inner text container preserves whitespace */
   #backroomsText {
     white-space: pre-wrap;
     min-height: 300px;
   }
-
+  
   /* --- BACKROOMS MODAL SEARCH AREA: Modified for Smaller Mobile Elements --- */
   #backroomsModal .vcr-search {
     display: flex;
     gap: 1px;       /* Reduced gap */
     padding: 2px;   /* Reduced padding */
   }
-
+  
   #backroomsModal .vcr-search select {
     flex: 1;
-    font-size: 0.75rem;  /* Reduced font size */
-    padding: 2px;        /* Reduced padding */
+    min-width: 0;        /* Allow shrinking */
+    font-size: 0.75rem;   /* Reduced font size */
+    padding: 2px;         /* Reduced padding */
     background: var(--bg-color);
     border: 1px solid var(--text-color);
     color: var(--text-color);
@@ -1218,9 +1219,10 @@ body::before {
     background: var(--text-color);
     color: var(--bg-color);
   }
-
+  
   #backroomsModal .vcr-search input {
     flex: 1;             /* Adjusted flex to be more narrow */
+    min-width: 0;        /* Allow shrinking */
     font-size: 0.75rem;   /* Reduced font size */
     padding: 2px;         /* Reduced padding */
     background: var(--bg-color);
@@ -1232,11 +1234,12 @@ body::before {
     background: var(--text-color);
     color: var(--bg-color);
   }
-
+  
   #backroomsModal .vcr-search button {
     flex: 1;
-    font-size: 0.75rem;  /* Reduced font size */
-    padding: 2px;        /* Reduced padding */
+    min-width: 0;        /* Allow shrinking */
+    font-size: 0.75rem;   /* Reduced font size */
+    padding: 2px;         /* Reduced padding */
     white-space: nowrap;
     background: var(--bg-color);
     border: 1px solid var(--text-color);
@@ -1248,6 +1251,7 @@ body::before {
     color: var(--bg-color);
   }
 }
+
 
 
 /* ---------- Backrooms Modal (Desktop Fix) ---------- */
