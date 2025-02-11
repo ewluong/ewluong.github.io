@@ -1293,18 +1293,26 @@ body::before {
     height: 35px;              /* Shorter height */
   }
 
-  .widgets-grid {
-    grid-template-columns: repeat(2, 1fr);
-    /* Optional: adjust gap if needed */
-    gap: 10px;
+  @media (max-width: 600px) {
+    /* Override the modal container's positioning and width */
+    #widgetsModal {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      width: 90% !important;
+      max-width: 90% !important;
+      margin: 0 auto !important;
+    }
+    /* Override the modal content's fixed width */
+    #widgetsModal .modal-content {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
   }
-
-  #widgetsModal {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%; /* Adjust the width as needed */
-  }
+  
+  
 }
 
 
