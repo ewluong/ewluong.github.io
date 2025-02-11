@@ -1195,6 +1195,7 @@ body::before {
 /* Also ensure the inner text container preserves whitespace */
 #backroomsText {
   white-space: pre-wrap;
+  min-height: 300px;
 }
 
 /* --- BACKROOMS MODAL SEARCH AREA: Original Flex Proportions & Styling --- */
@@ -1247,4 +1248,56 @@ body::before {
   color: var(--bg-color);
 }
 
+
+}
+
+/* ---------- Backrooms Modal (Desktop Fix) ---------- */
+#backroomsModal .vcr-screen,
+#backroomsText {
+  white-space: pre-wrap;
+  min-height: 300px;
+}
+
+/* Backrooms Modal - Search Area Styles (applied globally) */
+#backroomsModal .vcr-search {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+}
+
+#backroomsModal .vcr-search select,
+#backroomsModal .vcr-search input,
+#backroomsModal .vcr-search button {
+  font-size: 0.9rem;
+  padding: 3px;
+  background: var(--bg-color);
+  border: 1px solid var(--text-color);
+  color: var(--text-color);
+  transition: background 0.3s, color 0.3s;
+}
+
+#backroomsModal .vcr-search select:hover,
+#backroomsModal .vcr-search input:hover,
+#backroomsModal .vcr-search button:hover {
+  background: var(--text-color);
+  color: var(--bg-color);
+}
+
+#backroomsModal .vcr-search select {
+  flex: 1;
+}
+
+#backroomsModal .vcr-search input {
+  flex: 2;
+}
+
+#backroomsModal .vcr-search button {
+  flex: 1;
+  white-space: nowrap;
+}
+
+#backroomsModal .vcr-controls {
+  position: absolute;
+  bottom: 10px;  /* Adjust as needed */
+  right: 10px;   /* Adjust as needed */
 }
