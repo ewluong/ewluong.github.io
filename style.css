@@ -1185,7 +1185,7 @@ body::before {
     padding: 20px;
     overflow-y: auto;
     position: relative;
-    font-size: 1.0rem !important; 
+    font-size: 0.6rem !important; 
     line-height: 1.4;
     /* IMPORTANT: preserve newlines for Model A/B */
     white-space: pre-wrap;
@@ -1256,7 +1256,7 @@ body::before {
     padding: 1px !important;
   }
   #backroomsModal .vcr-header .vcr-description {
-    font-size: 0.5rem !important;
+    font-size: 0.6rem !important;
     margin-top: 0.2rem;
   }
 
