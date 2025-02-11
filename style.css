@@ -1287,10 +1287,10 @@ body::before {
   }
 
   .toggle-button {
-    font-size: 1rem;           /* Smaller font size */
-    padding: 0.4rem 0.8rem;      /* Reduced padding */
-    width: 80px;               /* Narrower width */
-    height: 35px;              /* Shorter height */
+    font-size: 0.9rem;           /* Smaller font size */
+    padding: 0.3rem 0.7rem;      /* Reduced padding */
+    width: 70px;               /* Narrower width */
+    height: 30px;              /* Shorter height */
   }
 
   #widgetsModal {
