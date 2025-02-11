@@ -1182,10 +1182,10 @@ body::before {
     flex: 1;
     background: var(--bg-color);
     color: var(--text-color);
-    padding: 15px;
+    padding: 20px;
     overflow-y: auto;
     position: relative;
-    font-size: 1.0rem;
+    font-size: 1.2rem;
     line-height: 1.4;
     /* IMPORTANT: preserve newlines for Model A/B */
     white-space: pre-wrap;
@@ -1202,14 +1202,14 @@ body::before {
   #backroomsModal .vcr-search {
     display: flex;
     gap: 1px;       /* Reduced gap */
-    padding: 1px;   /* Reduced padding */
+    padding: 2px;   /* Reduced padding */
   }
   
   #backroomsModal .vcr-search select {
     flex: 1;
-    min-width: 0;        /* Allow shrinking */
-    font-size: 0.4rem;   /* Reduced font size */
-    padding: 1px;         /* Reduced padding */
+    min-width: 0;         /* Allow shrinking */
+    font-size: 0.30rem;    /* Reduced font size */
+    padding: 2px;          /* Reduced padding */
     background: var(--bg-color);
     border: 1px solid var(--text-color);
     color: var(--text-color);
@@ -1221,10 +1221,10 @@ body::before {
   }
   
   #backroomsModal .vcr-search input {
-    flex: 1;             /* Adjusted flex to be more narrow */
-    min-width: 0;        /* Allow shrinking */
-    font-size: 0.4rem;   /* Reduced font size */
-    padding: 1px;         /* Reduced padding */
+    flex: 1;              /* Adjusted flex to be more narrow */
+    min-width: 0;         /* Allow shrinking */
+    font-size: 0.30rem;    /* Reduced font size */
+    padding: 2px;          /* Reduced padding */
     background: var(--bg-color);
     border: 1px solid var(--text-color);
     color: var(--text-color);
@@ -1237,9 +1237,9 @@ body::before {
   
   #backroomsModal .vcr-search button {
     flex: 1;
-    min-width: 0;        /* Allow shrinking */
-    font-size: 0.4rem;   /* Reduced font size */
-    padding: 1px;         /* Reduced padding */
+    min-width: 0;         /* Allow shrinking */
+    font-size: 0.30rem;    /* Reduced font size */
+    padding: 2px;          /* Reduced padding */
     white-space: nowrap;
     background: var(--bg-color);
     border: 1px solid var(--text-color);
@@ -1251,6 +1251,7 @@ body::before {
     color: var(--bg-color);
   }
 }
+
 
 
 
