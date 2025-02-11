@@ -1285,6 +1285,13 @@ body::before {
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .toggle-button {
+    font-size: 1rem;           /* Smaller font size */
+    padding: 0.4rem 0.8rem;      /* Reduced padding */
+    width: 80px;               /* Narrower width */
+    height: 35px;              /* Shorter height */
+  }
   
 }
 
