@@ -1,16 +1,16 @@
 :root {
-  --bg-color: #ff5e00;
-  --text-color: #000000;
+  --bg-color: #001f3f;             /* Navy Blue background */
+  --text-color: #7FDBFF;           /* Light Blue text */
   --accent-color: #222222;
   --link-glitch-color: #ffffff;
   --base-font-size: 20px;
-  --hover-bg-on-black: #ff5e00;
-  --hover-text-on-black: #000000;
-  --hover-bg-on-orange: #000000;
-  --hover-text-on-orange: #ff5e00;
-  /* Added pulse color variable with a default value */
-  --pulse-color: rgba(255,255,255,0.6);
+  --hover-bg-on-black: #7FDBFF;     /* On black, hover background becomes Light Blue */
+  --hover-text-on-black: #001f3f;    /* and text becomes Navy Blue */
+  --hover-bg-on-orange: #001f3f;     /* For consistency, using Navy Blue */
+  --hover-text-on-orange: #7FDBFF;    /* and Light Blue for text */
+  --pulse-color: rgba(127, 219, 255, 0.6); /* Derived from the Light Blue */
 }
+
 :root[data-scheme="Orange & Black"] {
   --item-hover-bg: #000000;
   --item-hover-text: #ff5e00;
