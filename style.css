@@ -913,11 +913,15 @@ body::before {
 }
 /* ---------- Minigame Modal ---------- */
 #minigameModal .modal-content {
-  top: 50%;
-  left: 20px;
-  transform: translateY(170%);
+  /* Remove extra positioning so that the content sits at the top-left of the draggable container */
+  top: 0;
+  left: 0;
+  transform: none;
   width: 350px;
+  /* You can add padding or margin if needed to match the style of your other modals */
+  margin: 0 auto;
 }
+
 /* ---------- Widgets Grid ---------- */
 .widgets-grid {
   display: grid;
@@ -1361,3 +1365,6 @@ body::before {
   right: 10px;   /* Adjust as needed */
 }
 
+.hidden { 
+  display: none !important;
+ }
