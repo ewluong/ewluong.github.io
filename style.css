@@ -219,6 +219,19 @@ body::before {
   color: var(--item-hover-text);
   transform: scale(1.05);
 }
+/* Updated hover rule: flip colors based on current theme variables */
+.project-card:hover,
+.about-item:hover {
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  transform: scale(1.05);
+}
+/* New rule: project cards remain highlighted when active */
+.project-card.active {
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  transform: scale(1.05);
+}
 .blog-section .blog-list {
   list-style: none;
   margin-top: 2rem;

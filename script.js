@@ -181,7 +181,7 @@ class CanvasBackground {
     this.shapes = [];
     this.numShapes = 8;
     this.shapeTypes = ["circle", "square", "triangle"];
-    // Remove continuous cycling variable
+    // We no longer auto-cycle the shape type; it now updates via scroll.
     this.currentShapeIndex = 0;
     this.mouseX = -9999;
     this.mouseY = -9999;
@@ -222,10 +222,10 @@ class CanvasBackground {
     const textColor = computedStyle.getPropertyValue("--text-color").trim();
     const rgb = Util.parseHexToRgb(textColor);
     let musicFactor = window.currentMusicFactor || 0;
-    const MUSIC_MULTIPLIER = 4; // Adjust this multiplier to change pulsing amplitude
+    const MUSIC_MULTIPLIER = 60; // Adjust to change pulsing amplitude
     // Update shape positions and sizes based on music factor
     this.shapes.forEach(shape => {
-      let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 3));
+      let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
       shape.x += shape.vx;
       shape.y += shape.vy;
       let dx = shape.x - this.mouseX, dy = shape.y - this.mouseY;
@@ -250,7 +250,7 @@ class CanvasBackground {
         shape.vy = -shape.vy;
       }
     });
-    // Resolve collisions
+    // Resolve collisions between shapes
     for (let i = 0; i < this.shapes.length; i++) {
       for (let j = i + 1; j < this.shapes.length; j++) {
         this.resolveCollision(this.shapes[i], this.shapes[j]);
@@ -258,7 +258,7 @@ class CanvasBackground {
     }
     // Draw shapes using the current shape type (set by scroll via SectionObserver)
     this.shapes.forEach(shape => {
-      let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 3));
+      let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
       this.drawShape(this.shapeTypes[this.currentShapeIndex], shape.x, shape.y, dynamicSize, rgb);
     });
     requestAnimationFrame(this.animate.bind(this));
@@ -285,9 +285,9 @@ class CanvasBackground {
   }
   resolveCollision(s1, s2) {
     let effectiveMusicFactor = window.currentMusicFactor || 0;
-    const MUSIC_MULTIPLIER = 4;
-    let r1 = s1.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 3));
-    let r2 = s2.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 3));
+    const MUSIC_MULTIPLIER = 10;
+    let r1 = s1.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 2));
+    let r2 = s2.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 2));
     let dx = s2.x - s1.x, dy = s2.y - s1.y;
     let dist = Math.sqrt(dx * dx + dy * dy);
     let minDist = r1 + r2;
@@ -386,7 +386,7 @@ class SectionObserver {
           document.documentElement.style.setProperty("--text-color", scheme.text);
           document.documentElement.setAttribute("data-scheme", themeManager.currentTheme.name);
           document.documentElement.style.setProperty("--pulse-color", themeManager.getPulseColor(scheme.text));
-          // Update shape type based on the section index so shapes change only when scrolling
+          // Update shape type based on scroll: each section sets the shape type.
           canvasBackground.currentShapeIndex = sectionIndex % canvasBackground.shapeTypes.length;
           themeManager.updateTetrisTheme(scheme);
         }
@@ -731,7 +731,7 @@ class MusicPlayer {
         sum += deviation * deviation;
       }
       let rms = Math.sqrt(sum / bufferLength);
-      window.currentMusicFactor = rms / 128; // Normalize to a value roughly between 0 and 1
+      window.currentMusicFactor = rms / 128; // Normalize to roughly between 0 and 1
       animationId = requestAnimationFrame(drawWaveform);
     };
     const loadSong = index => {
@@ -862,7 +862,6 @@ class MusicPlayer {
     populateFavorites();
 
     // ======= Music Button Toggle =======
-    // Using the toggle button with id "musicPrompt"
     const musicButton = document.getElementById("musicPrompt");
     if (musicButton) {
       musicButton.addEventListener("click", () => {
@@ -888,6 +887,7 @@ class MusicPlayer {
 class ProjectModal {
   constructor(modalManager) {
     this.modalManager = modalManager;
+    this.currentProjectCard = null;
   }
   init() {
     const projectCards = document.querySelectorAll(".project-card");
@@ -898,13 +898,14 @@ class ProjectModal {
 
     projectCards.forEach(card => {
       card.addEventListener("click", () => {
-        if (this.modalManager.pendingBringToFrontTimeout) {
-          clearTimeout(this.modalManager.pendingBringToFrontTimeout);
-          this.modalManager.pendingBringToFrontTimeout = null;
-        }
+        // Remove 'active' from all cards first, then add to the clicked one
+        projectCards.forEach(c => c.classList.remove("active"));
+        this.currentProjectCard = card;
+        card.classList.add("active");
+    
         const file = card.getAttribute("data-file");
         const projectTitle = card.querySelector("h2").textContent.trim();
-
+    
         if (projectTitle === "Infinite Backrooms") {
           const backroomsModal = document.getElementById("backroomsModal");
           backroomsModal.dataset.openedAt = performance.now();
@@ -915,6 +916,11 @@ class ProjectModal {
             const dropdown = document.getElementById("backroomsDropdown");
             window.loadBackrooms(dropdown.value);
           }
+          // Add listener to remove active class when backrooms modal closes
+          const backroomsClose = document.getElementById("backroomsClose");
+          backroomsClose.addEventListener("click", () => {
+            card.classList.remove("active");
+          }, { once: true });
           return;
         } else if (projectTitle === "ewluong.com") {
           const chatboxModal = document.getElementById("chatboxModal");
@@ -922,9 +928,15 @@ class ProjectModal {
           chatboxModal.classList.remove("hidden");
           this.modalManager.currentActiveModal = chatboxModal;
           this.modalManager.bringModalToFront(chatboxModal);
+          // Add listener to remove active class when chatbox modal closes
+          const chatboxClose = chatboxModal.querySelector(".chatbox-close");
+          chatboxClose.addEventListener("click", () => {
+            card.classList.remove("active");
+          }, { once: true });
           return;
         }
-
+    
+        // For all other project cards, open the standard project modal.
         projectModal.dataset.openedAt = performance.now();
         projectModalTitle.textContent = projectTitle;
         projectModalBody.innerHTML = "";
@@ -959,12 +971,22 @@ class ProjectModal {
         projectModal.classList.remove("hidden");
         this.modalManager.currentActiveModal = projectModal;
         this.modalManager.bringModalToFront(projectModal);
+        // Remove active highlight when the standard project modal is closed.
+        projectModal.querySelector(".modal-close").addEventListener("click", () => {
+          card.classList.remove("active");
+        }, { once: true });
       });
     });
+    
 
     projectModalClose.addEventListener("click", () => {
       projectModal.classList.add("hidden");
       projectModalBody.innerHTML = "";
+      // Remove the active highlight from the project card
+      if (this.currentProjectCard) {
+        this.currentProjectCard.classList.remove("active");
+        this.currentProjectCard = null;
+      }
     });
 
     projectModalClose.addEventListener("mousedown", e => e.stopPropagation());
@@ -973,6 +995,11 @@ class ProjectModal {
       if (!e.target.closest(".modal-content")) {
         projectModal.classList.add("hidden");
         projectModalBody.innerHTML = "";
+        // Remove the active highlight when modal is closed by clicking outside
+        if (this.currentProjectCard) {
+          this.currentProjectCard.classList.remove("active");
+          this.currentProjectCard = null;
+        }
       }
     });
   }
