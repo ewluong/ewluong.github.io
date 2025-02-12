@@ -2304,7 +2304,7 @@ class RetroOS {
     window.addEventListener("load", () => {
       typeWriterOnElement(document.getElementById("terminalHeader"), 50);
     });
-    this.typeOtherHeaders();
+    //this.typeOtherHeaders();
   }
 
   typeOtherHeaders() {
