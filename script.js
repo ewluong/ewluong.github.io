@@ -347,7 +347,8 @@ class CanvasBackground {
     this.w = 0;
     this.h = 0;
     this.shapes = [];
-    this.numShapes = 8;
+    // Use fewer shapes on mobile devices (if window width is less than 600px)
+    this.numShapes = window.innerWidth < 600 ? 4 : 8;
     this.shapeTypes = ["circle", "square", "triangle"];
     this.currentShapeIndex = 0;
     this.mouseX = -9999;
@@ -370,14 +371,10 @@ class CanvasBackground {
         vy,
       });
     }
-    window.addEventListener(
-      "mousemove",
-      (e) => {
-        this.mouseX = e.clientX;
-        this.mouseY = e.clientY;
-      },
-      { passive: true }
-    );
+    window.addEventListener("mousemove", (e) => {
+      this.mouseX = e.clientX;
+      this.mouseY = e.clientY;
+    }, { passive: true });
     requestAnimationFrame(this.animate.bind(this));
     window.addEventListener("resize", Util.debounce(this.onResize.bind(this), 100));
   }
@@ -392,37 +389,21 @@ class CanvasBackground {
   animate() {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.w, this.h);
-    // Get the text color from the CSS and parse it.
     const computedStyle = getComputedStyle(document.documentElement);
     const textColor = computedStyle.getPropertyValue("--text-color").trim();
     const rgb = Util.parseHexToRgb(textColor);
-
-    // If lights-out mode is active and the video analyser is available,
-    // update the music factor from the video audio; otherwise, use the default.
-    let musicFactor;
-    if (
-      document.body.classList.contains("lights-out-mode") &&
-      window.videoAnalyser
-    ) {
-      updateMusicFactorFromVideo();
-      musicFactor = window.currentMusicFactor;
-    } else {
-      musicFactor = window.currentMusicFactor || 0;
-    }
-
-    const MUSIC_MULTIPLIER = 4; // Adjust this multiplier for pulsing amplitude.
-
-    // Update positions and handle collisions for each shape.
+    let musicFactor = window.currentMusicFactor || 0;
+    const MUSIC_MULTIPLIER = 4;
+  
+    // Iterate over each shape and update its position, apply collisions, etc.
     this.shapes.forEach((shape) => {
-      // Compute dynamic size based on the current music factor.
-      let dynamicSize =
-        shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
-
+      let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
+  
       // Update position.
       shape.x += shape.vx;
       shape.y += shape.vy;
-
-      // Repel shape from the mouse pointer.
+  
+      // Repel shape from mouse pointer.
       let dx = shape.x - this.mouseX;
       let dy = shape.y - this.mouseY;
       let dist = Math.sqrt(dx * dx + dy * dy);
@@ -431,7 +412,7 @@ class CanvasBackground {
         shape.x += Math.cos(angle) * this.repelForce * (this.repelRadius - dist);
         shape.y += Math.sin(angle) * this.repelForce * (this.repelRadius - dist);
       }
-
+  
       // Bounce off canvas edges.
       if (shape.x - dynamicSize < 0) {
         shape.x = dynamicSize;
@@ -447,56 +428,72 @@ class CanvasBackground {
         shape.y = this.h - dynamicSize;
         shape.vy = -shape.vy;
       }
-
-      // *** New: Bounce off the visualizer modal when lights-out mode is active ***
+  
+      // -- Modal Collision Check: Apply for each shape --
       if (document.body.classList.contains("lights-out-mode")) {
         const visModal = document.getElementById("visualizerModal");
-        if (visModal) {
-          // Get the modal's bounding rectangle.
+        if (visModal && !visModal.classList.contains("hidden")) {
           const rect = visModal.getBoundingClientRect();
-          // Find the closest point on the modal to the shape.
+          // Get the closest point on the modal to this shape.
           const closestX = clamp(shape.x, rect.left, rect.right);
           const closestY = clamp(shape.y, rect.top, rect.bottom);
           const diffX = shape.x - closestX;
           const diffY = shape.y - closestY;
-          // If the shape is intersecting the modal...
-          if (diffX * diffX + diffY * diffY < dynamicSize * dynamicSize) {
-            // Calculate the angle from the modal's edge.
-            const angle = Math.atan2(diffY, diffX);
-            const vMag = Math.sqrt(shape.vx * shape.vx + shape.vy * shape.vy);
-            // Reposition the shape so it's just outside the modal.
-            shape.x = closestX + Math.cos(angle) * (dynamicSize + 1);
-            shape.y = closestY + Math.sin(angle) * (dynamicSize + 1);
-            // Reflect its velocity along the collision angle.
-            shape.vx = Math.cos(angle) * vMag;
-            shape.vy = Math.sin(angle) * vMag;
+          const distance = Math.sqrt(diffX * diffX + diffY * diffY);
+  
+          // If the shape is intersecting the modal.
+          if (distance < dynamicSize) {
+            const overlap = dynamicSize - distance;
+            // Normalize the vector (avoid division by zero).
+            const nx = diffX / (distance || 1);
+            const ny = diffY / (distance || 1);
+            // Reposition the shape just outside the modal plus a small epsilon.
+            shape.x = closestX + nx * (dynamicSize + 1);
+            shape.y = closestY + ny * (dynamicSize + 1);
+            // Add a small impulse to nudge it away.
+            const impulseFactor = 0.5;
+            shape.vx += nx * impulseFactor;
+            shape.vy += ny * impulseFactor;
           }
         }
       }
+  
+      // Draw the shape.
+      ctx.beginPath();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25)`;
+      if (this.shapeTypes[this.currentShapeIndex] === "circle") {
+        ctx.arc(shape.x, shape.y, dynamicSize, 0, Math.PI * 2);
+      } else if (this.shapeTypes[this.currentShapeIndex] === "square") {
+        ctx.rect(shape.x - dynamicSize, shape.y - dynamicSize, dynamicSize * 2, dynamicSize * 2);
+      } else if (this.shapeTypes[this.currentShapeIndex] === "triangle") {
+        ctx.moveTo(shape.x, shape.y - dynamicSize);
+        ctx.lineTo(shape.x - dynamicSize, shape.y + dynamicSize);
+        ctx.lineTo(shape.x + dynamicSize, shape.y + dynamicSize);
+        ctx.closePath();
+      }
+      ctx.stroke();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`;
+      ctx.stroke();
     });
-
+  
     // Resolve collisions between shapes.
     for (let i = 0; i < this.shapes.length; i++) {
       for (let j = i + 1; j < this.shapes.length; j++) {
         this.resolveCollision(this.shapes[i], this.shapes[j]);
       }
     }
-
-    // Draw each shape.
+  
+    // (Optional) Redraw each shape if needed.
     this.shapes.forEach((shape) => {
-      let dynamicSize =
-        shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
-      this.drawShape(
-        this.shapeTypes[this.currentShapeIndex],
-        shape.x,
-        shape.y,
-        dynamicSize,
-        rgb
-      );
+      let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
+      this.drawShape(this.shapeTypes[this.currentShapeIndex], shape.x, shape.y, dynamicSize, rgb);
     });
-
+  
     requestAnimationFrame(this.animate.bind(this));
   }
+  
 
   drawShape(type, x, y, size, rgb) {
     const ctx = this.ctx;
@@ -524,14 +521,12 @@ class CanvasBackground {
     const MUSIC_MULTIPLIER = 4;
     let r1 = s1.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 2));
     let r2 = s2.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 2));
-    let dx = s2.x - s1.x,
-      dy = s2.y - s1.y;
+    let dx = s2.x - s1.x, dy = s2.y - s1.y;
     let dist = Math.sqrt(dx * dx + dy * dy);
     let minDist = r1 + r2;
     if (dist < minDist) {
       let overlap = (minDist - dist) / 2;
-      let nx = dx / dist,
-        ny = dy / dist;
+      let nx = dx / dist, ny = dy / dist;
       s1.x -= overlap * nx;
       s1.y -= overlap * ny;
       s2.x += overlap * nx;
@@ -541,6 +536,7 @@ class CanvasBackground {
     }
   }
 }
+
 
 class DodecagonCanvas {
   constructor() {
@@ -1771,13 +1767,17 @@ CryptoModule.instance = new CryptoModule();
 window.startDinoGame = function () {
   if (window.dinoGameStarted) return;
   window.dinoGameStarted = true;
-  initMiniDinoGame();
+  const initGame = () => { initMiniDinoGame(); };
+  if (window.requestIdleCallback) {
+    requestIdleCallback(initGame);
+  } else {
+    setTimeout(initGame, 0);
+  }
 
   function initMiniDinoGame() {
     const canvas = document.getElementById("miniDinoGame");
     const ctx = canvas.getContext("2d");
-    const W = canvas.width,
-      H = canvas.height;
+    const W = canvas.width, H = canvas.height;
     let dinoX, dinoY, dinoW, dinoH, dinoVy, isJumping, gravity, jumpPower, obstacles, frameCount, gameOver;
 
     function resetGame() {
@@ -1823,15 +1823,9 @@ window.startDinoGame = function () {
     function update() {
       if (gameOver) return;
       ctx.clearRect(0, 0, W, H);
-      if (dinoY < H - 10) {
-        dinoVy -= gravity;
-      }
+      if (dinoY < H - 10) { dinoVy -= gravity; }
       dinoY -= dinoVy;
-      if (dinoY > H - 10) {
-        dinoY = H - 10;
-        dinoVy = 0;
-        isJumping = false;
-      }
+      if (dinoY > H - 10) { dinoY = H - 10; dinoVy = 0; isJumping = false; }
       obstacles.forEach((obs) => (obs.x -= 2));
       obstacles = obstacles.filter((obs) => obs.x + obs.width > 0);
       for (let obs of obstacles) {
@@ -1869,6 +1863,7 @@ window.startDinoGame = function () {
     resetGame();
   }
 };
+
 
 //////////////////////////
 // --- Tetris Game Logic ---
@@ -2215,11 +2210,20 @@ window.startTetrisGameOriginal = function () {
 
 window.startTetrisGame = function () {
   if (typeof window.startTetrisGameOriginal === "function") {
-    window.startTetrisGameOriginal();
+    if (window.requestIdleCallback) {
+      requestIdleCallback(() => {
+        window.startTetrisGameOriginal();
+      });
+    } else {
+      setTimeout(() => {
+        window.startTetrisGameOriginal();
+      }, 0);
+    }
   } else {
     console.warn("Tetris game function is not defined.");
   }
 };
+
 
 class RetroOS {
   constructor() {
@@ -2327,16 +2331,29 @@ function typeWriterOnElement(element, delay = 0) {
   typeChar();
 }
 
+// Throttle the ascii-corner update using requestAnimationFrame
+let scrollTicking = false;
 function onScrollTypeAscii() {
   const asciiCorner = document.getElementById("asciiCorner");
   if (!asciiCorner) return;
   const asciiFull = asciiCorner.dataset.fullText || "";
   const scrollTop = window.scrollY;
   const docHeight = document.body.scrollHeight - window.innerHeight;
-  let ratio = docHeight > 0 ? scrollTop / docHeight : 0;
+  const ratio = docHeight > 0 ? scrollTop / docHeight : 0;
   const revealCount = Math.floor(asciiFull.length * ratio);
   asciiCorner.textContent = asciiFull.substring(0, revealCount);
 }
+
+window.addEventListener("scroll", () => {
+  if (!scrollTicking) {
+    window.requestAnimationFrame(() => {
+      onScrollTypeAscii();
+      scrollTicking = false;
+    });
+    scrollTicking = true;
+  }
+}, { passive: true });
+
 
 document.addEventListener("DOMContentLoaded", () => {
   RetroOS.instance = new RetroOS();
@@ -2376,8 +2393,11 @@ document.getElementById("visualizerPrompt").addEventListener("click", function (
     // *** NEW: Update VCR effect canvas dimensions after the modal becomes visible ***
     const vcrContainer = document.querySelector("#visualizerModal .vcr-effect:last-of-type");
     if (vcrContainer && vcrContainer.screenEffectInstance) {
-      vcrContainer.screenEffectInstance.onResize();
+      setTimeout(() => {
+        vcrContainer.screenEffectInstance.onResize();
+      }, 50);
     }
+
 
     // Ensure the modal is draggable (initialize once).
     if (!visualizerModal.dataset.draggableInitialized) {
