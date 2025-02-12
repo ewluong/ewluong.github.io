@@ -2299,7 +2299,7 @@ class RetroOS {
     window.addEventListener("resize", Util.debounce(() => {
       // Additional resize handling if needed.
     }, 100));
-    typeWriterOnElement(document.getElementById("terminalHeader"), 50);
+    typeWriterOnElement(document.getElementById("terminalHeader"), 10);
 
     // Defer non-critical animations until after all assets are loaded
     window.addEventListener("load", () => {
