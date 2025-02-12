@@ -1921,6 +1921,9 @@ class RetroOS {
       });
     });
     document.getElementById("retroMusicPlayer").style.zIndex = 99999;
+    if (window.innerWidth < 600) {
+      document.getElementById("retroMusicPlayer").classList.add("hidden");
+    }
     window.addEventListener("resize", Util.debounce(() => {
       // Additional resize handling if needed.
     }, 100));
