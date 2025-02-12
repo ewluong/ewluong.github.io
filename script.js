@@ -172,6 +172,11 @@ class Draggable {
   }
 }
 
+// Helper: clamp a value between a minimum and maximum
+function clamp(val, min, max) {
+  return Math.max(min, Math.min(val, max));
+}
+
 class CanvasBackground {
   constructor() {
     this.canvas = document.getElementById("bgCanvas");
@@ -181,7 +186,6 @@ class CanvasBackground {
     this.shapes = [];
     this.numShapes = 8;
     this.shapeTypes = ["circle", "square", "triangle"];
-    // We no longer auto-cycle the shape type; it now updates via scroll.
     this.currentShapeIndex = 0;
     this.mouseX = -9999;
     this.mouseY = -9999;
@@ -218,23 +222,44 @@ class CanvasBackground {
   animate() {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.w, this.h);
+  
+    // Get the text color from the CSS and parse it.
     const computedStyle = getComputedStyle(document.documentElement);
     const textColor = computedStyle.getPropertyValue("--text-color").trim();
     const rgb = Util.parseHexToRgb(textColor);
-    let musicFactor = window.currentMusicFactor || 0;
-    const MUSIC_MULTIPLIER = 60; // Adjust to change pulsing amplitude
-    // Update shape positions and sizes based on music factor
+  
+    // If lights-out mode is active and the video analyser is available,
+    // update the music factor from the video audio; otherwise, use the default.
+    let musicFactor;
+    if (document.body.classList.contains("lights-out-mode") && window.videoAnalyser) {
+      updateMusicFactorFromVideo();
+      musicFactor = window.currentMusicFactor;
+    } else {
+      musicFactor = window.currentMusicFactor || 0;
+    }
+    
+    const MUSIC_MULTIPLIER = 4; // Adjust this multiplier for pulsing amplitude.
+  
+    // Update positions and handle collisions for each shape.
     this.shapes.forEach(shape => {
+      // Compute dynamic size based on the current music factor.
       let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
+      
+      // Update position.
       shape.x += shape.vx;
       shape.y += shape.vy;
-      let dx = shape.x - this.mouseX, dy = shape.y - this.mouseY;
+      
+      // Repel shape from the mouse pointer.
+      let dx = shape.x - this.mouseX;
+      let dy = shape.y - this.mouseY;
       let dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < this.repelRadius) {
         let angle = Math.atan2(dy, dx);
         shape.x += Math.cos(angle) * this.repelForce * (this.repelRadius - dist);
         shape.y += Math.sin(angle) * this.repelForce * (this.repelRadius - dist);
       }
+      
+      // Bounce off canvas edges.
       if (shape.x - dynamicSize < 0) {
         shape.x = dynamicSize;
         shape.vx = -shape.vx;
@@ -249,20 +274,50 @@ class CanvasBackground {
         shape.y = this.h - dynamicSize;
         shape.vy = -shape.vy;
       }
+      
+      // *** New: Bounce off the visualizer modal when lights-out mode is active ***
+      if (document.body.classList.contains("lights-out-mode")) {
+        const visModal = document.getElementById("visualizerModal");
+        if (visModal) {
+          // Get the modal's bounding rectangle.
+          const rect = visModal.getBoundingClientRect();
+          // Find the closest point on the modal to the shape.
+          const closestX = clamp(shape.x, rect.left, rect.right);
+          const closestY = clamp(shape.y, rect.top, rect.bottom);
+          const diffX = shape.x - closestX;
+          const diffY = shape.y - closestY;
+          // If the shape is intersecting the modal...
+          if ((diffX * diffX + diffY * diffY) < dynamicSize * dynamicSize) {
+            // Calculate the angle from the modal's edge.
+            const angle = Math.atan2(diffY, diffX);
+            const vMag = Math.sqrt(shape.vx * shape.vx + shape.vy * shape.vy);
+            // Reposition the shape so it's just outside the modal.
+            shape.x = closestX + Math.cos(angle) * (dynamicSize + 1);
+            shape.y = closestY + Math.sin(angle) * (dynamicSize + 1);
+            // Reflect its velocity along the collision angle.
+            shape.vx = Math.cos(angle) * vMag;
+            shape.vy = Math.sin(angle) * vMag;
+          }
+        }
+      }
     });
-    // Resolve collisions between shapes
+  
+    // Resolve collisions between shapes.
     for (let i = 0; i < this.shapes.length; i++) {
       for (let j = i + 1; j < this.shapes.length; j++) {
         this.resolveCollision(this.shapes[i], this.shapes[j]);
       }
     }
-    // Draw shapes using the current shape type (set by scroll via SectionObserver)
+    
+    // Draw each shape.
     this.shapes.forEach(shape => {
       let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
       this.drawShape(this.shapeTypes[this.currentShapeIndex], shape.x, shape.y, dynamicSize, rgb);
     });
+  
     requestAnimationFrame(this.animate.bind(this));
   }
+  
   drawShape(type, x, y, size, rgb) {
     const ctx = this.ctx;
     ctx.beginPath();
@@ -285,7 +340,7 @@ class CanvasBackground {
   }
   resolveCollision(s1, s2) {
     let effectiveMusicFactor = window.currentMusicFactor || 0;
-    const MUSIC_MULTIPLIER = 10;
+    const MUSIC_MULTIPLIER = 4;
     let r1 = s1.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 2));
     let r2 = s2.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 2));
     let dx = s2.x - s1.x, dy = s2.y - s1.y;
@@ -303,6 +358,7 @@ class CanvasBackground {
     }
   }
 }
+
 
 class DodecagonCanvas {
   constructor() {
@@ -1969,4 +2025,112 @@ function onScrollTypeAscii() {
 document.addEventListener("DOMContentLoaded", () => {
   RetroOS.instance = new RetroOS();
   RetroOS.instance.init();
+});
+
+// When the visualizer modal is toggled via the "visualizerPrompt", the lights out switch appears.
+// (This code is from the previous solution and remains unchanged.)
+document.getElementById("visualizerPrompt").addEventListener("click", () => {
+  const visualizerModal = document.getElementById("visualizerModal");
+  const video = visualizerModal.querySelector("video");
+  const lightsOutSwitch = document.getElementById("lightsOutSwitch");
+  
+  if (ModalManager.instance.pendingBringToFrontTimeout) {
+    clearTimeout(ModalManager.instance.pendingBringToFrontTimeout);
+    ModalManager.instance.pendingBringToFrontTimeout = null;
+  }
+  
+  if (visualizerModal.classList.contains("hidden")) {
+    // Open the modal and start the video.
+    visualizerModal.dataset.openedAt = performance.now();
+    visualizerModal.classList.remove("hidden");
+    ModalManager.instance.currentActiveModal = visualizerModal;
+    ModalManager.instance.bringModalToFront(visualizerModal);
+    Draggable.makeElementDraggable(visualizerModal);
+    if (video) {
+      video.play().catch(err => {
+        console.error("Error playing video:", err);
+      });
+    }
+    // Show the Lights Out switch when the visualizer modal is open.
+    lightsOutSwitch.classList.remove("hidden");
+  } else {
+    // Close the modal: pause video, hide lights out switch and tunnel effect.
+    visualizerModal.classList.add("hidden");
+    if (video) {
+      video.pause();
+    }
+    lightsOutSwitch.classList.add("hidden");
+    document.getElementById("tunnelOverlay").classList.remove("active");
+  }
+});
+
+document.getElementById("lightsOutSwitch").addEventListener("click", () => {
+  const body = document.body;
+  const visualizerModal = document.getElementById("visualizerModal");
+
+  if (body.classList.contains("lights-out-mode")) {
+    body.classList.remove("lights-out-mode");
+  } else {
+    body.classList.add("lights-out-mode");
+    // Center the visualizer modal.
+    visualizerModal.style.top = "50%";
+    visualizerModal.style.left = "50%";
+    visualizerModal.style.transform = "translate(-50%, -50%)";
+    // Initialize the video analyser (if it hasn't been already)
+    initVideoAudioAnalyser();
+  }
+});
+
+
+// Initializes an analyser node for the mp4 video in the visualizer modal.
+function initVideoAudioAnalyser() {
+  const video = document.querySelector("#visualizerModal video");
+  if (!video) return;
+  
+  // Only initialize once.
+  if (!window.videoAudioContext) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    window.videoAudioContext = new AudioContext();
+    window.videoAnalyser = window.videoAudioContext.createAnalyser();
+    window.videoAnalyser.fftSize = 256;
+    const source = window.videoAudioContext.createMediaElementSource(video);
+    source.connect(window.videoAnalyser);
+    window.videoAnalyser.connect(window.videoAudioContext.destination);
+    
+    window.videoBufferLength = window.videoAnalyser.frequencyBinCount;
+    window.videoDataArray = new Uint8Array(window.videoBufferLength);
+  }
+}
+
+// Computes an RMS value from the video’s audio data and updates window.currentMusicFactor.
+function updateMusicFactorFromVideo() {
+  if (window.videoAnalyser) {
+    window.videoAnalyser.getByteTimeDomainData(window.videoDataArray);
+    let sum = 0;
+    for (let i = 0; i < window.videoBufferLength; i++) {
+      let deviation = window.videoDataArray[i] - 128;
+      sum += deviation * deviation;
+    }
+    let rms = Math.sqrt(sum / window.videoBufferLength);
+    // Normalize roughly to 0-1 (adjust scaling if needed)
+    window.currentMusicFactor = rms / 128;
+  }
+}
+
+// Global click handler to exit lights out mode when clicking on the black background.
+document.addEventListener("click", (e) => {
+  // Only proceed if lights out mode is active.
+  if (document.body.classList.contains("lights-out-mode")) {
+    const visualizerModal = document.getElementById("visualizerModal");
+    const lightsOutSwitch = document.getElementById("lightsOutSwitch");
+    
+    // Check if the click occurred outside the visualizer modal and the lights out switch.
+    if (
+      !visualizerModal.contains(e.target) &&
+      !lightsOutSwitch.contains(e.target)
+    ) {
+      // Turn off lights out mode.
+      document.body.classList.remove("lights-out-mode");
+    }
+  }
 });

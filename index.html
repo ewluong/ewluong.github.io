@@ -63,8 +63,14 @@
         </div>
       </div>
       <button id="randomizeToggle" class="toggle-button">Randomize</button>
+      <!-- NEW: Lights Out Switch (hidden by default) -->
+      <div id="lightsOutSwitch" class="toggle-button lights-out hidden">Lights Out</div>
     </div>
 
+    <!-- NEW: Tunnel Overlay for the tunnel animation effect -->
+    <div id="tunnelOverlay"></div>
+
+    
     <!-- Background Canvas -->
     <canvas id="bgCanvas"></canvas>
 
@@ -532,6 +538,7 @@
       <div id="chatboxPrompt" class="toggle-button">Chat</div>
       <div id="musicPrompt" class="toggle-button">Music</div>
       <button type="button" id="dataPrompt" class="toggle-button">Data</button>
+      <button type="button" id="visualizerPrompt" class="toggle-button">Visualizer</button>
     </div>
 
     <!-- WIDGETS MODAL (File Explorer Style) -->
@@ -572,6 +579,26 @@
         <button type="button" class="modal-close" id="widgetsModalClose">Close</button>
       </div>
     </div>
+
+    <!-- New Visualizer Modal -->
+    <div id="visualizerModal" class="draggable-widget-modal hidden">
+      <div class="modal-content visualizer-modal-content">
+        <div class="vcr-effect">
+          <div class="screen-container">
+            <div class="screen-wrapper">
+              <video class="video" src="images/vibe.mp4" autoplay loop playsinline></video>
+            </div>
+          </div>
+          <div class="vignette"></div>
+          <div class="scanlines"></div>
+        </div>
+        <!-- Close button removed -->
+      </div>
+    </div>
+    
+    
+
+
 
     <!-- Load custom JavaScript -->
     <script type="module" src="script.js"></script>
