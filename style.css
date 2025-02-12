@@ -47,6 +47,7 @@
   --item-hover-bg: #fdfffc;
   --item-hover-text: #011627;
 }
+
 body {
   transition: background-color 1.2s ease, color 1.2s ease;
   position: relative;
@@ -56,6 +57,7 @@ body {
   overflow-x: hidden;
   line-height: 1.4;
 }
+
 body::before {
   content: "";
   position: fixed;
@@ -73,22 +75,26 @@ body::before {
     transparent 2px
   );
 }
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
+
 .navbar {
   background-color: transparent;
   padding: 1rem;
   text-align: center;
 }
+
 .navbar ul {
   list-style-type: none;
   display: inline-flex;
   gap: 1.5rem;
   justify-content: center;
 }
+
 .navbar a {
   text-decoration: none;
   position: relative;
@@ -97,6 +103,7 @@ body::before {
   font-size: 1.2rem;
   color: var(--text-color);
 }
+
 .navbar a:hover,
 .project-link:hover,
 .glitchHover:hover,
@@ -106,6 +113,7 @@ body::before {
   transform: scale(1.1);
   color: var(--bg-color);
 }
+
 @keyframes glitchHover {
   0% {
     text-shadow: 1px 0 var(--link-glitch-color), -1px 0 var(--text-color);
@@ -132,6 +140,7 @@ body::before {
     transform: skewX(0deg);
   }
 }
+
 .section {
   padding: 8rem 3rem;
   text-align: center;
@@ -142,14 +151,17 @@ body::before {
   justify-content: center;
   margin: 10rem 0;
 }
+
 .section-header {
   font-size: 2.6rem;
   margin-bottom: 1rem;
   opacity: 0;
 }
+
 #terminalHeader {
   opacity: 1;
 }
+
 #bgCanvas {
   position: fixed;
   top: 0;
@@ -159,6 +171,7 @@ body::before {
   z-index: -1;
   pointer-events: none;
 }
+
 #asciiCorner {
   position: fixed;
   bottom: 1rem;
@@ -169,6 +182,7 @@ body::before {
   z-index: 999;
   color: var(--text-color);
 }
+
 .about-grid {
   display: flex;
   flex-wrap: wrap;
@@ -177,6 +191,7 @@ body::before {
   margin: 0 auto;
   justify-content: center;
 }
+
 .about-item {
   background-color: inherit;
   border: 2px solid var(--text-color);
@@ -187,22 +202,26 @@ body::before {
   color: inherit;
   transition: all 0.3s ease;
 }
+
 .about-item:hover {
   background-color: var(--item-hover-bg);
   color: var(--item-hover-text);
   transform: scale(1.05);
 }
+
 .about-icon {
   width: 40px;
   height: 40px;
   margin-bottom: 1rem;
 }
+
 .project-cards {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: center;
 }
+
 .project-card {
   background-color: inherit;
   border: 2px solid var(--text-color);
@@ -214,11 +233,13 @@ body::before {
   color: inherit;
   cursor: pointer;
 }
+
 .project-card:hover {
   background-color: var(--item-hover-bg);
   color: var(--item-hover-text);
   transform: scale(1.05);
 }
+
 /* Updated hover rule: flip colors based on current theme variables */
 .project-card:hover,
 .about-item:hover {
@@ -226,12 +247,14 @@ body::before {
   color: var(--bg-color);
   transform: scale(1.05);
 }
+
 /* New rule: project cards remain highlighted when active */
 .project-card.active {
   background-color: var(--text-color);
   color: var(--bg-color);
   transform: scale(1.05);
 }
+
 .blog-section .blog-list {
   list-style: none;
   margin-top: 2rem;
@@ -239,15 +262,18 @@ body::before {
   flex-direction: column;
   gap: 1rem;
 }
+
 .blog-post {
   cursor: pointer;
   font-size: 1.4rem;
   transition: transform 0.3s ease;
 }
+
 .blog-post:hover {
   transform: scale(1.1);
   animation: glitchHover 0.4s infinite alternate;
 }
+
 /* Modal Styles */
 .modal {
   position: fixed;
@@ -261,9 +287,11 @@ body::before {
   align-items: center;
   z-index: 11000;
 }
+
 .hidden {
   display: none;
 }
+
 .modal-content {
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -275,6 +303,7 @@ body::before {
   position: relative;
   overflow: hidden;
 }
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -283,10 +312,12 @@ body::before {
   border-bottom: 1px solid var(--text-color);
   cursor: move;
 }
+
 .modal-title {
   font-size: 2rem;
   margin-bottom: 1rem;
 }
+
 .modal-text,
 .modal-body {
   font-size: 1.2rem;
@@ -296,19 +327,24 @@ body::before {
   scrollbar-width: thin;
   scrollbar-color: var(--text-color) var(--bg-color);
 }
+
 .modal-text::-webkit-scrollbar,
 .modal-body::-webkit-scrollbar {
   width: 10px;
 }
+
 .modal-text::-webkit-scrollbar-track,
 .modal-body::-webkit-scrollbar-track {
   background: var(--bg-color);
 }
+
 .modal-text::-webkit-scrollbar-thumb,
 .modal-body::-webkit-scrollbar-thumb {
   background-color: var(--text-color);
   border: 2px solid var(--bg-color);
 }
+
+/* Modal Close Button */
 .modal-close {
   background-color: var(--text-color);
   color: var(--bg-color);
@@ -319,10 +355,12 @@ body::before {
   float: right;
   transition: background-color 0.3s ease;
 }
+
 .modal-close:hover {
   background-color: var(--link-glitch-color);
   color: var(--text-color);
 }
+
 /* ---------- Chat Modal Styles ---------- */
 .chat-modal {
   position: fixed;
@@ -338,12 +376,14 @@ body::before {
   height: 500px;
   box-shadow: 0 0 20px var(--text-color);
 }
+
 .chat-modal .chatbox-interface {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
 }
+
 .chat-modal .chatbox-header {
   display: flex;
   justify-content: space-between;
@@ -355,6 +395,7 @@ body::before {
   border-top-right-radius: 8px;
   cursor: move;
 }
+
 .chat-modal .chatbox-close {
   background: none;
   border: none;
@@ -362,6 +403,7 @@ body::before {
   font-size: 1.2rem;
   cursor: pointer;
 }
+
 .chat-modal .chatbox-body {
   flex: 1;
   padding: 1rem;
@@ -369,6 +411,7 @@ body::before {
   color: var(--text-color);
   overflow-y: auto;
 }
+
 .chat-modal .chatbox-messages .chatbox-message.user {
   align-self: flex-end;
   background-color: var(--text-color);
@@ -377,6 +420,7 @@ body::before {
   border-radius: 4px;
   margin: 0.2rem 0;
 }
+
 .chat-modal .chatbox-messages .chatbox-message.bot {
   align-self: flex-start;
   background-color: #333;
@@ -385,6 +429,7 @@ body::before {
   border-radius: 4px;
   margin: 0.2rem 0;
 }
+
 .chat-modal .chatbox-footer {
   display: flex;
   padding: 1rem;
@@ -392,6 +437,7 @@ body::before {
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
 }
+
 .chat-modal .chatbox-input {
   flex: 1;
   padding: 0.5rem;
@@ -401,6 +447,7 @@ body::before {
   border-radius: 4px;
   outline: none;
 }
+
 .chat-modal .chatbox-send-btn {
   margin-left: 0.5rem;
   padding: 0.5rem 1rem;
@@ -411,10 +458,12 @@ body::before {
   cursor: pointer;
   transition: background-color 0.3s;
 }
+
 .chat-modal .chatbox-send-btn:hover {
   background-color: var(--hover-bg-on-orange);
   color: var(--hover-text-on-orange);
 }
+
 /* ---------- Toggle Buttons & Active State ---------- */
 .toggle-button {
   font-size: 1.2rem;
@@ -433,16 +482,19 @@ body::before {
   width: 100px;
   height: 40px;
 }
+
 .toggle-button:hover {
   transform: scale(1.1);
   background-color: var(--text-color);
   color: var(--bg-color);
 }
+
 .toggle-button.active {
   transform: scale(1.1);
   background-color: var(--text-color);
   color: var(--bg-color);
 }
+
 .folder {
   background-color: var(--bg-color);
   border: 2px solid var(--text-color);
@@ -452,20 +504,24 @@ body::before {
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
 }
+
 .folder:hover {
   background-color: var(--item-hover-bg);
   color: var(--item-hover-text);
 }
+
 .folder.active {
   background-color: var(--item-hover-bg);
   color: var(--item-hover-text);
 }
+
 .folder-icon {
   width: 40px;
   height: 30px;
   margin: 0 auto 5px auto;
   position: relative;
 }
+
 .folder-top {
   position: absolute;
   top: 0;
@@ -476,6 +532,7 @@ body::before {
   border-bottom: none;
   background: transparent;
 }
+
 .folder-body {
   position: absolute;
   top: 8px;
@@ -485,9 +542,11 @@ body::before {
   border: 2px solid var(--text-color);
   background: transparent;
 }
+
 .folder-label {
   font-size: 1rem;
 }
+
 /* ---------- Top-Right Container ---------- */
 .top-right {
   position: fixed;
@@ -498,6 +557,7 @@ body::before {
   gap: 10px;
   align-items: center;
 }
+
 /* ---------- Bottom-Right Container ---------- */
 #toggleButtonsContainer {
   position: fixed;
@@ -508,6 +568,7 @@ body::before {
   gap: 15px;
   z-index: 9999;
 }
+
 /* ---------- Retro Music Player ---------- */
 .retro-music-player {
   position: fixed;
@@ -524,6 +585,7 @@ body::before {
   cursor: grab;
   transition: background-color 1.2s ease, color 1.2s ease;
 }
+
 .music-header {
   width: 100%;
   height: 50px;
@@ -531,6 +593,7 @@ body::before {
   border-radius: 4px;
   overflow: hidden;
 }
+
 .music-controls {
   margin-top: 0.5rem;
   display: flex;
@@ -539,6 +602,7 @@ body::before {
   align-items: center;
   flex-wrap: nowrap;
 }
+
 .control-btn {
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -553,11 +617,13 @@ body::before {
   justify-content: center;
   position: relative;
 }
+
 .control-btn:hover {
   background-color: var(--link-glitch-color);
   color: var(--bg-color);
   transform: scale(1.2);
 }
+
 .control-btn.play::before,
 .control-btn.forward::before {
   content: "";
@@ -570,6 +636,7 @@ body::before {
   border-width: 7.5px 0 7.5px 13px;
   border-color: transparent transparent transparent var(--text-color);
 }
+
 .control-btn.backward::before {
   content: "";
   display: block;
@@ -581,6 +648,7 @@ body::before {
   border-width: 7.5px 13px 7.5px 0;
   border-color: transparent var(--text-color) transparent transparent;
 }
+
 .control-btn.pause::before {
   content: "";
   position: absolute;
@@ -590,6 +658,7 @@ body::before {
   left: 7px;
   top: 9px;
 }
+
 .control-btn.pause::after {
   content: "";
   position: absolute;
@@ -599,19 +668,27 @@ body::before {
   left: 15px;
   top: 9px;
 }
+
 .breathing {
   animation: breathe 1.5s infinite;
 }
+
 @keyframes breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
 }
+
 .music-progress {
   margin-top: 0.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 /* ---------- Custom Retro Progress Bar Styles ---------- */
 #progressBar {
   -webkit-appearance: none;
@@ -621,9 +698,11 @@ body::before {
   margin: 0;
   bottom: 4px;
 }
+
 #progressBar:focus {
   outline: none;
 }
+
 #progressBar::-webkit-slider-runnable-track {
   width: 100%;
   height: 12px;
@@ -632,6 +711,7 @@ body::before {
   box-shadow: inset 0 0 5px var(--text-color);
   border-radius: 2px;
 }
+
 #progressBar::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 16px;
@@ -645,9 +725,11 @@ body::before {
   animation: pulse 0.2s infinite;
   bottom: 2px;
 }
+
 #progressBar::-webkit-slider-thumb:hover {
   transform: scale(1.2);
 }
+
 #progressBar::-moz-range-track {
   width: 100%;
   height: 12px;
@@ -656,6 +738,7 @@ body::before {
   box-shadow: inset 0 0 5px var(--text-color);
   border-radius: 2px;
 }
+
 #progressBar::-moz-range-thumb {
   width: 16px;
   height: 16px;
@@ -665,9 +748,11 @@ body::before {
   transition: transform 0.2s ease;
   animation: pulse 1s infinite;
 }
+
 #progressBar::-moz-range-thumb:hover {
   transform: scale(1.2);
 }
+
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 var(--text-color);
@@ -679,6 +764,7 @@ body::before {
     box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
   }
 }
+
 /* New styles for the moving light pulse effect */
 .progress-container {
   position: relative;
@@ -686,10 +772,12 @@ body::before {
   height: 12px;
   overflow: hidden;
 }
+
 .progress-container input {
   position: relative;
   z-index: 2;
 }
+
 .progress-pulse {
   position: absolute;
   top: 0;
@@ -703,6 +791,7 @@ body::before {
   z-index: 1;
   width: 0%;
 }
+
 @keyframes lightPulse {
   0% {
     background-position: -200% 0;
@@ -717,6 +806,7 @@ body::before {
   color: var(--text-color);
   margin-top: 0.2rem;
 }
+
 .favorites-dropdown {
   margin-top: 0.5rem;
   background-color: var(--bg-color);
@@ -726,14 +816,17 @@ body::before {
   max-height: 200px;
   overflow-y: auto;
 }
+
 .favorites-dropdown h3 {
   margin-bottom: 0.5rem;
   font-size: 1rem;
   color: var(--link-glitch-color);
 }
+
 .favorites-dropdown ul {
   list-style: none;
 }
+
 .favorites-dropdown li {
   padding: 0.3rem 0;
   border-bottom: 1px solid var(--text-color);
@@ -742,11 +835,13 @@ body::before {
   color: var(--text-color);
   background-color: var(--bg-color);
 }
+
 .favorites-dropdown li:hover {
   animation: glitchHover 0.4s infinite alternate;
   background-color: var(--item-hover-bg);
   color: var(--item-hover-text);
 }
+
 .favorites-dropdown li:last-child {
   border-bottom: none;
 }
@@ -756,9 +851,11 @@ body::before {
   background-color: transparent !important;
   pointer-events: none;
 }
+
 #backroomsModal .modal-content {
   pointer-events: auto;
 }
+
 #backroomsModal .backrooms-modal-content {
   display: flex;
   flex-direction: column;
@@ -766,6 +863,7 @@ body::before {
   overflow: hidden;
   height: 75vh;
 }
+
 #backroomsModal .vcr-header {
   background: var(--bg-color);
   color: var(--text-color);
@@ -776,28 +874,33 @@ body::before {
   border-bottom: 4px solid var(--text-color);
   cursor: move;
 }
+
 #backroomsModal .vcr-header .vcr-description {
   font-size: 1rem;
   margin-top: 5px;
   letter-spacing: 1px;
   color: var(--text-color);
 }
+
 /* Use the original scaling for the Backrooms search area */
 #backroomsModal .vcr-search {
   display: flex;
   gap: 3px;
   padding: 3px;
 }
+
 #backroomsModal .vcr-search select {
   flex: 1;
   font-size: 0.9rem;
   padding: 3px;
 }
+
 #backroomsModal .vcr-search input {
   flex: 2;
   font-size: 0.9rem;
   padding: 3px;
 }
+
 #backroomsModal .vcr-search button {
   flex: 1;
   font-size: 0.9rem;
@@ -821,22 +924,27 @@ body::before {
   position: relative;
   font-size: 0.9rem;
 }
+
 .crypto-modal-content table {
   width: 100%;
   border-collapse: collapse;
   border-spacing: 4px;
   font-size: 1.1rem;
 }
+
 .crypto-modal-content th,
 .crypto-modal-content td {
   padding: 4px;
 }
+
 .negative {
   color: red;
 }
+
 .positive {
   color: green;
 }
+
 .crypto-controls {
   margin-top: 0.75rem;
   width: 100%;
@@ -844,6 +952,7 @@ body::before {
   justify-content: space-between;
   align-items: center;
 }
+
 #cryptoRefreshBtn {
   padding: 0.25rem 0.5rem;
   font-size: 0.9rem;
@@ -852,6 +961,7 @@ body::before {
   border: 2px solid #f69513;
   cursor: pointer;
 }
+
 .crypto-modal-content .modal-close {
   padding: 0.25rem 0.5rem;
   font-size: 0.9rem;
@@ -861,16 +971,18 @@ body::before {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+
 .crypto-modal-content .modal-close:hover {
   background-color: #000;
   color: #f69513;
 }
+
 /* ---------- Weather Modal ---------- */
 .weather-modal-content {
   background-color: var(--bg-color);
   color: var(--text-color);
   border: 2px solid var(--text-color);
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   width: 200px;
   border-radius: 8px;
   padding: 0.75rem;
@@ -881,6 +993,7 @@ body::before {
   position: relative;
   font-size: 0.9rem;
 }
+
 .weather-modal-content .modal-close {
   padding: 0.25rem 0.5rem;
   font-size: 0.9rem;
@@ -892,10 +1005,12 @@ body::before {
   align-self: flex-end;
   margin-top: 0.5rem;
 }
+
 .weather-modal-content .modal-close:hover {
   background-color: var(--bg-color);
   color: var(--text-color);
 }
+
 /* ---------- Widget Modal ---------- */
 .widget-modal {
   position: fixed;
@@ -908,12 +1023,15 @@ body::before {
   align-items: center;
   pointer-events: none;
 }
+
 .widget-modal .modal-content {
   pointer-events: auto;
 }
+
 .widget-modal.hidden {
   display: none;
 }
+
 /* ---------- Override for Weather Modal ---------- */
 #weatherModal {
   top: 80px;
@@ -924,6 +1042,7 @@ body::before {
   height: auto;
   pointer-events: auto;
 }
+
 /* ---------- Widgets Explorer Modal ---------- */
 .widgets-modal {
   position: fixed;
@@ -932,18 +1051,18 @@ body::before {
   pointer-events: none;
   z-index: 11000;
 }
+
 .widgets-modal .modal-content {
   pointer-events: auto;
   width: 500px;
 }
+
 /* ---------- Minigame Modal ---------- */
 #minigameModal .modal-content {
-  /* Remove extra positioning so that the content sits at the top-left of the draggable container */
   top: 0;
   left: 0;
   transform: none;
   width: 350px;
-  /* You can add padding or margin if needed to match the style of your other modals */
   margin: 0 auto;
 }
 
@@ -954,6 +1073,7 @@ body::before {
   gap: 10px;
   padding: 10px;
 }
+
 .folder {
   background-color: var(--bg-color);
   border: 2px solid var(--text-color);
@@ -963,20 +1083,24 @@ body::before {
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
 }
+
 .folder:hover {
   background-color: var(--item-hover-bg);
   color: var(--item-hover-text);
 }
+
 .folder:hover .folder-top,
 .folder:hover .folder-body {
   border-color: var(--item-hover-text);
 }
+
 .folder-icon {
   width: 40px;
   height: 30px;
-  margin: 0 auto 5px auto;
+  margin: 0 auto 5px;
   position: relative;
 }
+
 .folder-top {
   position: absolute;
   top: 0;
@@ -987,6 +1111,7 @@ body::before {
   border-bottom: none;
   background: transparent;
 }
+
 .folder-body {
   position: absolute;
   top: 8px;
@@ -996,9 +1121,11 @@ body::before {
   border: 2px solid var(--text-color);
   background: transparent;
 }
+
 .folder-label {
   font-size: 1rem;
 }
+
 /* ---------- Draggable Widget Modals ---------- */
 .draggable-widget-modal {
   position: fixed;
@@ -1008,23 +1135,28 @@ body::before {
   pointer-events: auto !important;
   z-index: 11000;
 }
+
 .draggable-widget-modal .modal-content {
   pointer-events: auto !important;
 }
+
 /* ---------- Custom Modal Initial Positions ---------- */
 #cryptoModal {
   top: auto;
   bottom: 20px;
   left: 20px;
 }
+
 #retroMusicPlayer {
   position: fixed;
   top: 20px;
   left: 20px;
 }
+
 #retroMusicPlayer.hidden {
   display: none !important;
 }
+
 #retroMusicPlayer:not(.hidden) {
   display: block !important;
 }
@@ -1107,7 +1239,7 @@ body::before {
 /* --- Game Over Overlay --- */
 .game-over {
   position: absolute;
-  top: 0px;
+  top: 0;
   left: 0;
   width: 350px;
   height: 250px;
@@ -1119,7 +1251,7 @@ body::before {
   align-items: center;
   font-size: 18px;
   z-index: 10;
-  text-align: center; 
+  text-align: center;
 }
 
 .game-over p {
@@ -1214,30 +1346,25 @@ body::before {
     padding: 20px;
     overflow-y: auto;
     position: relative;
-    font-size: 0.6rem !important; 
+    font-size: 0.6rem !important;
     line-height: 1.4;
-    /* IMPORTANT: preserve newlines for Model A/B */
     white-space: pre-wrap;
     height: 600px;
   }
-  
-  /* Also ensure the inner text container preserves whitespace */
   #backroomsText {
     white-space: pre-wrap;
     min-height: 300px;
   }
-  
   /* --- BACKROOMS MODAL SEARCH AREA: Adjusted for Smaller Mobile Elements --- */
   #backroomsModal .vcr-search {
     display: flex;
-    gap: 2px;       /* Slight gap adjustment */
+    gap: 2px;
     padding: 2px;
   }
-  
   #backroomsModal .vcr-search select {
     flex: 1;
-    min-width: 0;         /* Allow shrinking */
-    font-size: 10px !important;  /* Force a smaller font size */
+    min-width: 0;
+    font-size: 10px !important;
     padding: 2px;
     background: var(--bg-color);
     border: 1px solid var(--text-color);
@@ -1248,11 +1375,10 @@ body::before {
     background: var(--text-color);
     color: var(--bg-color);
   }
-  
   #backroomsModal .vcr-search input {
     flex: 1;
-    min-width: 0;         /* Allow shrinking */
-    font-size: 10px !important;  /* Force a smaller font size */
+    min-width: 0;
+    font-size: 10px !important;
     padding: 2px;
     background: var(--bg-color);
     border: 1px solid var(--text-color);
@@ -1263,11 +1389,10 @@ body::before {
     background: var(--text-color);
     color: var(--bg-color);
   }
-  
   #backroomsModal .vcr-search button {
     flex: 1;
-    min-width: 0;         /* Allow shrinking */
-    font-size: 10px !important;  /* Force a smaller font size */
+    min-width: 0;
+    font-size: 10px !important;
     padding: 2px;
     white-space: nowrap;
     background: var(--bg-color);
@@ -1279,7 +1404,6 @@ body::before {
     background: var(--text-color);
     color: var(--bg-color);
   }
-
   #backroomsModal .vcr-header {
     font-size: 0.7rem !important;
     padding: 1px !important;
@@ -1288,22 +1412,18 @@ body::before {
     font-size: 0.6rem !important;
     margin-top: 0.2rem;
   }
-  
   #terminalHeader {
-    /* Adjust these values as needed */
     font-size: clamp(1rem, 6vw, 1.5rem) !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
   .toggle-button {
-    font-size: 0.9rem;           /* Smaller font size */
-    padding: 0.3rem 0.7rem;      /* Reduced padding */
-    width: 70px;               /* Narrower width */
-    height: 30px;              /* Shorter height */
+    font-size: 0.9rem;
+    padding: 0.3rem 0.7rem;
+    width: 70px;
+    height: 30px;
   }
-
   #widgetsModal {
     position: fixed !important;
     top: 50% !important;
@@ -1315,8 +1435,6 @@ body::before {
     box-sizing: border-box !important;
     pointer-events: auto !important;
   }
-  
-  /* Make sure the modal content fills the container */
   #widgetsModal .modal-content {
     width: 100% !important;
     max-width: 100% !important;
@@ -1324,20 +1442,11 @@ body::before {
     box-sizing: border-box !important;
     margin: 0 !important;
   }
-  
-  /* Set the grid to 2x2 */
   .widgets-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 10px !important;
   }
-  
-  
-
 }
-
-
-
-
 
 /* ---------- Backrooms Modal (Desktop Fix) ---------- */
 #backroomsModal .vcr-screen,
@@ -1386,15 +1495,15 @@ body::before {
 
 #backroomsModal .vcr-controls {
   position: absolute;
-  bottom: 10px;  /* Adjust as needed */
-  right: 10px;   /* Adjust as needed */
+  bottom: 10px;
+  right: 10px;
 }
 
 .hidden { 
   display: none !important;
- }
+}
 
- /* Visualizer Modal VCR Effect Styles */
+/* Visualizer Modal VCR Effect Styles */
 .visualizer-modal-content {
   position: relative;
   padding: 0;
@@ -1402,14 +1511,15 @@ body::before {
   border: none;
   overflow: hidden;
 }
+
 .visualizer-modal-content .vcr-effect canvas.vcr {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 10; /* Ensure this is higher than the video's z-index */
-  pointer-events: none; /* So it doesn't block interactions with the video */
+  z-index: 10;
+  pointer-events: none;
   opacity: 0.6;
 }
 
@@ -1420,17 +1530,20 @@ body::before {
   position: relative;
   margin: 0 auto;
 }
+
 .visualizer-modal-content .screen-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
 }
+
 .visualizer-modal-content .video {
   width: 100%;
   height: auto;
   display: block;
   filter: blur(1px);
 }
+
 .visualizer-modal-content .vignette {
   position: absolute;
   top: 0;
@@ -1443,6 +1556,7 @@ body::before {
   pointer-events: none;
   z-index: 10000;
 }
+
 .visualizer-modal-content .scanlines {
   position: absolute;
   top: 0;
@@ -1450,21 +1564,16 @@ body::before {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    transparent 50%,
-    rgba(0, 0, 0, 0.2) 50%
-  );
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.2) 50%);
   background-size: 100% 2px;
   z-index: 10001;
 }
 
-
 /* Lights Out Switch Glow */
 .lights-out {
-  /* Adjust padding/font as needed */
   animation: glow 1s infinite alternate;
 }
+
 @keyframes glow {
   from {
     box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.5);
@@ -1481,44 +1590,24 @@ body.lights-out-mode {
 
 /* Position the visualizer modal in lights-out mode */
 body.lights-out-mode #visualizerModal {
-  top: 50%; /* Adjust this value if you want it higher or lower */
+  top: 50%;
   left: 51%;
   transform: translate(-50%, -50%);
 }
-
 
 /* Hide all direct children of body except #bgCanvas, #visualizerModal, and #lightsOutSwitch */
 body.lights-out-mode > :not(#bgCanvas):not(#visualizerModal):not(#lightsOutSwitch) {
   display: none !important;
 }
 
-
-
-
-
-
-/* Lights Out Switch Glow (if not already added) */
-.lights-out {
-  animation: glow 1s infinite alternate;
-}
-@keyframes glow {
-  from {
-    box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.5);
-  }
-  to {
-    box-shadow: 0 0 20px 5px rgba(255, 255, 255, 1);
-  }
-}
-
-
 /* Custom styling for the Lights Out Switch */
 #lightsOutSwitch {
-  font-size: 1.2rem;         /* Make the font a bit smaller */
-  padding: 0.4rem 0.8rem;    /* Adjust padding so the text fits comfortably */
-  white-space: nowrap;      /* Ensure the text stays on one line */
-  width: auto;              /* Let the width adjust to fit the content */
-  height: auto;             /* Remove fixed height if needed */
-  line-height: 1.2;         /* Adjust line-height for readability */
+  font-size: 1.2rem;
+  padding: 0.4rem 0.8rem;
+  white-space: nowrap;
+  width: auto;
+  height: auto;
+  line-height: 1.2;
 }
 
 #visualizerModal {
@@ -1526,4 +1615,49 @@ body.lights-out-mode > :not(#bgCanvas):not(#visualizerModal):not(#lightsOutSwitc
   top: 50%;
   left: 51%;
   transform: translate(-50%, -50%);
+}
+
+/* ---------- Backrooms Modal - Search Area (Desktop Fix) ---------- */
+#backroomsModal .vcr-search {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+}
+
+#backroomsModal .vcr-search select,
+#backroomsModal .vcr-search input,
+#backroomsModal .vcr-search button {
+  font-size: 0.9rem;
+  padding: 3px;
+  background: var(--bg-color);
+  border: 1px solid var(--text-color);
+  color: var(--text-color);
+  transition: background 0.3s, color 0.3s;
+}
+
+#backroomsModal .vcr-search select:hover,
+#backroomsModal .vcr-search input:hover,
+#backroomsModal .vcr-search button:hover {
+  background: var(--text-color);
+  color: var(--bg-color);
+}
+
+#backroomsModal .vcr-search select {
+  flex: 1;
+}
+
+#backroomsModal .vcr-search input {
+  flex: 2;
+}
+
+#backroomsModal .vcr-search button {
+  flex: 1;
+  white-space: nowrap;
+}
+
+/* ---------- Backrooms Modal Controls ---------- */
+#backroomsModal .vcr-controls {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
 }

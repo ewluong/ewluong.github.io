@@ -3,64 +3,128 @@
 class Util {
   static debounce(func, delay) {
     let timer;
-    return function(...args) {
+    return function (...args) {
       clearTimeout(timer);
       timer = setTimeout(() => func.apply(this, args), delay);
     };
   }
+
   static parseHexToRgb(hex) {
     hex = hex.replace("#", "");
     if (hex.length === 3) hex = hex.split("").map(c => c + c).join("");
     const num = parseInt(hex, 16);
     return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
   }
+
   static shadeColor(color, percent) {
     let num = parseInt(color.replace("#", ""), 16),
-        amt = Math.round(2.55 * percent),
-        R = (num >> 16) + amt,
-        G = ((num >> 8) & 0x00FF) + amt,
-        B = (num & 0x0000FF) + amt;
-    return "#" + (
-      0x1000000 +
-      (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
-      (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
-      (B < 255 ? (B < 1 ? 0 : B) : 255)
-    ).toString(16).slice(1);
+      amt = Math.round(2.55 * percent),
+      R = (num >> 16) + amt,
+      G = ((num >> 8) & 0x00ff) + amt,
+      B = (num & 0x0000ff) + amt;
+    return (
+      "#" +
+      (
+        0x1000000 +
+        (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+        (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+        (B < 255 ? (B < 1 ? 0 : B) : 255)
+      )
+        .toString(16)
+        .slice(1)
+    );
   }
 }
 
 class ThemeManager {
   constructor() {
     this.themes = [
-      { name: "Orange & Black", sub: [{ bg: "#ff5e00", text: "#000000" }, { bg: "#000000", text: "#ff5e00" }] },
-      { name: "Black & Bright Green", sub: [{ bg: "#000000", text: "#00ff00" }, { bg: "#00ff00", text: "#000000" }] },
-      { name: "Dark Purple & Neon Green", sub: [{ bg: "#2e003e", text: "#00ff00" }, { bg: "#00ff00", text: "#2e003e" }] },
-      { name: "Navy Blue & Light Blue", sub: [{ bg: "#001f3f", text: "#7FDBFF" }, { bg: "#7FDBFF", text: "#001f3f" }] },
-      { name: "Dark Maroon & Amber", sub: [{ bg: "#0d0208", text: "#f2a900" }, { bg: "#f2a900", text: "#0d0208" }] },
-      { name: "Dark Blue & Off-White", sub: [{ bg: "#011627", text: "#fdfffc" }, { bg: "#fdfffc", text: "#011627" }] },
+      {
+        name: "Orange & Black",
+        sub: [
+          { bg: "#ff5e00", text: "#000000" },
+          { bg: "#000000", text: "#ff5e00" }
+        ]
+      },
+      {
+        name: "Black & Bright Green",
+        sub: [
+          { bg: "#000000", text: "#00ff00" },
+          { bg: "#00ff00", text: "#000000" }
+        ]
+      },
+      {
+        name: "Dark Purple & Neon Green",
+        sub: [
+          { bg: "#2e003e", text: "#00ff00" },
+          { bg: "#00ff00", text: "#2e003e" }
+        ]
+      },
+      {
+        name: "Navy Blue & Light Blue",
+        sub: [
+          { bg: "#001f3f", text: "#7FDBFF" },
+          { bg: "#7FDBFF", text: "#001f3f" }
+        ]
+      },
+      {
+        name: "Dark Maroon & Amber",
+        sub: [
+          { bg: "#0d0208", text: "#f2a900" },
+          { bg: "#f2a900", text: "#0d0208" }
+        ]
+      },
+      {
+        name: "Dark Blue & Off-White",
+        sub: [
+          { bg: "#011627", text: "#fdfffc" },
+          { bg: "#fdfffc", text: "#011627" }
+        ]
+      }
     ];
     this.currentTheme = null;
   }
+
   init() {
     // Default theme: Navy Blue & Light Blue
     this.currentTheme = this.themes[3];
-    document.documentElement.style.setProperty("--bg-color", this.currentTheme.sub[0].bg);
-    document.documentElement.style.setProperty("--text-color", this.currentTheme.sub[0].text);
+    document.documentElement.style.setProperty(
+      "--bg-color",
+      this.currentTheme.sub[0].bg
+    );
+    document.documentElement.style.setProperty(
+      "--text-color",
+      this.currentTheme.sub[0].text
+    );
     document.documentElement.setAttribute("data-scheme", this.currentTheme.name);
-    document.documentElement.style.setProperty("--pulse-color", this.getPulseColor(this.currentTheme.sub[0].text));
+    document.documentElement.style.setProperty(
+      "--pulse-color",
+      this.getPulseColor(this.currentTheme.sub[0].text)
+    );
   }
+
   randomizeTheme() {
     let randomIndex;
     do {
       randomIndex = Math.floor(Math.random() * this.themes.length);
     } while (this.themes[randomIndex].name === this.currentTheme.name);
     this.currentTheme = this.themes[randomIndex];
-    document.documentElement.style.setProperty("--bg-color", this.currentTheme.sub[0].bg);
-    document.documentElement.style.setProperty("--text-color", this.currentTheme.sub[0].text);
+    document.documentElement.style.setProperty(
+      "--bg-color",
+      this.currentTheme.sub[0].bg
+    );
+    document.documentElement.style.setProperty(
+      "--text-color",
+      this.currentTheme.sub[0].text
+    );
     document.documentElement.setAttribute("data-scheme", this.currentTheme.name);
-    document.documentElement.style.setProperty("--pulse-color", this.getPulseColor(this.currentTheme.sub[0].text));
+    document.documentElement.style.setProperty(
+      "--pulse-color",
+      this.getPulseColor(this.currentTheme.sub[0].text)
+    );
     RetroOS.instance.tetrisThemeUpdate();
   }
+
   updateTetrisTheme(scheme) {
     let tetrisBg, tetrisAccent;
     if (scheme) {
@@ -72,8 +136,12 @@ class ThemeManager {
     }
     document.documentElement.style.setProperty("--tetris-bg", tetrisBg);
     document.documentElement.style.setProperty("--tetris-accent", tetrisAccent);
-    document.documentElement.style.setProperty("--tetris-header-bg", Util.shadeColor(tetrisBg, -20));
+    document.documentElement.style.setProperty(
+      "--tetris-header-bg",
+      Util.shadeColor(tetrisBg, -20)
+    );
   }
+
   getPulseColor(hexColor, alpha = 0.6) {
     const rgb = Util.parseHexToRgb(hexColor);
     return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
@@ -86,6 +154,7 @@ class ModalManager {
     this.currentActiveModal = null;
     this.pendingBringToFrontTimeout = null;
   }
+
   bringModalToFront(modal) {
     if (modal.id === "retroMusicPlayer") return; // locked in front
     this.currentTopZ++;
@@ -97,8 +166,10 @@ ModalManager.instance = new ModalManager();
 
 class Draggable {
   static makeElementDraggable(element) {
-    let isDragging = false, offsetX, offsetY;
-    element.addEventListener("pointerdown", e => {
+    let isDragging = false,
+      offsetX,
+      offsetY;
+    element.addEventListener("pointerdown", (e) => {
       if (e.target.closest("button, input, select, textarea, .folder")) return;
       isDragging = true;
       e.preventDefault();
@@ -115,7 +186,7 @@ class Draggable {
       document.body.style.userSelect = "none";
       element.setPointerCapture(e.pointerId);
     });
-    element.addEventListener("pointermove", e => {
+    element.addEventListener("pointermove", (e) => {
       if (isDragging) {
         let newLeft = e.clientX - offsetX;
         let newTop = e.clientY - offsetY;
@@ -125,7 +196,7 @@ class Draggable {
         element.style.top = `${newTop}px`;
       }
     });
-    element.addEventListener("pointerup", e => {
+    element.addEventListener("pointerup", (e) => {
       if (isDragging) {
         isDragging = false;
         element.classList.remove("dragging");
@@ -134,9 +205,12 @@ class Draggable {
       }
     });
   }
+
   static makeElementDraggableWithHandle(handle, target) {
-    let isDragging = false, offsetX, offsetY;
-    handle.addEventListener("pointerdown", e => {
+    let isDragging = false,
+      offsetX,
+      offsetY;
+    handle.addEventListener("pointerdown", (e) => {
       if (e.target.closest("input, button, select, textarea, .folder")) return;
       isDragging = true;
       e.preventDefault();
@@ -151,7 +225,7 @@ class Draggable {
       document.body.style.userSelect = "none";
       handle.setPointerCapture(e.pointerId);
     });
-    handle.addEventListener("pointermove", e => {
+    handle.addEventListener("pointermove", (e) => {
       if (isDragging) {
         let newLeft = e.clientX - offsetX;
         let newTop = e.clientY - offsetY;
@@ -161,7 +235,7 @@ class Draggable {
         target.style.top = `${newTop}px`;
       }
     });
-    handle.addEventListener("pointerup", e => {
+    handle.addEventListener("pointerup", (e) => {
       if (isDragging) {
         isDragging = false;
         target.classList.remove("dragging");
@@ -188,7 +262,7 @@ class ScreenEffect {
     // Create a container for the effect if needed (this sample assumes the parent already exists).
     this.onResize();
   }
-  
+
   onResize() {
     this.rect = this.parent.getBoundingClientRect();
     if (this.effects.vcr) {
@@ -197,19 +271,18 @@ class ScreenEffect {
       this.effects.vcr.node.height = this.rect.height;
     }
   }
-  
-  
+
   // This method sets up and repeatedly renders the VCR noise.
   generateVCRNoise() {
     const canvas = this.effects.vcr.node;
     const ctx = this.effects.vcr.ctx;
     const config = this.effects.vcr.config;
-    
+
     // Set the blur filter for a CRT-like effect.
     canvas.style.filter = `blur(${config.blur}px)`;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = `#fff`;
-    
+
     // Begin drawing noise (this sample uses a simple random noise algorithm).
     ctx.beginPath();
     let num = config.num || 70;
@@ -221,7 +294,7 @@ class ScreenEffect {
     }
     ctx.closePath();
   }
-  
+
   // This method adds the VCR effect.
   add(type, options) {
     if (type === "vcr") {
@@ -231,20 +304,20 @@ class ScreenEffect {
       canvas.width = this.parent.offsetWidth;
       canvas.height = this.parent.offsetHeight;
       this.parent.appendChild(canvas);
-      
+
       this.effects.vcr = {
         node: canvas,
         ctx: canvas.getContext("2d"),
         enabled: true,
         config: Object.assign({ fps: 60, blur: 1, num: 70 }, options)
       };
-      
+
       // Start the noise animation.
       this.startVCRNoise();
     }
     return this;
   }
-  
+
   startVCRNoise() {
     const effect = this.effects.vcr;
     if (effect.config.fps >= 60) {
@@ -282,6 +355,7 @@ class CanvasBackground {
     this.repelRadius = 100;
     this.repelForce = 0.03;
   }
+
   init() {
     this.onResize();
     for (let i = 0; i < this.numShapes; i++) {
@@ -296,49 +370,59 @@ class CanvasBackground {
         vy,
       });
     }
-    window.addEventListener("mousemove", e => {
-      this.mouseX = e.clientX;
-      this.mouseY = e.clientY;
-    }, { passive: true });
+    window.addEventListener(
+      "mousemove",
+      (e) => {
+        this.mouseX = e.clientX;
+        this.mouseY = e.clientY;
+      },
+      { passive: true }
+    );
     requestAnimationFrame(this.animate.bind(this));
     window.addEventListener("resize", Util.debounce(this.onResize.bind(this), 100));
   }
+
   onResize() {
     this.w = window.innerWidth;
     this.h = window.innerHeight;
     this.canvas.width = this.w;
     this.canvas.height = this.h;
   }
+
   animate() {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.w, this.h);
-  
+
     // Get the text color from the CSS and parse it.
     const computedStyle = getComputedStyle(document.documentElement);
     const textColor = computedStyle.getPropertyValue("--text-color").trim();
     const rgb = Util.parseHexToRgb(textColor);
-  
+
     // If lights-out mode is active and the video analyser is available,
     // update the music factor from the video audio; otherwise, use the default.
     let musicFactor;
-    if (document.body.classList.contains("lights-out-mode") && window.videoAnalyser) {
+    if (
+      document.body.classList.contains("lights-out-mode") &&
+      window.videoAnalyser
+    ) {
       updateMusicFactorFromVideo();
       musicFactor = window.currentMusicFactor;
     } else {
       musicFactor = window.currentMusicFactor || 0;
     }
-    
+
     const MUSIC_MULTIPLIER = 4; // Adjust this multiplier for pulsing amplitude.
-  
+
     // Update positions and handle collisions for each shape.
-    this.shapes.forEach(shape => {
+    this.shapes.forEach((shape) => {
       // Compute dynamic size based on the current music factor.
-      let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
-      
+      let dynamicSize =
+        shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
+
       // Update position.
       shape.x += shape.vx;
       shape.y += shape.vy;
-      
+
       // Repel shape from the mouse pointer.
       let dx = shape.x - this.mouseX;
       let dy = shape.y - this.mouseY;
@@ -348,7 +432,7 @@ class CanvasBackground {
         shape.x += Math.cos(angle) * this.repelForce * (this.repelRadius - dist);
         shape.y += Math.sin(angle) * this.repelForce * (this.repelRadius - dist);
       }
-      
+
       // Bounce off canvas edges.
       if (shape.x - dynamicSize < 0) {
         shape.x = dynamicSize;
@@ -364,7 +448,7 @@ class CanvasBackground {
         shape.y = this.h - dynamicSize;
         shape.vy = -shape.vy;
       }
-      
+
       // *** New: Bounce off the visualizer modal when lights-out mode is active ***
       if (document.body.classList.contains("lights-out-mode")) {
         const visModal = document.getElementById("visualizerModal");
@@ -377,7 +461,7 @@ class CanvasBackground {
           const diffX = shape.x - closestX;
           const diffY = shape.y - closestY;
           // If the shape is intersecting the modal...
-          if ((diffX * diffX + diffY * diffY) < dynamicSize * dynamicSize) {
+          if (diffX * diffX + diffY * diffY < dynamicSize * dynamicSize) {
             // Calculate the angle from the modal's edge.
             const angle = Math.atan2(diffY, diffX);
             const vMag = Math.sqrt(shape.vx * shape.vx + shape.vy * shape.vy);
@@ -391,23 +475,30 @@ class CanvasBackground {
         }
       }
     });
-  
+
     // Resolve collisions between shapes.
     for (let i = 0; i < this.shapes.length; i++) {
       for (let j = i + 1; j < this.shapes.length; j++) {
         this.resolveCollision(this.shapes[i], this.shapes[j]);
       }
     }
-    
+
     // Draw each shape.
-    this.shapes.forEach(shape => {
-      let dynamicSize = shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
-      this.drawShape(this.shapeTypes[this.currentShapeIndex], shape.x, shape.y, dynamicSize, rgb);
+    this.shapes.forEach((shape) => {
+      let dynamicSize =
+        shape.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(musicFactor, 2));
+      this.drawShape(
+        this.shapeTypes[this.currentShapeIndex],
+        shape.x,
+        shape.y,
+        dynamicSize,
+        rgb
+      );
     });
-  
+
     requestAnimationFrame(this.animate.bind(this));
   }
-  
+
   drawShape(type, x, y, size, rgb) {
     const ctx = this.ctx;
     ctx.beginPath();
@@ -428,17 +519,20 @@ class CanvasBackground {
     ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`;
     ctx.stroke();
   }
+
   resolveCollision(s1, s2) {
     let effectiveMusicFactor = window.currentMusicFactor || 0;
     const MUSIC_MULTIPLIER = 4;
     let r1 = s1.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 2));
     let r2 = s2.baseSize * (1 + MUSIC_MULTIPLIER * Math.pow(effectiveMusicFactor, 2));
-    let dx = s2.x - s1.x, dy = s2.y - s1.y;
+    let dx = s2.x - s1.x,
+      dy = s2.y - s1.y;
     let dist = Math.sqrt(dx * dx + dy * dy);
     let minDist = r1 + r2;
     if (dist < minDist) {
       let overlap = (minDist - dist) / 2;
-      let nx = dx / dist, ny = dy / dist;
+      let nx = dx / dist,
+        ny = dy / dist;
       s1.x -= overlap * nx;
       s1.y -= overlap * ny;
       s2.x += overlap * nx;
@@ -449,7 +543,6 @@ class CanvasBackground {
   }
 }
 
-
 class DodecagonCanvas {
   constructor() {
     this.canvas = document.getElementById("dodecagonCanvas");
@@ -457,11 +550,13 @@ class DodecagonCanvas {
     this.dWidth = 400;
     this.dHeight = 400;
   }
+
   init() {
     this.resize();
     window.addEventListener("resize", this.resize.bind(this));
     requestAnimationFrame(this.loop.bind(this));
   }
+
   resize() {
     const containerWidth = this.canvas.parentElement.clientWidth;
     if (containerWidth < 400) {
@@ -474,9 +569,11 @@ class DodecagonCanvas {
     this.dWidth = this.canvas.width;
     this.dHeight = this.canvas.height;
   }
+
   loop() {
     this.ctx.clearRect(0, 0, this.dWidth, this.dHeight);
-    let cx = this.dWidth / 2, cy = this.dHeight / 2;
+    let cx = this.dWidth / 2,
+      cy = this.dHeight / 2;
     let docHeight = document.body.scrollHeight - window.innerHeight;
     let scrollY = window.scrollY;
     let scrollRatio = docHeight > 0 ? scrollY / docHeight : 0;
@@ -488,8 +585,10 @@ class DodecagonCanvas {
     this.drawDodecagon(cx, cy, currentRadius, rotation);
     requestAnimationFrame(this.loop.bind(this));
   }
+
   drawDodecagon(cx, cy, radius, rot) {
-    const sides = 12, angleStep = (Math.PI * 2) / sides;
+    const sides = 12,
+      angleStep = (Math.PI * 2) / sides;
     const computedStyle = getComputedStyle(document.documentElement);
     const textColor = computedStyle.getPropertyValue("--text-color").trim();
     const rgb = Util.parseHexToRgb(textColor);
@@ -523,8 +622,8 @@ class SectionObserver {
   init(themeManager, canvasBackground) {
     const sections = document.querySelectorAll(".section");
     const options = { threshold: 0.6 };
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const sectionIndex = Array.from(sections).indexOf(entry.target);
           const scheme = themeManager.currentTheme.sub[sectionIndex % 2];
@@ -538,7 +637,7 @@ class SectionObserver {
         }
       });
     }, options);
-    sections.forEach(section => observer.observe(section));
+    sections.forEach((section) => observer.observe(section));
   }
 }
 
@@ -547,13 +646,15 @@ class BlogModule {
     this.typeTimer = null;
     this.modalManager = modalManager;
   }
+
   init() {
     const blogPosts = document.querySelectorAll(".blog-post");
     const modal = document.getElementById("blogModal");
     const modalTitle = modal.querySelector(".modal-title");
     const modalText = modal.querySelector(".modal-text");
     const closeBtn = modal.querySelector(".modal-close");
-    blogPosts.forEach(post => {
+
+    blogPosts.forEach((post) => {
       post.addEventListener("click", () => {
         if (this.modalManager.pendingBringToFrontTimeout) {
           clearTimeout(this.modalManager.pendingBringToFrontTimeout);
@@ -572,6 +673,7 @@ class BlogModule {
         this.typeWriterEffect(post.dataset.content, modalText);
       });
     });
+
     closeBtn.addEventListener("click", () => {
       modal.classList.add("hidden");
       modalText.textContent = "";
@@ -580,8 +682,8 @@ class BlogModule {
         this.typeTimer = null;
       }
     });
-    closeBtn.addEventListener("mousedown", e => e.stopPropagation());
-    modal.addEventListener("click", e => {
+    closeBtn.addEventListener("mousedown", (e) => e.stopPropagation());
+    modal.addEventListener("click", (e) => {
       if (!e.target.closest(".modal-content")) {
         modal.classList.add("hidden");
         modalText.textContent = "";
@@ -592,12 +694,16 @@ class BlogModule {
       }
     });
   }
+
   typeWriterEffect(text, element) {
     element.textContent = "";
     let index = 0;
     const typeChar = () => {
       if (index < text.length) {
-        if (text.substr(index, 8) === "Model A:" || text.substr(index, 8) === "Model B:") {
+        if (
+          text.substr(index, 8) === "Model A:" ||
+          text.substr(index, 8) === "Model B:"
+        ) {
           if (!element.textContent.endsWith("\n\n")) {
             element.textContent = element.textContent.replace(/\n*$/, "\n\n");
           }
@@ -617,6 +723,7 @@ class ChatboxModule {
   constructor(modalManager) {
     this.modalManager = modalManager;
   }
+
   init(apiUrl) {
     const chatboxPrompt = document.getElementById("chatboxPrompt");
     const chatboxModal = document.getElementById("chatboxModal");
@@ -642,11 +749,12 @@ class ChatboxModule {
         chatboxPrompt.classList.remove("active");
       }
     });
+
     chatboxCloseBtn.addEventListener("click", () => {
       chatboxModal.classList.add("hidden");
       chatboxPrompt.classList.remove("active");
     });
-    chatboxCloseBtn.addEventListener("mousedown", e => e.stopPropagation());
+    chatboxCloseBtn.addEventListener("mousedown", (e) => e.stopPropagation());
     chatboxSendBtn.addEventListener("click", () => {
       const message = chatboxInput.value.trim();
       if (!message) return;
@@ -656,21 +764,30 @@ class ChatboxModule {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message })
       })
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
           if (data.response) {
             this.appendMessage("bot", data.response, chatboxMessages);
           } else {
-            this.appendMessage("bot", "I'm sorry, but I didn't receive a proper response.", chatboxMessages);
+            this.appendMessage(
+              "bot",
+              "I'm sorry, but I didn't receive a proper response.",
+              chatboxMessages
+            );
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Error with chatbot API:", error);
-          this.appendMessage("bot", "An error occurred. Please try again later.", chatboxMessages);
+          this.appendMessage(
+            "bot",
+            "An error occurred. Please try again later.",
+            chatboxMessages
+          );
         });
       chatboxInput.value = "";
     });
-    chatboxInput.addEventListener("keydown", e => {
+
+    chatboxInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") chatboxSendBtn.click();
     });
     chatboxModal.addEventListener("pointerdown", () => {
@@ -678,6 +795,7 @@ class ChatboxModule {
     });
     Draggable.makeElementDraggable(chatboxModal);
   }
+
   appendMessage(role, content, container) {
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("chatbox-message", role);
@@ -691,11 +809,12 @@ class DataModule {
   constructor(modalManager) {
     this.modalManager = modalManager;
   }
+
   init() {
     const dataPrompt = document.getElementById("dataPrompt");
     const dataModal = document.getElementById("dataModal");
     const dataModalClose = document.getElementById("dataModalClose");
-    dataPrompt.addEventListener("click", e => {
+    dataPrompt.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
       if (this.modalManager.pendingBringToFrontTimeout) {
@@ -713,41 +832,43 @@ class DataModule {
       dataModal.classList.add("hidden");
       dataPrompt.classList.remove("active");
     });
-    dataModal.addEventListener("click", e => {
+    dataModal.addEventListener("click", (e) => {
       if (!e.target.closest(".modal-content")) {
         dataModal.classList.add("hidden");
         dataPrompt.classList.remove("active");
       }
     });
   }
+
   fetchDataAnalytics() {
     const dataModalBody = document.getElementById("dataModalBody");
     const analyticsAPI = "/analytics";
     dataModalBody.innerHTML = "<p>Loading site data...</p>";
     fetch(analyticsAPI)
-      .then(response => {
+      .then((response) => {
         if (!response.ok) throw new Error("Network response was not ok");
         return response.json();
       })
-      .then(data => this.processAnalyticsData(data))
-      .catch(error => {
+      .then((data) => this.processAnalyticsData(data))
+      .catch((error) => {
         console.error("Error fetching analytics:", error);
         fetch("analytics_data.json")
-          .then(response => {
+          .then((response) => {
             if (!response.ok) throw new Error("Network response was not ok");
             return response.json();
           })
-          .then(data => this.processAnalyticsData(data))
-          .catch(fallbackError => {
+          .then((data) => this.processAnalyticsData(data))
+          .catch((fallbackError) => {
             dataModalBody.innerHTML = `<p>Error loading site data: ${fallbackError.message}</p>`;
             console.error("Fallback analytics error:", fallbackError);
           });
       });
   }
+
   processAnalyticsData(data) {
     const dataModalBody = document.getElementById("dataModalBody");
     const countsByHour = {};
-    data.timeseries.forEach(record => {
+    data.timeseries.forEach((record) => {
       const date = new Date(record.timestamp);
       const year = date.getFullYear();
       const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -757,24 +878,27 @@ class DataModule {
       countsByHour[key] = (countsByHour[key] || 0) + 1;
     });
     const sortedLabels = Object.keys(countsByHour).sort();
-    const counts = sortedLabels.map(label => countsByHour[label]);
+    const counts = sortedLabels.map((label) => countsByHour[label]);
     dataModalBody.innerHTML = `<canvas id="analyticsChart" width="400" height="200"></canvas>`;
     this.plotAnalyticsChart(sortedLabels, counts);
   }
+
   plotAnalyticsChart(labels, dataPoints) {
     const ctx = document.getElementById("analyticsChart").getContext("2d");
     new Chart(ctx, {
       type: "line",
       data: {
         labels: labels,
-        datasets: [{
-          label: "Visits per Hour",
-          data: dataPoints,
-          backgroundColor: "rgba(255, 94, 0, 0.2)",
-          borderColor: "rgba(255, 94, 0, 1)",
-          borderWidth: 2,
-          pointBackgroundColor: "rgba(0,0,0,1)"
-        }]
+        datasets: [
+          {
+            label: "Visits per Hour",
+            data: dataPoints,
+            backgroundColor: "rgba(255, 94, 0, 0.2)",
+            borderColor: "rgba(255, 94, 0, 1)",
+            borderWidth: 2,
+            pointBackgroundColor: "rgba(0,0,0,1)"
+          }
+        ]
       },
       options: {
         scales: {
@@ -830,7 +954,8 @@ class MusicPlayer {
       { id: 3, name: "Her Eyes", artist: "Narvent", filePath: "docs/sample3.mp3" },
       { id: 4, name: "Depression", artist: "Sun", filePath: "docs/sample3.mp3" }
     ];
-    let currentSongIndex = 0, isPlaying = false;
+    let currentSongIndex = 0,
+      isPlaying = false;
     let audioContext, analyser, source, dataArray, bufferLength, animationId;
     let lastBackwardClick = 0;
 
@@ -846,13 +971,14 @@ class MusicPlayer {
       dataArray = new Uint8Array(bufferLength);
       window.audioAnalyser = analyser;
     };
+
     const drawWaveform = () => {
       if (!analyser) return;
       analyser.getByteTimeDomainData(dataArray);
       const canvasCtx = waveformCanvas.getContext("2d");
       const width = waveformCanvas.width;
       const height = waveformCanvas.height;
-      let computedStyle = getComputedStyle(document.documentElement);
+      const computedStyle = getComputedStyle(document.documentElement);
       let bgColor = computedStyle.getPropertyValue("--bg-color").trim();
       let textColor = computedStyle.getPropertyValue("--text-color").trim();
       canvasCtx.fillStyle = bgColor;
@@ -860,7 +986,8 @@ class MusicPlayer {
       canvasCtx.lineWidth = 2;
       canvasCtx.strokeStyle = textColor;
       canvasCtx.beginPath();
-      let sliceWidth = width / bufferLength, x = 0;
+      let sliceWidth = width / bufferLength,
+        x = 0;
       for (let i = 0; i < bufferLength; i++) {
         let v = dataArray[i] / 128.0;
         let y = (v * height) / 2;
@@ -870,6 +997,7 @@ class MusicPlayer {
       }
       canvasCtx.lineTo(width, height / 2);
       canvasCtx.stroke();
+
       // Compute RMS from the time-domain data to update music factor for pulsing
       let sum = 0;
       for (let i = 0; i < bufferLength; i++) {
@@ -877,10 +1005,11 @@ class MusicPlayer {
         sum += deviation * deviation;
       }
       let rms = Math.sqrt(sum / bufferLength);
-      window.currentMusicFactor = rms / 128; // Normalize to roughly between 0 and 1
+      window.currentMusicFactor = rms / 128; // Normalize roughly between 0 and 1
       animationId = requestAnimationFrame(drawWaveform);
     };
-    const loadSong = index => {
+
+    const loadSong = (index) => {
       if (index < 0 || index >= songs.length) return;
       currentSongIndex = index;
       audioPlayer.src = songs[currentSongIndex].filePath;
@@ -896,16 +1025,38 @@ class MusicPlayer {
       }
       audioPlayer.load();
     };
+
     btnPlayPause.addEventListener("click", () => {
+      // If the visualizer modal is open, close it.
+      const visualizerModal = document.getElementById("visualizerModal");
+      if (visualizerModal && !visualizerModal.classList.contains("hidden")) {
+        visualizerModal.classList.add("hidden");
+        const video = visualizerModal.querySelector("video");
+        if (video) {
+          video.pause();
+        }
+        const lightsOutSwitch = document.getElementById("lightsOutSwitch");
+        if (lightsOutSwitch) {
+          lightsOutSwitch.classList.add("hidden");
+        }
+        const visualizerButton = document.getElementById("visualizerPrompt");
+        if (visualizerButton) {
+          visualizerButton.classList.remove("active");
+        }
+      }
+    
+      // Now toggle the music player.
       if (!isPlaying) {
         if (audioContext && audioContext.state === "suspended") {
           audioContext.resume();
         }
-        audioPlayer.play().catch(err => console.error("Playback failed:", err));
+        audioPlayer.play().catch((err) => console.error("Playback failed:", err));
       } else {
         audioPlayer.pause();
       }
     });
+    
+
     audioPlayer.addEventListener("play", () => {
       isPlaying = true;
       btnPlayPause.classList.remove("play");
@@ -915,29 +1066,33 @@ class MusicPlayer {
         drawWaveform();
       }
     });
+
     audioPlayer.addEventListener("pause", () => {
       isPlaying = false;
       btnPlayPause.classList.remove("pause");
       btnPlayPause.classList.add("play");
       btnPlayPause.classList.remove("breathing");
     });
+
     btnForward.addEventListener("click", () => {
       currentSongIndex = (currentSongIndex + 1) % songs.length;
       loadSong(currentSongIndex);
-      audioPlayer.play().catch(err => console.error("Playback failed:", err));
+      audioPlayer.play().catch((err) => console.error("Playback failed:", err));
     });
+
     btnBackward.addEventListener("click", () => {
       const now = Date.now();
       if (now - lastBackwardClick < 500) {
         currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
         loadSong(currentSongIndex);
-        audioPlayer.play().catch(err => console.error("Playback failed:", err));
+        audioPlayer.play().catch((err) => console.error("Playback failed:", err));
         lastBackwardClick = 0;
       } else {
         audioPlayer.currentTime = 0;
         lastBackwardClick = now;
       }
     });
+
     audioPlayer.addEventListener("timeupdate", () => {
       if (audioPlayer.duration) {
         const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
@@ -947,19 +1102,22 @@ class MusicPlayer {
         document.querySelector(".progress-pulse").style.width = progress + "%";
       }
     });
+
     progressBar.addEventListener("input", () => {
       const seekTime = (progressBar.value / 100) * audioPlayer.duration;
       audioPlayer.currentTime = seekTime;
     });
-    const formatTime = time => {
+
+    const formatTime = (time) => {
       if (isNaN(time)) return "0:00";
       const minutes = Math.floor(time / 60);
       const seconds = Math.floor(time % 60);
       return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
     };
+
     btnFavorite.addEventListener("click", () => {
       let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-      if (favorites.some(fav => fav.id === songs[currentSongIndex].id)) {
+      if (favorites.some((fav) => fav.id === songs[currentSongIndex].id)) {
         alert("This song is already in your favorites.");
         return;
       }
@@ -967,6 +1125,7 @@ class MusicPlayer {
       localStorage.setItem("favorites", JSON.stringify(favorites));
       populateFavorites();
     });
+
     const populateFavorites = () => {
       let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
       favoritesList.innerHTML = "";
@@ -976,8 +1135,8 @@ class MusicPlayer {
         favoritesList.appendChild(li);
         return;
       }
-      favorites.forEach(fav => {
-        const songIndex = songs.findIndex(song => song.id === fav.id);
+      favorites.forEach((fav) => {
+        const songIndex = songs.findIndex((song) => song.id === fav.id);
         if (songIndex === -1) return;
         const li = document.createElement("li");
         li.textContent = `${fav.name} by ${fav.artist}`;
@@ -986,7 +1145,7 @@ class MusicPlayer {
           const index = parseInt(li.dataset.index);
           if (!isNaN(index) && index >= 0 && index < songs.length) {
             loadSong(index);
-            audioPlayer.play().catch(err => console.error("Playback failed:", err));
+            audioPlayer.play().catch((err) => console.error("Playback failed:", err));
           } else {
             alert("Selected song not found.");
           }
@@ -994,16 +1153,20 @@ class MusicPlayer {
         favoritesList.appendChild(li);
       });
     };
+
     btnFavoritesToggle.addEventListener("click", () => {
       const favoritesDropdown = document.querySelector(".favorites-dropdown");
       favoritesDropdown.classList.toggle("hidden");
     });
+
     Draggable.makeElementDraggable(retroMusicPlayer);
+
     audioPlayer.addEventListener("ended", () => {
       currentSongIndex = (currentSongIndex + 1) % songs.length;
       loadSong(currentSongIndex);
-      audioPlayer.play().catch(err => console.error("Playback failed:", err));
+      audioPlayer.play().catch((err) => console.error("Playback failed:", err));
     });
+
     loadSong(currentSongIndex);
     populateFavorites();
 
@@ -1035,6 +1198,7 @@ class ProjectModal {
     this.modalManager = modalManager;
     this.currentProjectCard = null;
   }
+
   init() {
     const projectCards = document.querySelectorAll(".project-card");
     const projectModal = document.getElementById("projectModal");
@@ -1042,16 +1206,16 @@ class ProjectModal {
     const projectModalBody = projectModal.querySelector(".modal-body");
     const projectModalClose = projectModal.querySelector(".modal-close");
 
-    projectCards.forEach(card => {
+    projectCards.forEach((card) => {
       card.addEventListener("click", () => {
         // Remove 'active' from all cards first, then add to the clicked one
-        projectCards.forEach(c => c.classList.remove("active"));
+        projectCards.forEach((c) => c.classList.remove("active"));
         this.currentProjectCard = card;
         card.classList.add("active");
-    
+
         const file = card.getAttribute("data-file");
         const projectTitle = card.querySelector("h2").textContent.trim();
-    
+
         if (projectTitle === "Infinite Backrooms") {
           const backroomsModal = document.getElementById("backroomsModal");
           backroomsModal.dataset.openedAt = performance.now();
@@ -1064,9 +1228,13 @@ class ProjectModal {
           }
           // Add listener to remove active class when backrooms modal closes
           const backroomsClose = document.getElementById("backroomsClose");
-          backroomsClose.addEventListener("click", () => {
-            card.classList.remove("active");
-          }, { once: true });
+          backroomsClose.addEventListener(
+            "click",
+            () => {
+              card.classList.remove("active");
+            },
+            { once: true }
+          );
           return;
         } else if (projectTitle === "ewluong.com") {
           const chatboxModal = document.getElementById("chatboxModal");
@@ -1076,30 +1244,34 @@ class ProjectModal {
           this.modalManager.bringModalToFront(chatboxModal);
           // Add listener to remove active class when chatbox modal closes
           const chatboxClose = chatboxModal.querySelector(".chatbox-close");
-          chatboxClose.addEventListener("click", () => {
-            card.classList.remove("active");
-          }, { once: true });
+          chatboxClose.addEventListener(
+            "click",
+            () => {
+              card.classList.remove("active");
+            },
+            { once: true }
+          );
           return;
         }
-    
+
         // For all other project cards, open the standard project modal.
         projectModal.dataset.openedAt = performance.now();
         projectModalTitle.textContent = projectTitle;
         projectModalBody.innerHTML = "";
         if (file && file.endsWith(".md")) {
           fetch(`docs/${file}`)
-            .then(response => {
+            .then((response) => {
               if (!response.ok) throw new Error("Network response was not ok");
               return response.text();
             })
-            .then(mdText => {
+            .then((mdText) => {
               const htmlContent = marked.parse(mdText);
               const markdownDiv = document.createElement("div");
               markdownDiv.classList.add("markdown-content");
               markdownDiv.innerHTML = htmlContent;
               projectModalBody.appendChild(markdownDiv);
             })
-            .catch(error => {
+            .catch((error) => {
               projectModalBody.textContent = "Error loading the document.";
               console.error("Fetch error:", error);
             });
@@ -1118,12 +1290,15 @@ class ProjectModal {
         this.modalManager.currentActiveModal = projectModal;
         this.modalManager.bringModalToFront(projectModal);
         // Remove active highlight when the standard project modal is closed.
-        projectModal.querySelector(".modal-close").addEventListener("click", () => {
-          card.classList.remove("active");
-        }, { once: true });
+        projectModal.querySelector(".modal-close").addEventListener(
+          "click",
+          () => {
+            card.classList.remove("active");
+          },
+          { once: true }
+        );
       });
     });
-    
 
     projectModalClose.addEventListener("click", () => {
       projectModal.classList.add("hidden");
@@ -1135,9 +1310,9 @@ class ProjectModal {
       }
     });
 
-    projectModalClose.addEventListener("mousedown", e => e.stopPropagation());
+    projectModalClose.addEventListener("mousedown", (e) => e.stopPropagation());
 
-    projectModal.addEventListener("click", e => {
+    projectModal.addEventListener("click", (e) => {
       if (!e.target.closest(".modal-content")) {
         projectModal.classList.add("hidden");
         projectModalBody.innerHTML = "";
@@ -1159,6 +1334,7 @@ class BackroomsModule {
     this.displayBuffer = "";
     this.typingSpeed = 1;
   }
+
   init() {
     const backroomsPrompt = document.getElementById("backroomsPrompt");
     const backroomsModal = document.getElementById("backroomsModal");
@@ -1175,7 +1351,7 @@ class BackroomsModule {
       { name: "Backrooms 3", file: "docs/backrooms3.txt" }
     ];
     dropdown.innerHTML = "";
-    conversationFiles.forEach(fileObj => {
+    conversationFiles.forEach((fileObj) => {
       let option = document.createElement("option");
       option.value = fileObj.file;
       option.textContent = fileObj.name;
@@ -1183,6 +1359,7 @@ class BackroomsModule {
     });
     dropdown.selectedIndex = 0;
     window.loadBackrooms = this.loadConversation.bind(this);
+
     backroomsPrompt.addEventListener("click", () => {
       if (ModalManager.instance.pendingBringToFrontTimeout) {
         clearTimeout(ModalManager.instance.pendingBringToFrontTimeout);
@@ -1202,13 +1379,14 @@ class BackroomsModule {
         backroomsPrompt.classList.remove("active");
       }
     });
+
     backroomsClose.addEventListener("click", () => {
       backroomsModal.classList.add("hidden");
       this.stopTypewriter();
       this.resetContainer();
       backroomsPrompt.classList.remove("active");
     });
-    backroomsClose.addEventListener("mousedown", e => e.stopPropagation());
+    backroomsClose.addEventListener("mousedown", (e) => e.stopPropagation());
     dropdown.addEventListener("change", () => {
       this.loadConversation(dropdown.value);
     });
@@ -1227,12 +1405,17 @@ class BackroomsModule {
       this.loadConversation(dropdown.value);
     });
     const backroomsHeader = document.querySelector(".vcr-header");
-    Draggable.makeElementDraggableWithHandle(backroomsHeader, document.querySelector(".backrooms-modal-content"));
+    Draggable.makeElementDraggableWithHandle(
+      backroomsHeader,
+      document.querySelector(".backrooms-modal-content")
+    );
   }
+
   resetContainer() {
     document.getElementById("backroomsText").innerHTML =
       '<span id="backroomsContent"></span><span id="cursor"></span>';
   }
+
   loadConversation(fileValue) {
     this.stopTypewriter();
     this.resetContainer();
@@ -1243,42 +1426,53 @@ class BackroomsModule {
     if (fileValue === "all") {
       let promises = [];
       const files = Array.from(document.querySelectorAll("#backroomsDropdown option"))
-                    .filter(opt => opt.value !== "all")
-                    .map(opt => opt.value);
-      promises = files.map(file => fetch(file).then(response => {
-        if (!response.ok) throw new Error("Network error");
-        return response.text();
-      }));
+        .filter((opt) => opt.value !== "all")
+        .map((opt) => opt.value);
+      promises = files.map((file) =>
+        fetch(file).then((response) => {
+          if (!response.ok) throw new Error("Network error");
+          return response.text();
+        })
+      );
       Promise.all(promises)
-        .then(results => {
-          this.backroomsContent = results.join("\n\n").replace(/\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g, "\n\n");
+        .then((results) => {
+          this.backroomsContent = results
+            .join("\n\n")
+            .replace(/\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g, "\n\n");
           this.startTypewriter();
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           backroomsContentElement.textContent = "Error loading conversations.";
         });
     } else {
       fetch(fileValue)
-        .then(response => {
+        .then((response) => {
           if (!response.ok) throw new Error("Network error");
           return response.text();
         })
-        .then(text => {
-          this.backroomsContent = text.replace(/\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g, "\n\n");
+        .then((text) => {
+          this.backroomsContent = text.replace(
+            /\r?\n(?=\d{4}-\d{2}-\d{2}.*Model [AB]:)/g,
+            "\n\n"
+          );
           this.startTypewriter();
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           backroomsContentElement.textContent = "Error loading conversation.";
         });
     }
   }
+
   startTypewriter() {
     const backroomsContentElement = document.getElementById("backroomsContent");
     this.typeInterval = setInterval(() => {
       if (this.backroomsContent.length === 0) return;
-      if (this.backroomsContent.substr(this.currentIndex, 8) === "Model A:" || this.backroomsContent.substr(this.currentIndex, 8) === "Model B:") {
+      if (
+        this.backroomsContent.substr(this.currentIndex, 8) === "Model A:" ||
+        this.backroomsContent.substr(this.currentIndex, 8) === "Model B:"
+      ) {
         if (!this.displayBuffer.endsWith("\n\n")) {
           this.displayBuffer = this.displayBuffer.replace(/\n*$/, "\n\n");
         }
@@ -1294,12 +1488,14 @@ class BackroomsModule {
         document.getElementById("backroomsText").scrollHeight;
     }, this.typingSpeed);
   }
+
   stopTypewriter() {
     if (this.typeInterval) {
       clearInterval(this.typeInterval);
       this.typeInterval = null;
     }
   }
+
   searchBackroomsContent(query) {
     if (!this.backroomsContent) return "No content loaded.";
     let lowerContent = this.backroomsContent.toLowerCase();
@@ -1313,7 +1509,7 @@ class BackroomsModule {
       let excerptEnd = Math.min(this.backroomsContent.length, foundIndex + query.length + 50);
       let excerpt = this.backroomsContent.substring(excerptStart, excerptEnd);
       let regex = new RegExp(query, "gi");
-      excerpt = excerpt.replace(regex, match => `<mark>${match}</mark>`);
+      excerpt = excerpt.replace(regex, (match) => `<mark>${match}</mark>`);
       results.push("..." + excerpt + "...");
       if (results.length >= 30) break;
       startPos = foundIndex + query.length;
@@ -1327,58 +1523,73 @@ class CryptoModule {
   init() {
     const cryptoModal = document.getElementById("cryptoModal");
     const cryptoOption = document.getElementById("cryptoOption");
-    cryptoModal.addEventListener("pointerdown", e => {
-      if (ModalManager.instance.pendingBringToFrontTimeout)
-        clearTimeout(ModalManager.instance.pendingBringToFrontTimeout);
-      ModalManager.instance.pendingBringToFrontTimeout = setTimeout(() => {
-        ModalManager.instance.currentActiveModal = cryptoModal;
-        ModalManager.instance.bringModalToFront(cryptoModal);
-        ModalManager.instance.pendingBringToFrontTimeout = null;
-      }, 50);
-    }, true);
+    cryptoModal.addEventListener(
+      "pointerdown",
+      (e) => {
+        if (ModalManager.instance.pendingBringToFrontTimeout)
+          clearTimeout(ModalManager.instance.pendingBringToFrontTimeout);
+        ModalManager.instance.pendingBringToFrontTimeout = setTimeout(() => {
+          ModalManager.instance.currentActiveModal = cryptoModal;
+          ModalManager.instance.bringModalToFront(cryptoModal);
+          ModalManager.instance.pendingBringToFrontTimeout = null;
+        }, 50);
+      },
+      true
+    );
     cryptoOption.addEventListener("click", this.openCryptoModal.bind(this));
     Draggable.makeElementDraggable(cryptoModal);
-    document.getElementById("cryptoRefreshBtn").addEventListener("click", e => {
+    document.getElementById("cryptoRefreshBtn").addEventListener("click", (e) => {
       e.stopPropagation();
       this.fetchCryptoPrices();
     });
-    document.getElementById("cryptoCloseBtn").addEventListener("click", e => {
+    document.getElementById("cryptoCloseBtn").addEventListener("click", (e) => {
       e.stopPropagation();
       cryptoModal.classList.add("hidden");
     });
   }
+
   fetchCryptoPrices() {
     const cryptoContent = document.getElementById("cryptoContent");
     cryptoContent.innerHTML = "<p>Loading crypto data...</p>";
-    const url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_market_cap=true&include_24hr_change=true&x_cg_demo_api_key=CG-ZLew5KBHPP9mX3ih2YcbnMrb";
-    fetch(url, { method: 'GET', headers: { accept: 'application/json' } })
-      .then(response => {
+    const url =
+      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_market_cap=true&include_24hr_change=true&x_cg_demo_api_key=CG-ZLew5KBHPP9mX3ih2YcbnMrb";
+    fetch(url, { method: "GET", headers: { accept: "application/json" } })
+      .then((response) => {
         if (!response.ok) throw new Error("Network response was not ok");
         return response.json();
       })
-      .then(data => {
+      .then((data) => {
         let html = "<table>";
-        html += "<tr><th>Coin</th><th>Price (USD)</th><th>Market Cap</th><th>24hr Change</th></tr>";
+        html +=
+          "<tr><th>Coin</th><th>Price (USD)</th><th>Market Cap</th><th>24hr Change</th></tr>";
         if (data.bitcoin) {
-          html += `<tr><td>Bitcoin</td><td>$${data.bitcoin.usd.toLocaleString()}</td><td>$${data.bitcoin.usd_market_cap.toLocaleString()}</td><td>${this.formatChange(data.bitcoin.usd_24h_change)}</td></tr>`;
+          html += `<tr><td>Bitcoin</td><td>$${data.bitcoin.usd.toLocaleString()}</td><td>$${data.bitcoin.usd_market_cap.toLocaleString()}</td><td>${this.formatChange(
+            data.bitcoin.usd_24h_change
+          )}</td></tr>`;
         }
         if (data.ethereum) {
-          html += `<tr><td>Ethereum</td><td>$${data.ethereum.usd.toLocaleString()}</td><td>$${data.ethereum.usd_market_cap.toLocaleString()}</td><td>${this.formatChange(data.ethereum.usd_24h_change)}</td></tr>`;
+          html += `<tr><td>Ethereum</td><td>$${data.ethereum.usd.toLocaleString()}</td><td>$${data.ethereum.usd_market_cap.toLocaleString()}</td><td>${this.formatChange(
+            data.ethereum.usd_24h_change
+          )}</td></tr>`;
         }
         if (data.solana) {
-          html += `<tr><td>Solana</td><td>$${data.solana.usd.toLocaleString()}</td><td>$${data.solana.usd_market_cap.toLocaleString()}</td><td>${this.formatChange(data.solana.usd_24h_change)}</td></tr>`;
+          html += `<tr><td>Solana</td><td>$${data.solana.usd.toLocaleString()}</td><td>$${data.solana.usd_market_cap.toLocaleString()}</td><td>${this.formatChange(
+            data.solana.usd_24h_change
+          )}</td></tr>`;
         }
         html += "</table>";
         cryptoContent.innerHTML = html;
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error fetching crypto data:", error);
         cryptoContent.innerHTML = `<p>Error loading crypto data: ${error.message}</p>`;
       });
   }
+
   formatChange(value) {
-    return `<span class="${value < 0 ? 'negative' : 'positive'}">${value.toFixed(2)}%</span>`;
+    return `<span class="${value < 0 ? "negative" : "positive"}">${value.toFixed(2)}%</span>`;
   }
+
   openCryptoModal() {
     const cryptoModal = document.getElementById("cryptoModal");
     cryptoModal.dataset.openedAt = performance.now();
@@ -1411,27 +1622,34 @@ class WidgetsModule {
         widgetsPrompt.classList.remove("active");
       }
     });
+
     widgetsModalClose.addEventListener("click", () => {
       widgetsModal.classList.add("hidden");
       widgetsPrompt.classList.remove("active");
     });
+
     widgetsModal.addEventListener("pointerdown", () => {
       ModalManager.instance.bringModalToFront(widgetsModal);
     }, true);
+
     Draggable.makeElementDraggable(widgetsModal);
+
     const folderWeather = document.getElementById("folderWeather");
     const folderCrypto = document.getElementById("folderCrypto");
     const folderMinigame = document.getElementById("folderMinigame");
+
     folderWeather.addEventListener("click", () => {
       widgetsModal.classList.add("hidden");
       widgetsPrompt.classList.remove("active");
       WeatherModule.instance.openWeatherModal();
     });
+
     folderCrypto.addEventListener("click", () => {
       widgetsModal.classList.add("hidden");
       widgetsPrompt.classList.remove("active");
       CryptoModule.instance.openCryptoModal();
     });
+
     folderMinigame.addEventListener("click", () => {
       widgetsModal.classList.add("hidden");
       widgetsPrompt.classList.remove("active");
@@ -1454,6 +1672,7 @@ class WidgetsModule {
         window.dinoGameStarted = false;
       }
     });
+
     const folderTetris = document.getElementById("folderTetris");
     folderTetris.addEventListener("click", () => {
       widgetsModal.classList.add("hidden");
@@ -1481,7 +1700,7 @@ class WeatherModule {
     weatherClose.addEventListener("click", () => {
       weatherModal.classList.add("hidden");
     });
-    weatherModal.addEventListener("pointerdown", e => {
+    weatherModal.addEventListener("pointerdown", (e) => {
       if (ModalManager.instance.pendingBringToFrontTimeout)
         clearTimeout(ModalManager.instance.pendingBringToFrontTimeout);
       ModalManager.instance.pendingBringToFrontTimeout = setTimeout(() => {
@@ -1492,6 +1711,7 @@ class WeatherModule {
     }, true);
     Draggable.makeElementDraggable(weatherModal);
   }
+
   openWeatherModal() {
     const weatherModal = document.getElementById("weatherModal");
     const weatherContent = document.getElementById("weatherContent");
@@ -1505,20 +1725,20 @@ class WeatherModule {
     ModalManager.instance.bringModalToFront(weatherModal);
     weatherContent.innerHTML = "<p>Loading weather data...</p>";
     fetch("https://ipapi.co/json/")
-      .then(response => {
+      .then((response) => {
         if (!response.ok) throw new Error("IP API response not ok");
         return response.json();
       })
-      .then(ipData => {
+      .then((ipData) => {
         const lat = ipData.latitude;
         const lon = ipData.longitude;
         const city = ipData.city || "your area";
         return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
-          .then(response => {
+          .then((response) => {
             if (!response.ok) throw new Error("Weather API response not ok");
             return response.json();
           })
-          .then(weatherData => {
+          .then((weatherData) => {
             const current = weatherData.current_weather;
             if (current) {
               const temperature = current.temperature;
@@ -1536,7 +1756,7 @@ class WeatherModule {
             }
           });
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error fetching weather data:", error);
         weatherContent.innerHTML = `<p>Error fetching weather data: ${error.message}</p>`;
       });
@@ -1549,17 +1769,18 @@ CryptoModule.instance = new CryptoModule();
 
 //////////////////////////
 // --- Dino (Minigame) Game Logic ---
-window.startDinoGame = function() {
+window.startDinoGame = function () {
   if (window.dinoGameStarted) return;
   window.dinoGameStarted = true;
   initMiniDinoGame();
-  
+
   function initMiniDinoGame() {
     const canvas = document.getElementById("miniDinoGame");
     const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
+    const W = canvas.width,
+      H = canvas.height;
     let dinoX, dinoY, dinoW, dinoH, dinoVy, isJumping, gravity, jumpPower, obstacles, frameCount, gameOver;
-    
+
     function resetGame() {
       dinoX = 30;
       dinoY = H - 10;
@@ -1577,21 +1798,21 @@ window.startDinoGame = function() {
       gameOverDiv.classList.add("hidden");
       update();
     }
-    
+
     function drawDino() {
       ctx.fillStyle = "#fff";
       ctx.fillRect(dinoX, dinoY - dinoH, dinoW, dinoH);
     }
-    
+
     function spawnObstacle() {
       obstacles.push({ x: W, y: H - 20, width: 10, height: 10 });
     }
-    
+
     function drawObstacle(obs) {
       ctx.fillStyle = "red";
       ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
     }
-    
+
     function showGameOver() {
       gameOver = true;
       const score = Math.floor(frameCount / 10);
@@ -1599,7 +1820,7 @@ window.startDinoGame = function() {
       gameOverDiv.innerHTML = `<p>Game Over!</p><p>Score: ${score}</p><p>Press Space to restart</p>`;
       gameOverDiv.classList.remove("hidden");
     }
-    
+
     function update() {
       if (gameOver) return;
       ctx.clearRect(0, 0, W, H);
@@ -1612,8 +1833,8 @@ window.startDinoGame = function() {
         dinoVy = 0;
         isJumping = false;
       }
-      obstacles.forEach(obs => obs.x -= 2);
-      obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
+      obstacles.forEach((obs) => (obs.x -= 2));
+      obstacles = obstacles.filter((obs) => obs.x + obs.width > 0);
       for (let obs of obstacles) {
         if (
           dinoX < obs.x + obs.width &&
@@ -1631,10 +1852,10 @@ window.startDinoGame = function() {
       if (frameCount % 100 === 0) spawnObstacle();
       requestAnimationFrame(update);
     }
-    
+
     const minigameModal = document.getElementById("minigameModal");
     if (!minigameModal.dataset.keyListenerAdded) {
-      minigameModal.addEventListener("keydown", e => {
+      minigameModal.addEventListener("keydown", (e) => {
         if (!gameOver && (e.code === "Space" || e.code === "ArrowUp") && !isJumping) {
           e.preventDefault();
           dinoVy = jumpPower;
@@ -1650,22 +1871,25 @@ window.startDinoGame = function() {
   }
 };
 
+//////////////////////////
 // --- Tetris Game Logic ---
-window.startTetrisGameOriginal = function() {
+window.startTetrisGameOriginal = function () {
   const canvas = document.getElementById("tetrisCanvas");
   const ctx = canvas.getContext("2d");
   const overlay = document.getElementById("gameOverOverlay");
 
-  const COLS = 10, ROWS = 20, BLOCK_SIZE = 30;
+  const COLS = 10,
+    ROWS = 20,
+    BLOCK_SIZE = 30;
   const COLORS = [
-    '#000000', // 0: empty
-    '#00ffff', // 1: I piece (cyan)
-    '#0000ff', // 2: J piece (blue)
-    '#ffa500', // 3: L piece (orange)
-    '#ffff00', // 4: O piece (yellow)
-    '#00ff00', // 5: S piece (green)
-    '#800080', // 6: T piece (purple)
-    '#ff0000'  // 7: Z piece (red)
+    "#000000", // 0: empty
+    "#00ffff", // 1: I piece (cyan)
+    "#0000ff", // 2: J piece (blue)
+    "#ffa500", // 3: L piece (orange)
+    "#ffff00", // 4: O piece (yellow)
+    "#00ff00", // 5: S piece (green)
+    "#800080", // 6: T piece (purple)
+    "#ff0000" // 7: Z piece (red)
   ];
 
   const TETROMINOES = {
@@ -1795,7 +2019,7 @@ window.startTetrisGameOriginal = function() {
   }
   initBoard();
 
-  let currentType = '';
+  let currentType = "";
   let currentMatrix = null;
   let currentRotation = 0;
   let currentX = 0;
@@ -1804,7 +2028,7 @@ window.startTetrisGameOriginal = function() {
   let dropCounter = 0;
   let lastTime = 0;
   let gameOver = false;
-  
+
   let score = 0;
   let highScore = 0;
   function updateScoreBoard() {
@@ -1854,7 +2078,7 @@ window.startTetrisGameOriginal = function() {
   function sweep() {
     let linesCleared = 0;
     for (let r = ROWS - 1; r >= 0; r--) {
-      if (board[r].every(cell => cell !== 0)) {
+      if (board[r].every((cell) => cell !== 0)) {
         board.splice(r, 1);
         board.unshift(new Array(COLS).fill(0));
         linesCleared++;
@@ -1927,7 +2151,7 @@ window.startTetrisGameOriginal = function() {
     if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp"].includes(e.code)) {
       e.preventDefault();
     }
-  
+
     if (gameOver) {
       if (e.code === "Space") {
         restartGame();
@@ -1970,7 +2194,7 @@ window.startTetrisGameOriginal = function() {
         break;
     }
   }
-  
+
   function restartGame() {
     initBoard();
     gameOver = false;
@@ -1984,13 +2208,13 @@ window.startTetrisGameOriginal = function() {
     window.addEventListener("keydown", handleKeyDown);
     requestAnimationFrame(loop);
   }
-  
+
   newPiece();
   window.addEventListener("keydown", handleKeyDown);
   requestAnimationFrame(loop);
 };
 
-window.startTetrisGame = function() {
+window.startTetrisGame = function () {
   if (typeof window.startTetrisGameOriginal === "function") {
     window.startTetrisGameOriginal();
   } else {
@@ -2012,6 +2236,7 @@ class RetroOS {
     this.backroomsModule = new BackroomsModule();
     // Crypto, Widgets, Weather modules are singletons or instantiated within their classes.
   }
+
   init() {
     this.themeManager.init();
     this.canvasBackground.init();
@@ -2032,20 +2257,22 @@ class RetroOS {
     Draggable.makeElementDraggable(document.getElementById("minigameModal"));
     Draggable.makeElementDraggable(document.getElementById("gameModal"));
     // Event listeners for game close buttons
-    document.getElementById("minigameClose").addEventListener("click", e => {
+    document.getElementById("minigameClose").addEventListener("click", (e) => {
       e.stopPropagation();
       document.getElementById("minigameModal").classList.add("hidden");
       window.dinoGameStarted = false;
     });
-    document.getElementById("gameModalClose").addEventListener("click", e => {
+    document.getElementById("gameModalClose").addEventListener("click", (e) => {
       e.stopPropagation();
       document.getElementById("gameModal").classList.add("hidden");
     });
-    document.getElementById("minigameClose").addEventListener("mousedown", e => e.stopPropagation());
-    document.getElementById("gameModalClose").addEventListener("mousedown", e => e.stopPropagation());
+    document.getElementById("minigameClose").addEventListener("mousedown", (e) => e.stopPropagation());
+    document.getElementById("gameModalClose").addEventListener("mousedown", (e) => e.stopPropagation());
     document.getElementById("randomizeToggle").addEventListener("click", function () {
       this.classList.add("vibrate");
-      setTimeout(() => { this.classList.remove("vibrate"); }, 300);
+      setTimeout(() => {
+        this.classList.remove("vibrate");
+      }, 300);
       RetroOS.instance.themeManager.randomizeTheme();
       RetroOS.instance.themeManager.updateTetrisTheme();
     });
@@ -2053,11 +2280,12 @@ class RetroOS {
       onScrollTypeAscii();
     }, { passive: true });
     const draggableSelectors = [".modal", ".widgets-modal", ".chat-modal", ".draggable-widget-modal"];
-    draggableSelectors.forEach(selector => {
-      document.querySelectorAll(selector).forEach(modal => {
+    draggableSelectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((modal) => {
         if (modal.id === "retroMusicPlayer") return;
-        modal.addEventListener("pointerdown", e => {
-          if (ModalManager.instance.pendingBringToFrontTimeout) clearTimeout(ModalManager.instance.pendingBringToFrontTimeout);
+        modal.addEventListener("pointerdown", (e) => {
+          if (ModalManager.instance.pendingBringToFrontTimeout)
+            clearTimeout(ModalManager.instance.pendingBringToFrontTimeout);
           ModalManager.instance.pendingBringToFrontTimeout = setTimeout(() => {
             ModalManager.instance.currentActiveModal = modal;
             ModalManager.instance.bringModalToFront(modal);
@@ -2078,15 +2306,17 @@ class RetroOS {
     });
     this.typeOtherHeaders();
   }
+
   typeOtherHeaders() {
     const headers = document.querySelectorAll(".section-header");
-    headers.forEach(header => {
+    headers.forEach((header) => {
       if (header.id !== "terminalHeader") {
         typeWriterOnElement(header, 50);
       }
     });
   }
 }
+
 function typeWriterOnElement(element, delay = 0) {
   const fullText = element.getAttribute("data-text");
   if (!fullText) return;
@@ -2102,6 +2332,7 @@ function typeWriterOnElement(element, delay = 0) {
   }
   typeChar();
 }
+
 function onScrollTypeAscii() {
   const asciiCorner = document.getElementById("asciiCorner");
   if (!asciiCorner) return;
@@ -2112,56 +2343,70 @@ function onScrollTypeAscii() {
   const revealCount = Math.floor(asciiFull.length * ratio);
   asciiCorner.textContent = asciiFull.substring(0, revealCount);
 }
+
 document.addEventListener("DOMContentLoaded", () => {
   RetroOS.instance = new RetroOS();
   RetroOS.instance.init();
 });
 
 // When the visualizer modal is toggled via the "visualizerPrompt", the lights out switch appears.
-// (This code is from the previous solution and remains unchanged.)
-document.getElementById("visualizerPrompt").addEventListener("click", () => {
+const visualizerButton = document.getElementById("visualizerPrompt");
+visualizerButton.addEventListener("click", function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+
   const visualizerModal = document.getElementById("visualizerModal");
   const video = visualizerModal.querySelector("video");
   const lightsOutSwitch = document.getElementById("lightsOutSwitch");
-  
+  const retroMusicPlayer = document.getElementById("retroMusicPlayer");
+  const audioPlayer = document.getElementById("audioPlayer");
+
+  // Clear any pending timeouts
   if (ModalManager.instance.pendingBringToFrontTimeout) {
     clearTimeout(ModalManager.instance.pendingBringToFrontTimeout);
     ModalManager.instance.pendingBringToFrontTimeout = null;
   }
-  
+
   if (visualizerModal.classList.contains("hidden")) {
-    // Open the modal and start the video.
+    // Before opening the visualizer, if the music player is playing, pause it
+    if (!retroMusicPlayer.classList.contains("hidden") && audioPlayer && !audioPlayer.paused) {
+      audioPlayer.pause();
+      // Remove the active state from the music button if needed
+      const musicButton = document.getElementById("musicPrompt");
+      if (musicButton) musicButton.classList.remove("active");
+    }
+
+    // Open the visualizer modal
     visualizerModal.dataset.openedAt = performance.now();
     visualizerModal.classList.remove("hidden");
-
-    
-
     ModalManager.instance.currentActiveModal = visualizerModal;
     ModalManager.instance.bringModalToFront(visualizerModal);
     Draggable.makeElementDraggable(visualizerModal);
     if (video) {
-      video.play().catch(err => {
-        console.error("Error playing video:", err);
-      });
+      video.play().catch((err) => console.error("Error playing video:", err));
     }
-    // Show the Lights Out switch when the visualizer modal is open.
     lightsOutSwitch.classList.remove("hidden");
+    this.classList.add("active");
   } else {
-    // Close the modal: pause video, hide lights out switch and tunnel effect.
+    // Close the visualizer modal
     visualizerModal.classList.add("hidden");
-    if (video) {
-      video.pause();
-    }
+    if (video) video.pause();
     lightsOutSwitch.classList.add("hidden");
     document.getElementById("tunnelOverlay").classList.remove("active");
+    this.classList.remove("active");
   }
-  
-  // Now that the modal is visible, force a resize update for the VCR canvas.
+
+  // Force a resize update for the VCR canvas
   const vcrContainer = document.querySelector("#visualizerModal .vcr-effect:last-of-type");
   if (vcrContainer && vcrContainer.screenEffectInstance) {
     vcrContainer.screenEffectInstance.onResize();
   }
 });
+
+
+
+
+
 
 document.getElementById("lightsOutSwitch").addEventListener("click", () => {
   const body = document.body;
@@ -2180,12 +2425,11 @@ document.getElementById("lightsOutSwitch").addEventListener("click", () => {
   }
 });
 
-
 // Initializes an analyser node for the mp4 video in the visualizer modal.
 function initVideoAudioAnalyser() {
   const video = document.querySelector("#visualizerModal video");
   if (!video) return;
-  
+
   // Only initialize once.
   if (!window.videoAudioContext) {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -2195,7 +2439,7 @@ function initVideoAudioAnalyser() {
     const source = window.videoAudioContext.createMediaElementSource(video);
     source.connect(window.videoAnalyser);
     window.videoAnalyser.connect(window.videoAudioContext.destination);
-    
+
     window.videoBufferLength = window.videoAnalyser.frequencyBinCount;
     window.videoDataArray = new Uint8Array(window.videoBufferLength);
   }
@@ -2222,7 +2466,7 @@ document.addEventListener("click", (e) => {
   if (document.body.classList.contains("lights-out-mode")) {
     const visualizerModal = document.getElementById("visualizerModal");
     const lightsOutSwitch = document.getElementById("lightsOutSwitch");
-    
+
     // Check if the click occurred outside the visualizer modal and the lights out switch.
     if (
       !visualizerModal.contains(e.target) &&
@@ -2237,8 +2481,6 @@ document.addEventListener("click", (e) => {
 document.addEventListener("DOMContentLoaded", () => {
   // Select the .vcr-effect element inside the visualizer modal.
   const vcrContainer = document.querySelector("#visualizerModal .vcr-effect:last-of-type");
-
-  
   // Instantiate the ScreenEffect on that container.
   // You can pass options as needed; these sample values mimic the original.
   const vcrEffect = new ScreenEffect(vcrContainer, {});
@@ -2248,7 +2490,4 @@ document.addEventListener("DOMContentLoaded", () => {
     blur: 1,
     num: 70
   });
-
-  
-
 });
