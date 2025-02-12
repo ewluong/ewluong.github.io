@@ -2238,7 +2238,6 @@ class RetroOS {
 
   init() {
     this.themeManager.init();
-    this.canvasBackground.init();
     this.dodecagonCanvas.init();
     const sectionObserver = new SectionObserver();
     sectionObserver.init(this.themeManager, this.canvasBackground);
@@ -2300,20 +2299,16 @@ class RetroOS {
     window.addEventListener("resize", Util.debounce(() => {
       // Additional resize handling if needed.
     }, 100));
+    typeWriterOnElement(document.getElementById("terminalHeader"), 50);
+
+    // Defer non-critical animations until after all assets are loaded
     window.addEventListener("load", () => {
-      typeWriterOnElement(document.getElementById("terminalHeader"), 50);
-    });
-    //this.typeOtherHeaders();
+      this.canvasBackground.init();
+      this.dodecagonCanvas.init();
+  });
   }
 
-  typeOtherHeaders() {
-    const headers = document.querySelectorAll(".section-header");
-    headers.forEach((header) => {
-      if (header.id !== "terminalHeader") {
-        typeWriterOnElement(header, 50);
-      }
-    });
-  }
+
 }
 
 function typeWriterOnElement(element, delay = 0) {
@@ -2366,10 +2361,6 @@ document.getElementById("visualizerPrompt").addEventListener("click", function (
       video.playsInline = true;
       video.preload = "none";
 
-      // Optionally, only autoplay on non-mobile devices (screens 600px or wider).
-      if (window.innerWidth >= 600) {
-        video.autoplay = true;
-      }
 
       // Disable pointer events on the video so that drag events reach the modal.
       video.style.pointerEvents = "none";
