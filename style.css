@@ -1402,12 +1402,17 @@ body::before {
   border: none;
   overflow: hidden;
 }
-.visualizer-modal-content .vcr-effect {
-  position: relative;
+.visualizer-modal-content .vcr-effect canvas.vcr {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background: #000;
+  z-index: 10; /* Ensure this is higher than the video's z-index */
+  pointer-events: none; /* So it doesn't block interactions with the video */
+  opacity: 0.6;
 }
+
 .visualizer-modal-content .screen-container {
   width: 100%;
   max-height: 80vh;
@@ -1477,7 +1482,7 @@ body.lights-out-mode {
 /* Position the visualizer modal in lights-out mode */
 body.lights-out-mode #visualizerModal {
   top: 50%; /* Adjust this value if you want it higher or lower */
-  left: 52% !important;
+  left: 51%;
   transform: translate(-50%, -50%);
 }
 
@@ -1519,6 +1524,6 @@ body.lights-out-mode > :not(#bgCanvas):not(#visualizerModal):not(#lightsOutSwitc
 #visualizerModal {
   position: fixed;
   top: 50%;
-  left: 52%;
+  left: 51%;
   transform: translate(-50%, -50%);
 }
