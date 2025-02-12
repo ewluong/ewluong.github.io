@@ -2350,58 +2350,66 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // When the visualizer modal is toggled via the "visualizerPrompt", the lights out switch appears.
-const visualizerButton = document.getElementById("visualizerPrompt");
-visualizerButton.addEventListener("click", function (e) {
+document.getElementById("visualizerPrompt").addEventListener("click", function (e) {
   e.preventDefault();
   e.stopPropagation();
 
   const visualizerModal = document.getElementById("visualizerModal");
-  const video = visualizerModal.querySelector("video");
-  const lightsOutSwitch = document.getElementById("lightsOutSwitch");
-  const retroMusicPlayer = document.getElementById("retroMusicPlayer");
-  const audioPlayer = document.getElementById("audioPlayer");
-
-  // Clear any pending timeouts
-  if (ModalManager.instance.pendingBringToFrontTimeout) {
-    clearTimeout(ModalManager.instance.pendingBringToFrontTimeout);
-    ModalManager.instance.pendingBringToFrontTimeout = null;
-  }
+  const videoContainer = document.getElementById("videoContainer");
 
   if (visualizerModal.classList.contains("hidden")) {
-    // Before opening the visualizer, if the music player is playing, pause it
-    if (!retroMusicPlayer.classList.contains("hidden") && audioPlayer && !audioPlayer.paused) {
-      audioPlayer.pause();
-      // Remove the active state from the music button if needed
-      const musicButton = document.getElementById("musicPrompt");
-      if (musicButton) musicButton.classList.remove("active");
+    // Create the video element if it doesn't already exist.
+    if (!videoContainer.querySelector("video")) {
+      const video = document.createElement("video");
+      video.className = "video";
+      video.src = "images/vibe.mp4";
+      video.loop = true;
+      video.playsInline = true;
+      video.preload = "none";
+      
+      // Optionally, only autoplay on non-mobile devices (screens 600px or wider).
+      if (window.innerWidth >= 600) {
+        video.autoplay = true;
+      }
+      
+      // Disable pointer events on the video so that drag events reach the modal.
+      video.style.pointerEvents = "none";
+      
+      videoContainer.appendChild(video);
     }
-
-    // Open the visualizer modal
-    visualizerModal.dataset.openedAt = performance.now();
+    
+    // Show the modal.
     visualizerModal.classList.remove("hidden");
     ModalManager.instance.currentActiveModal = visualizerModal;
     ModalManager.instance.bringModalToFront(visualizerModal);
-    Draggable.makeElementDraggable(visualizerModal);
-    if (video) {
-      video.play().catch((err) => console.error("Error playing video:", err));
+    
+    // Ensure the modal is draggable (initialize once).
+    if (!visualizerModal.dataset.draggableInitialized) {
+      Draggable.makeElementDraggable(visualizerModal);
+      visualizerModal.dataset.draggableInitialized = "true";
     }
-    lightsOutSwitch.classList.remove("hidden");
+    
+    // Play the video.
+    const video = videoContainer.querySelector("video");
+    if (video) {
+      video.play().catch(err => console.error("Error playing video:", err));
+    }
+    
+    // Show the lights-out switch and mark the button as active.
+    document.getElementById("lightsOutSwitch").classList.remove("hidden");
     this.classList.add("active");
   } else {
-    // Close the visualizer modal
+    // Hide the modal.
     visualizerModal.classList.add("hidden");
-    if (video) video.pause();
-    lightsOutSwitch.classList.add("hidden");
-    document.getElementById("tunnelOverlay").classList.remove("active");
+    const video = videoContainer.querySelector("video");
+    if (video) {
+      video.pause();
+    }
+    document.getElementById("lightsOutSwitch").classList.add("hidden");
     this.classList.remove("active");
   }
-
-  // Force a resize update for the VCR canvas
-  const vcrContainer = document.querySelector("#visualizerModal .vcr-effect:last-of-type");
-  if (vcrContainer && vcrContainer.screenEffectInstance) {
-    vcrContainer.screenEffectInstance.onResize();
-  }
 });
+
 
 
 
