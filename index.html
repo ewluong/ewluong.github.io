@@ -52,8 +52,16 @@
 
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
 
-    <!-- Link to external CSS -->
-    <link rel="stylesheet" href="style.css" />
+    <!-- Preload critical CSS using swap technique -->
+    <link
+      rel="preload"
+      href="style.css"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="style.css" />
+    </noscript>
 
     <!-- Preconnect & preload Google Font (Pixel/Retro Font: VT323) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
