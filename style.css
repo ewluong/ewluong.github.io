@@ -1661,3 +1661,27 @@ body.lights-out-mode > :not(#bgCanvas):not(#visualizerModal):not(#lightsOutSwitc
   bottom: 10px;
   right: 10px;
 }
+
+/* Ensure the footer spans full width and centers its content */
+.site-footer {
+  width: 100%;
+  margin-top: 40px;  /* space above footer */
+  text-align: center; /* centers inline elements */
+}
+
+/* Force the GitHub icon link to be a block-level element that centers via auto margins */
+.github-icon {
+  display: block;   /* convert to block-level element */
+  width: 40px;      /* fixed width for the icon container */
+  margin: 0 auto;   /* auto margins on left and right to center */
+}
+
+/* Make sure the image fills its container */
+.github-icon img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+
+
