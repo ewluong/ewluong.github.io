@@ -2366,35 +2366,41 @@ document.getElementById("visualizerPrompt").addEventListener("click", function (
       video.loop = true;
       video.playsInline = true;
       video.preload = "none";
-      
+
       // Optionally, only autoplay on non-mobile devices (screens 600px or wider).
       if (window.innerWidth >= 600) {
         video.autoplay = true;
       }
-      
+
       // Disable pointer events on the video so that drag events reach the modal.
       video.style.pointerEvents = "none";
-      
+
       videoContainer.appendChild(video);
     }
-    
+
     // Show the modal.
     visualizerModal.classList.remove("hidden");
     ModalManager.instance.currentActiveModal = visualizerModal;
     ModalManager.instance.bringModalToFront(visualizerModal);
-    
+
+    // *** NEW: Update VCR effect canvas dimensions after the modal becomes visible ***
+    const vcrContainer = document.querySelector("#visualizerModal .vcr-effect:last-of-type");
+    if (vcrContainer && vcrContainer.screenEffectInstance) {
+      vcrContainer.screenEffectInstance.onResize();
+    }
+
     // Ensure the modal is draggable (initialize once).
     if (!visualizerModal.dataset.draggableInitialized) {
       Draggable.makeElementDraggable(visualizerModal);
       visualizerModal.dataset.draggableInitialized = "true";
     }
-    
+
     // Play the video.
     const video = videoContainer.querySelector("video");
     if (video) {
       video.play().catch(err => console.error("Error playing video:", err));
     }
-    
+
     // Show the lights-out switch and mark the button as active.
     document.getElementById("lightsOutSwitch").classList.remove("hidden");
     this.classList.add("active");

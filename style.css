@@ -1520,7 +1520,7 @@ body::before {
   height: 100%;
   z-index: 10;
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.4;
 }
 
 .visualizer-modal-content .screen-container {
