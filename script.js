@@ -177,6 +177,96 @@ function clamp(val, min, max) {
   return Math.max(min, Math.min(val, max));
 }
 
+// --- ScreenEffect Class (excerpt relevant to VCR noise) ---
+class ScreenEffect {
+  constructor(parent, options) {
+    // If a selector string is passed, select the element.
+    this.parent = typeof parent === "string" ? document.querySelector(parent) : parent;
+    this.config = Object.assign({}, options);
+    this.effects = {};
+    this.nodes = {};
+    // Create a container for the effect if needed (this sample assumes the parent already exists).
+    this.onResize();
+  }
+  
+  onResize() {
+    this.rect = this.parent.getBoundingClientRect();
+    if (this.effects.vcr) {
+      // Update the canvas dimensions to match the parent
+      this.effects.vcr.node.width = this.rect.width;
+      this.effects.vcr.node.height = this.rect.height;
+    }
+  }
+  
+  
+  // This method sets up and repeatedly renders the VCR noise.
+  generateVCRNoise() {
+    const canvas = this.effects.vcr.node;
+    const ctx = this.effects.vcr.ctx;
+    const config = this.effects.vcr.config;
+    
+    // Set the blur filter for a CRT-like effect.
+    canvas.style.filter = `blur(${config.blur}px)`;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = `#fff`;
+    
+    // Begin drawing noise (this sample uses a simple random noise algorithm).
+    ctx.beginPath();
+    let num = config.num || 70;
+    for (let i = 0; i < num; i++) {
+      let x = Math.random() * canvas.width;
+      let y = Math.random() * canvas.height;
+      let size = Math.random() * 2 + 1;
+      ctx.fillRect(x, y, size, size);
+    }
+    ctx.closePath();
+  }
+  
+  // This method adds the VCR effect.
+  add(type, options) {
+    if (type === "vcr") {
+      const canvas = document.createElement("canvas");
+      canvas.classList.add(type);
+      // Use the parent element's dimensions.
+      canvas.width = this.parent.offsetWidth;
+      canvas.height = this.parent.offsetHeight;
+      this.parent.appendChild(canvas);
+      
+      this.effects.vcr = {
+        node: canvas,
+        ctx: canvas.getContext("2d"),
+        enabled: true,
+        config: Object.assign({ fps: 60, blur: 1, num: 70 }, options)
+      };
+      
+      // Start the noise animation.
+      this.startVCRNoise();
+    }
+    return this;
+  }
+  
+  startVCRNoise() {
+    const effect = this.effects.vcr;
+    if (effect.config.fps >= 60) {
+      const animate = () => {
+        if (!effect.enabled) return;
+        this.generateVCRNoise();
+        requestAnimationFrame(animate);
+      };
+      animate();
+    } else {
+      // Fallback for lower frame rates.
+      setInterval(() => {
+        if (effect.enabled) {
+          this.generateVCRNoise();
+        }
+      }, 1000 / effect.config.fps);
+    }
+  }
+}
+
+// --- End of ScreenEffect Class ---
+
 class CanvasBackground {
   constructor() {
     this.canvas = document.getElementById("bgCanvas");
@@ -2043,6 +2133,9 @@ document.getElementById("visualizerPrompt").addEventListener("click", () => {
     // Open the modal and start the video.
     visualizerModal.dataset.openedAt = performance.now();
     visualizerModal.classList.remove("hidden");
+
+    
+
     ModalManager.instance.currentActiveModal = visualizerModal;
     ModalManager.instance.bringModalToFront(visualizerModal);
     Draggable.makeElementDraggable(visualizerModal);
@@ -2061,6 +2154,12 @@ document.getElementById("visualizerPrompt").addEventListener("click", () => {
     }
     lightsOutSwitch.classList.add("hidden");
     document.getElementById("tunnelOverlay").classList.remove("active");
+  }
+  
+  // Now that the modal is visible, force a resize update for the VCR canvas.
+  const vcrContainer = document.querySelector("#visualizerModal .vcr-effect:last-of-type");
+  if (vcrContainer && vcrContainer.screenEffectInstance) {
+    vcrContainer.screenEffectInstance.onResize();
   }
 });
 
@@ -2133,4 +2232,23 @@ document.addEventListener("click", (e) => {
       document.body.classList.remove("lights-out-mode");
     }
   }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Select the .vcr-effect element inside the visualizer modal.
+  const vcrContainer = document.querySelector("#visualizerModal .vcr-effect:last-of-type");
+
+  
+  // Instantiate the ScreenEffect on that container.
+  // You can pass options as needed; these sample values mimic the original.
+  const vcrEffect = new ScreenEffect(vcrContainer, {});
+  vcrContainer.screenEffectInstance = vcrEffect;
+  vcrEffect.add("vcr", {
+    fps: 60,
+    blur: 1,
+    num: 70
+  });
+
+  
+
 });
