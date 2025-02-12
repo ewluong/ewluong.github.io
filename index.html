@@ -49,6 +49,9 @@
 
 
     <title>ewluong.com - Eric Luong - Official HomePage</title>
+    <!-- Include external libraries once -->
+    <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
 
@@ -718,7 +721,7 @@
         <h3>Favorites</h3>
         <ul id="favoritesList"></ul>
       </div>
-      <audio id="audioPlayer" src="docs/sample.mp3"></audio>
+      <audio id="audioPlayer" src="docs/sample.mp3" preload = "none"></audio>
     </div>
 
     <!-- TOGGLE BUTTONS CONTAINER (Remaining buttons) -->
@@ -787,38 +790,6 @@
     </div>
 
 
-    <!-- Lazy load non-critical third‑party libraries -->
-    <script>
-      // A helper to load a script dynamically.
-      function loadScript(src) {
-        return new Promise(function (resolve, reject) {
-          const script = document.createElement("script");
-          script.src = src;
-          script.onload = resolve;
-          script.onerror = reject;
-          document.body.appendChild(script);
-        });
-      }
-
-      // When the DOM is ready, start the typewriter effect immediately
-      // and then lazy-load the non-critical libraries.
-      document.addEventListener("DOMContentLoaded", function () {
-        // Start the typewriter effect on the header.
-        typeWriterOnElement(document.getElementById("terminalHeader"), 10);
-
-        // Lazy load non-critical libraries (Chart.js and Marked.js)
-        Promise.all([
-          loadScript("https://cdn.jsdelivr.net/npm/marked/marked.min.js"),
-          loadScript("https://cdn.jsdelivr.net/npm/chart.js")
-        ])
-          .then(function () {
-            console.log("Non-critical libraries have been lazy loaded.");
-          })
-          .catch(function (err) {
-            console.error("Error loading non-critical libraries:", err);
-          });
-      });
-    </script>
 
     
 
