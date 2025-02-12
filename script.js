@@ -392,14 +392,6 @@ class CanvasBackground {
   animate() {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.w, this.h);
-    // Throttle animation on mobile: use a lower frame rate if needed.
-    if (window.innerWidth < 600) {
-      setTimeout(() => {
-        requestAnimationFrame(this.animate.bind(this));
-      }, 100); // approximately 10 fps
-    } else {
-      requestAnimationFrame(this.animate.bind(this));
-    }
     // Get the text color from the CSS and parse it.
     const computedStyle = getComputedStyle(document.documentElement);
     const textColor = computedStyle.getPropertyValue("--text-color").trim();
