@@ -1669,19 +1669,30 @@ body.lights-out-mode > :not(#bgCanvas):not(#visualizerModal):not(#lightsOutSwitc
   text-align: center; /* centers inline elements */
 }
 
-/* Force the GitHub icon link to be a block-level element that centers via auto margins */
-.github-icon {
-  display: block;   /* convert to block-level element */
-  width: 40px;      /* fixed width for the icon container */
-  margin: 0 auto;   /* auto margins on left and right to center */
+/* Footer container styling */
+.site-footer {
+  width: 100%;
+  text-align: center;   /* Centers inline/inline-block content */
+  padding: 20px 0;      /* Vertical padding */
+  margin-top: 40px;     /* Space above the footer */
 }
 
-/* Make sure the image fills its container */
-.github-icon img {
+/* Container for the social icons */
+.social-icons-container {
+  display: inline-block; /* Shrink-wraps the icons so the whole group is centered */
+}
+
+/* Common styling for both social icons */
+.social-icon {
+  display: inline-block;
+  width: 40px;           /* Fixed width for uniform icon size */
+  margin: 0 10px;        /* Horizontal spacing between icons */
+}
+
+/* Ensure the images fill their container */
+.social-icon img {
   width: 100%;
   height: auto;
   display: block;
 }
-
-
 

@@ -35,7 +35,8 @@
       "url": "https://ewluong.com",
       "sameAs": [
         "https://www.linkedin.com/in/ewluong/",
-        "https://github.com/ewluong"
+        "https://github.com/ewluong",
+        "https://www.facebook.com/ewluong/"
       ],
       "jobTitle": "Data Scientist",
       "worksFor": {
@@ -140,7 +141,7 @@
 
     <!-- Projects Section -->
     <section id="projects" class="section projects-section">
-      <h1 class="section-header" data-text="Work">Work</h1>
+      <h1 class="section-header" style = "opacity: 1;">Work</h1>
       <p>Check out some of my favorite projects below.</p>
       <div class="project-cards" id="project-cards">
         <!-- Project Card 11: Infinite Backrooms -->
@@ -316,7 +317,7 @@
 
     <!-- About Section -->
     <section id="about" class="section about-section">
-      <h1 class="section-header" data-text="About Me">About Me</h1>
+      <h1 class="section-header" style = "opacity: 1;">About Me</h1>
       <div class="about-grid">
         <div class="about-item">
           <img
@@ -419,7 +420,7 @@
 
     <!-- Blog Section -->
     <section id="blog" class="section blog-section">
-      <h1 class="section-header" data-text="Blog">Blog</h1>
+      <h1 class="section-header" style = "opacity: 1;">Blog</h1>
       <p>My thoughts on anything...</p>
       <ul class="blog-list">
         <li
@@ -803,7 +804,7 @@
       // and then lazy-load the non-critical libraries.
       document.addEventListener("DOMContentLoaded", function () {
         // Start the typewriter effect on the header.
-        typeWriterOnElement(document.getElementById("terminalHeader"), 50);
+        typeWriterOnElement(document.getElementById("terminalHeader"), 10);
 
         // Lazy load non-critical libraries (Chart.js and Marked.js)
         Promise.all([
@@ -825,19 +826,37 @@
     <!-- Load custom JavaScript -->
     <script type="module" src="script.js"></script>
 
-    <a
-    href="https://github.com/ewluong"
-    class="github-icon"
-    target="_blank"
-    rel="noopener noreferrer"
-    title="Visit Eric Luong's GitHub Profile"
-    aria-label="Visit Eric Luong's GitHub Profile"
-    >
-    <img
-      src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg"
-      alt="GitHub logo representing Eric Luong's profile"
-    />
+    <footer class="site-footer">
+      <div class="social-icons-container">
+        <a
+          href="https://github.com/ewluong"
+          class="social-icon github-icon"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Visit Eric Luong's GitHub Profile"
+          aria-label="Visit Eric Luong's GitHub Profile"
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg"
+            alt="GitHub Logo"
+          />
+        </a>
+        <a
+          href="https://linkedin.com/in/ewluong"
+          class="social-icon linkedin-icon"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Visit Eric Luong's LinkedIn Profile"
+          aria-label="Visit Eric Luong's LinkedIn Profile"
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png"
+            alt="LinkedIn Logo"
+          />
+        </a>
+      </div>
+    </footer>
     
-    </a>
+
   </body>
 </html>
