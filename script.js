@@ -2319,6 +2319,13 @@ function typeWriterOnElement(element, delay = 0) {
   const fullText = element.getAttribute("data-text");
   if (!fullText) return;
   element.style.opacity = "1";
+  
+  // On mobile, bypass the animation to improve LCP.
+  if (window.innerWidth < 600) {
+    element.textContent = fullText;
+    return;
+  }
+  
   element.textContent = "";
   let index = 0;
   function typeChar() {
@@ -2330,6 +2337,7 @@ function typeWriterOnElement(element, delay = 0) {
   }
   typeChar();
 }
+
 
 // Throttle the ascii-corner update using requestAnimationFrame
 let scrollTicking = false;
