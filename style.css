@@ -1696,3 +1696,7 @@ body.lights-out-mode > :not(#bgCanvas):not(#visualizerModal):not(#lightsOutSwitc
   display: block;
 }
 
+#terminalHeader {
+  opacity: 1;
+  min-height: 3.5rem; /* Reserve space to prevent layout shifts during the typewriter effect */
+}
