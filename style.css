@@ -156,7 +156,11 @@ body::before {
   font-size: 2.6rem;
   margin-bottom: 1rem;
   opacity: 0;
+  /* Reserve space to match the final VT323 font dimensions */
+  line-height: 1.2;
+  min-height: 3.2rem;  /* Adjust this value as needed based on your design */
 }
+
 
 #terminalHeader {
   opacity: 1;
@@ -1699,4 +1703,9 @@ body.lights-out-mode > :not(#bgCanvas):not(#visualizerModal):not(#lightsOutSwitc
 #terminalHeader {
   opacity: 1;
   min-height: 3.5rem; /* Reserve space to prevent layout shifts during the typewriter effect */
+}
+
+
+#terminalHeaderContainer {
+  min-height: 4rem; /* Reserve enough vertical space */
 }
