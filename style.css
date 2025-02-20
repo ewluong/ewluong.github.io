@@ -1696,3 +1696,18 @@ body.lights-out-mode > :not(#bgCanvas):not(#visualizerModal):not(#lightsOutSwitc
   display: block;
 }
 
+#terminalHeader {
+  /* Ensure it uses a fixed line-height so that its height remains consistent */
+  line-height: 1.2;
+  /* Optionally, set a min-height matching the final text height */
+  min-height: 3rem; /* adjust this value based on your design */
+  /* Prevent wrapping, if appropriate */
+  white-space: nowrap;
+}
+
+/* Reserve the final space by creating a hidden element with the full text */
+#terminalHeader::after {
+  content: attr(data-text);
+  visibility: hidden;
+  display: block;
+}
