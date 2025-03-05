@@ -1210,6 +1210,21 @@ class ProjectModal {
 
         const file = card.getAttribute("data-file");
         const projectTitle = card.querySelector("h2").textContent.trim();
+        
+        // Special handling for external projects
+        if (file === "external") {
+          // Open the orbital mechanics simulator in a new tab
+          window.open("https://orb.ewluong.com", "_blank");
+          card.classList.remove("active");
+          return;
+        }
+
+        if (file === "cube") {
+          // Open the orbital mechanics simulator in a new tab
+          window.open("https://cube.ewluong.com", "_blank");
+          card.classList.remove("active");
+          return;
+        }
 
         if (projectTitle === "Infinite Backrooms") {
           const backroomsModal = document.getElementById("backroomsModal");
