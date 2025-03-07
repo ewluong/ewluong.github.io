@@ -1219,6 +1219,13 @@ class ProjectModal {
           return;
         }
 
+        if (file === "model_eval") {
+          // Open the model eval in a new tab
+          window.open("https://model.ewluong.com/", "_blank");
+          card.classList.remove("active");
+          return;
+        }
+
         if (file === "cube") {
           // Open the orbital mechanics simulator in a new tab
           window.open("https://cube.ewluong.com", "_blank");
