@@ -1,0 +1,59 @@
+---
+/**
+ * BaseLayout — the OS shell frame.
+ * Wraps every page with the persistent system elements:
+ * canvas background, scanlines (via CSS), dock, status bar.
+ */
+
+interface Props {
+  title?: string;
+}
+
+const { title = 'ewluong.os' } = Astro.props;
+
+import '../styles/global.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ewluong.os — a personal operating system. Music, writing, experiments, and the Infinite Backrooms." />
+    <meta name="author" content="Eric Luong" />
+    <link rel="canonical" href="https://ewluong.com" />
+
+    <!-- OpenGraph -->
+    <meta property="og:title" content="ewluong.os" />
+    <meta property="og:description" content="A personal operating system." />
+    <meta property="og:url" content="https://ewluong.com" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="ewluong.os" />
+
+    <!-- JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Eric Luong",
+      "url": "https://ewluong.com",
+      "sameAs": [
+        "https://www.linkedin.com/in/ewluong/",
+        "https://github.com/ewluong"
+      ],
+      "jobTitle": "Data Scientist"
+    }
+    </script>
+
+    <link rel="preload" href="/fonts/VT323-Regular.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

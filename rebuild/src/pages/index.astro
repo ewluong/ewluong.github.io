@@ -1,0 +1,15 @@
+---
+/**
+ * index.astro — The OS entry point.
+ * Renders the boot sequence, then the full workspace.
+ */
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BootSequence from '../components/BootSequence.svelte';
+import Workspace from '../components/Workspace.svelte';
+---
+
+<BaseLayout title="ewluong.os">
+  <BootSequence client:load />
+  <Workspace client:load />
+</BaseLayout>
