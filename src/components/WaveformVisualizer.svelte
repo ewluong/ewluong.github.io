@@ -101,7 +101,7 @@
   }
 
   .viz-label {
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--accent-dim);
     text-transform: uppercase;
     letter-spacing: 0.1em;

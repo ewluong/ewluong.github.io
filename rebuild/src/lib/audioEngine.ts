@@ -11,6 +11,7 @@ let analyser: AnalyserNode | null = null;
 let source: MediaElementAudioSourceNode | null = null;
 let audioElement: HTMLAudioElement | null = null;
 let animFrameId: number | null = null;
+let fadeFrameId: number | null = null;
 let smoothedRms = 0;
 
 const FFT_SIZE = 256;
@@ -72,11 +73,24 @@ export async function play() {
   if (!audioElement) return;
   ensureContext();
 
+  // Cancel any fadeOut in progress
+  if (fadeFrameId !== null) {
+    cancelAnimationFrame(fadeFrameId);
+    fadeFrameId = null;
+  }
+
   if (audioContext?.state === 'suspended') {
     await audioContext.resume();
   }
 
-  await audioElement.play();
+  try {
+    await audioElement.play();
+  } catch {
+    // play() can throw if interrupted by another load — safe to ignore
+    return;
+  }
+
+  // Always ensure analysis loop is running
   if (animFrameId === null) {
     analyse();
   }
@@ -93,28 +107,45 @@ export function pause() {
     smoothedRms *= 0.9;
     if (smoothedRms > 0.001) {
       rmsLevel.set(smoothedRms);
-      requestAnimationFrame(fadeOut);
+      fadeFrameId = requestAnimationFrame(fadeOut);
     } else {
       smoothedRms = 0;
       rmsLevel.set(0);
+      fadeFrameId = null;
     }
   };
   fadeOut();
 }
 
 export function seek(fraction: number) {
-  if (!audioElement) return;
-  audioElement.currentTime = fraction * audioElement.duration;
+  if (!audioElement || !Number.isFinite(fraction)) return;
+  const clamped = Math.max(0, Math.min(1, fraction));
+  const duration = audioElement.duration;
+  if (!Number.isFinite(duration) || duration <= 0) return;
+  audioElement.currentTime = clamped * duration;
 }
 
 export function setTrack(src: string) {
   if (!audioElement) return;
-  const wasPlaying = !audioElement.paused;
+
+  // Stop current analysis while switching
+  if (animFrameId !== null) {
+    cancelAnimationFrame(animFrameId);
+    animFrameId = null;
+  }
+  if (fadeFrameId !== null) {
+    cancelAnimationFrame(fadeFrameId);
+    fadeFrameId = null;
+  }
+
   audioElement.src = src;
   audioElement.load();
-  if (wasPlaying) {
+
+  // Wait for audio to be ready, then play
+  audioElement.addEventListener('canplay', function onCanPlay() {
+    audioElement!.removeEventListener('canplay', onCanPlay);
     play();
-  }
+  }, { once: true });
 }
 
 export function destroy() {

@@ -1,19 +1,41 @@
 <script lang="ts">
-  import { windowStore } from '../stores/windows';
+  import { onMount } from 'svelte';
 
-  /** The essay slug — used to fetch rendered HTML */
+  /** The essay slug — used to fetch rendered HTML fragment */
   export let slug: string = '';
-  /** Pre-rendered HTML content from Astro content collection */
-  export let html: string = '';
   export let title: string = '';
 
+  let html = '';
+  let loading = true;
+  let error = '';
   let focusMode = false;
 
   function toggleFocus() {
     focusMode = !focusMode;
-    // When focus mode is on, we could dim the workspace
-    // For now, toggle a CSS class on the reader
   }
+
+  onMount(async () => {
+    if (!slug) {
+      error = 'NO SLUG PROVIDED';
+      loading = false;
+      return;
+    }
+
+    try {
+      const res = await fetch(`/fragments/blog/${slug}/`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      // Extract just the body content from the HTML response
+      // The fragment pages return minimal HTML — extract the inner content
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'text/html');
+      html = doc.body.innerHTML;
+    } catch {
+      error = 'SIGNAL LOST — UNABLE TO LOAD DOCUMENT';
+    } finally {
+      loading = false;
+    }
+  });
 </script>
 
 <div class="essay-reader" class:focus-mode={focusMode}>
@@ -25,9 +47,19 @@
 
   <article class="essay-body">
     <h1 class="essay-title">{title}</h1>
-    <div class="essay-content">
-      {@html html}
-    </div>
+
+    {#if loading}
+      <div class="loading-state">
+        <span class="loading-text">LOADING DOCUMENT</span>
+        <span class="loading-dots">...</span>
+      </div>
+    {:else if error}
+      <div class="error-state">[{error}]</div>
+    {:else}
+      <div class="essay-content">
+        {@html html}
+      </div>
+    {/if}
   </article>
 </div>
 
@@ -48,7 +80,7 @@
   }
 
   .focus-btn {
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--text-dim);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -60,11 +92,15 @@
   .focus-btn:hover {
     color: var(--accent-dim);
     border-color: var(--accent-dim);
+    background-image: linear-gradient(90deg, transparent 0%, rgba(212, 160, 68, 0.06) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: scanSweep 1.5s linear;
   }
 
   .focus-mode .focus-btn {
     color: var(--accent);
     border-color: var(--accent-dim);
+    animation: glowPulse 3s ease-in-out infinite;
   }
 
   .essay-body {
@@ -80,6 +116,28 @@
     color: var(--text-primary);
     margin-bottom: var(--space-6);
     line-height: 1.3;
+  }
+
+  .loading-state {
+    color: var(--text-dim);
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
+    padding: var(--space-4) 0;
+  }
+
+  .loading-dots {
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  .error-state {
+    color: var(--accent);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    padding: var(--space-4) 0;
   }
 
   .essay-content {
@@ -100,6 +158,17 @@
     margin: var(--space-4) 0;
     color: var(--text-secondary);
     font-style: italic;
+    position: relative;
+  }
+
+  .essay-content :global(blockquote::before) {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    box-shadow: 0 0 6px var(--accent-glow);
   }
 
   .essay-content :global(h2),

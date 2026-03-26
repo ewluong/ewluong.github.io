@@ -39,8 +39,10 @@
 
     try {
       const res = await fetch(chapter.source);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
       lines = text.split('\n').filter(l => l.trim().length > 0);
+      if (lines.length === 0) lines = ['[empty chapter]'];
       startTyping();
     } catch {
       lines = ['[error loading chapter]'];
@@ -138,9 +140,14 @@
     target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
+  function escapeHtml(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   function formatLine(line: string): string {
-    // Highlight Model A / Model B speakers
-    return line
+    // Escape HTML first, then apply safe span formatting
+    const escaped = escapeHtml(line);
+    return escaped
       .replace(
         /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} - INFO - )(Model [AB]):/,
         '<span class="timestamp">$1</span><span class="speaker">$2</span>:'
@@ -291,7 +298,7 @@
   }
 
   .backrooms-label {
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--accent-dim);
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -308,7 +315,7 @@
   }
 
   .ctrl {
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--text-dim);
     padding: var(--space-1) var(--space-2);
     border: 1px solid var(--border);
@@ -331,7 +338,7 @@
   }
 
   .chapter-btn {
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--text-dim);
     padding: var(--space-1) var(--space-2);
     transition: color var(--transition-fast);
@@ -404,7 +411,7 @@
 
   .backrooms-line :global(.timestamp) {
     color: var(--text-dim);
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   .backrooms-line :global(.speaker) {
@@ -429,7 +436,7 @@
     padding: var(--space-4) 0;
     color: var(--text-dim);
     text-align: center;
-    font-size: 11px;
+    font-size: var(--text-xs);
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }

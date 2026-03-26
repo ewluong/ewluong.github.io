@@ -20,8 +20,9 @@
 
   function onPointerMove(e: PointerEvent) {
     if (!dragging) return;
-    const x = Math.max(0, Math.min(window.innerWidth - 100, e.clientX - dragOffsetX));
-    const y = Math.max(0, Math.min(window.innerHeight - 40, e.clientY - dragOffsetY));
+    const dockWidth = 184;
+    const x = Math.max(dockWidth, Math.min(window.innerWidth - 100, e.clientX - dragOffsetX));
+    const y = Math.max(38, Math.min(window.innerHeight - 40, e.clientY - dragOffsetY));
     windowStore.move(win.id, x, y);
   }
 
@@ -55,6 +56,12 @@
     "
     on:pointerdown={handleFocus}
   >
+    <!-- Corner brackets (targeting reticle) -->
+    <div class="bracket bracket-tl"></div>
+    <div class="bracket bracket-tr"></div>
+    <div class="bracket bracket-bl"></div>
+    <div class="bracket bracket-br"></div>
+
     <!-- Title bar (drag handle) -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div
@@ -63,7 +70,13 @@
       on:pointermove={onPointerMove}
       on:pointerup={onPointerUp}
     >
-      <span class="window-title">{win.title}</span>
+      <div class="window-title-group">
+        <span class="status-dot" class:active={isFocused}></span>
+        {#if win.designation}
+          <span class="window-designation">[{win.designation}]</span>
+        {/if}
+        <span class="window-title">{win.title}</span>
+      </div>
       <div class="window-controls">
         <button class="window-btn minimize" on:click={handleMinimize} aria-label="Minimize">
           <span>_</span>
@@ -92,12 +105,65 @@
     transform: scale(0.97);
     animation: windowOpen var(--transition-normal) var(--ease-out) forwards;
     max-height: calc(100vh - 80px);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   }
 
-  .window.focused {
+  .window:hover {
     border-color: var(--border-active);
   }
 
+  .window.focused {
+    border-color: var(--accent-dim);
+    border-left: 2px solid var(--accent);
+    box-shadow: -6px 0 24px var(--accent-glow), 0 0 40px rgba(0, 0, 0, 0.4);
+  }
+
+  /* --- Corner Brackets (targeting reticle) --- */
+  .bracket {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+    z-index: 1;
+    transition: border-color var(--transition-fast), width var(--transition-fast), height var(--transition-fast);
+  }
+
+  .bracket-tl {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid var(--border-active);
+    border-left: 2px solid var(--border-active);
+  }
+
+  .bracket-tr {
+    top: -1px;
+    right: -1px;
+    border-top: 2px solid var(--border-active);
+    border-right: 2px solid var(--border-active);
+  }
+
+  .bracket-bl {
+    bottom: -1px;
+    left: -1px;
+    border-bottom: 2px solid var(--border-active);
+    border-left: 2px solid var(--border-active);
+  }
+
+  .bracket-br {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid var(--border-active);
+    border-right: 2px solid var(--border-active);
+  }
+
+  .focused .bracket {
+    border-color: var(--accent);
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 0 4px var(--accent-glow));
+  }
+
+  /* --- Title Bar --- */
   .window-titlebar {
     display: flex;
     align-items: center;
@@ -110,8 +176,53 @@
     flex-shrink: 0;
   }
 
+  .focused .window-titlebar {
+    border-bottom-color: var(--accent-dim);
+  }
+
   .window-titlebar:active {
     cursor: grabbing;
+  }
+
+  .window-title-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  /* --- Status Dot --- */
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    flex-shrink: 0;
+    transition: background var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .status-dot.active {
+    background: var(--accent);
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes dotPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent-glow), 0 0 16px var(--accent-glow); }
+    50% { opacity: 0.5; box-shadow: 0 0 3px var(--accent-glow); }
+  }
+
+  /* --- Designation Code --- */
+  .window-designation {
+    font-size: var(--text-xs);
+    color: var(--accent-dim);
+    letter-spacing: 0.08em;
+    font-family: var(--font-system);
+    transition: color var(--transition-fast);
+  }
+
+  .focused .window-designation {
+    color: var(--accent);
+    text-shadow: 0 0 8px var(--accent-glow);
+    animation: flicker 5s linear infinite;
   }
 
   .window-title {
@@ -119,6 +230,7 @@
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    transition: color var(--transition-fast);
   }
 
   .focused .window-title {
@@ -127,26 +239,31 @@
 
   .window-controls {
     display: flex;
-    gap: var(--space-1);
+    gap: var(--space-2);
   }
 
   .window-btn {
-    width: 20px;
-    height: 20px;
+    width: 26px;
+    height: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: var(--text-xs);
     color: var(--text-dim);
-    transition: color var(--transition-fast);
+    border: 1px solid transparent;
+    transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
   }
 
   .window-btn:hover {
     color: var(--text-primary);
+    border-color: var(--border-active);
+    background: var(--bg-surface);
   }
 
   .window-btn.close:hover {
     color: var(--accent);
+    border-color: var(--accent-dim);
+    background: rgba(212, 160, 68, 0.08);
   }
 
   .window-content {
@@ -159,11 +276,11 @@
   @keyframes windowOpen {
     from {
       opacity: 0;
-      transform: scale(0.97);
+      transform: scale(0.95) translateY(8px);
     }
     to {
       opacity: 1;
-      transform: scale(1);
+      transform: scale(1) translateY(0);
     }
   }
 </style>

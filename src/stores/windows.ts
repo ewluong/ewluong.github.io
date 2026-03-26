@@ -5,6 +5,8 @@
  */
 
 import { writable, derived, get } from 'svelte/store';
+import { systemStats } from './system';
+import { playOpen, playClose, playClick } from '../lib/uiSounds';
 
 export interface WindowState {
   id: string;
@@ -20,10 +22,14 @@ export interface WindowState {
   module: string;
   /** Optional data passed to the module */
   data?: Record<string, unknown>;
+  /** NERV-style designation code (e.g. PROC.001) */
+  designation?: string;
 }
 
 const STORAGE_KEY = 'ewluong-os-windows';
 let topZ = 100;
+const MAX_Z = 100000;
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
 
 function loadPersistedLayout(): Record<string, Partial<WindowState>> {
   if (typeof window === 'undefined') return {};
@@ -35,13 +41,22 @@ function loadPersistedLayout(): Record<string, Partial<WindowState>> {
   }
 }
 
-function persistLayout(windows: WindowState[]) {
+function persistLayout(windows: WindowState[], immediate = false) {
   if (typeof window === 'undefined') return;
-  const layout: Record<string, Partial<WindowState>> = {};
-  for (const w of windows) {
-    layout[w.id] = { x: w.x, y: w.y, width: w.width, height: w.height, isOpen: w.isOpen, isMinimized: w.isMinimized };
-  }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
+  const write = () => {
+    const layout: Record<string, Partial<WindowState>> = {};
+    for (const w of windows) {
+      layout[w.id] = { x: w.x, y: w.y, width: w.width, height: w.height, isOpen: w.isOpen, isMinimized: w.isMinimized };
+    }
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
+    } catch {
+      // Quota exceeded — silently fail, layout won't persist
+    }
+  };
+  if (immediate) { write(); return; }
+  if (persistTimer) clearTimeout(persistTimer);
+  persistTimer = setTimeout(write, 200);
 }
 
 function createWindowStore() {
@@ -72,17 +87,20 @@ function createWindowStore() {
         const updated = wins.map(w =>
           w.id === id ? { ...w, isOpen: true, isMinimized: false, zIndex: topZ++ } : w
         );
-        persistLayout(updated);
+        persistLayout(updated, true);
+        systemStats.update(s => ({ ...s, windowsOpened: s.windowsOpened + 1 }));
+        playOpen();
         return updated;
       });
     },
 
     close(id: string) {
+      playClose();
       update(wins => {
         const updated = wins.map(w =>
           w.id === id ? { ...w, isOpen: false } : w
         );
-        persistLayout(updated);
+        persistLayout(updated, true);
         return updated;
       });
     },
@@ -92,18 +110,28 @@ function createWindowStore() {
         const updated = wins.map(w =>
           w.id === id ? { ...w, isMinimized: true } : w
         );
-        persistLayout(updated);
+        persistLayout(updated, true);
         return updated;
       });
     },
 
     focus(id: string) {
-      update(wins => wins.map(w =>
-        w.id === id ? { ...w, zIndex: topZ++ } : w
-      ));
+      playClick();
+      update(wins => {
+        // Reset z-index stack if it grows too large
+        if (topZ > MAX_Z) {
+          const sorted = [...wins].sort((a, b) => a.zIndex - b.zIndex);
+          topZ = 100;
+          sorted.forEach(w => { w.zIndex = topZ++; });
+        }
+        return wins.map(w =>
+          w.id === id ? { ...w, zIndex: topZ++ } : w
+        );
+      });
     },
 
     move(id: string, x: number, y: number) {
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return;
       update(wins => {
         const updated = wins.map(w =>
           w.id === id ? { ...w, x, y } : w
@@ -114,6 +142,7 @@ function createWindowStore() {
     },
 
     resize(id: string, width: number, height: number) {
+      if (!Number.isFinite(width) || !Number.isFinite(height) || width < 1 || height < 1) return;
       update(wins => {
         const updated = wins.map(w =>
           w.id === id ? { ...w, width, height } : w
@@ -129,13 +158,18 @@ function createWindowStore() {
         if (!win) return wins;
         if (win.isOpen && !win.isMinimized) {
           // Already open and visible — minimize it
+          playClose();
           return wins.map(w => w.id === id ? { ...w, isMinimized: true } : w);
         }
+        playOpen();
         // Open or un-minimize
+        if (!win.isOpen) {
+          systemStats.update(s => ({ ...s, windowsOpened: s.windowsOpened + 1 }));
+        }
         const updated = wins.map(w =>
           w.id === id ? { ...w, isOpen: true, isMinimized: false, zIndex: topZ++ } : w
         );
-        persistLayout(updated);
+        persistLayout(updated, true);
         return updated;
       });
     },

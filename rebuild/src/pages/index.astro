@@ -1,15 +1,45 @@
 ---
 /**
  * index.astro — The OS entry point.
- * Renders the boot sequence, then the full workspace.
+ * Fetches content collection metadata at build time and passes it to Workspace.
+ * Rendered HTML for essays/projects is served as static fragment pages
+ * and fetched on-demand when windows open (see /fragments/).
  */
 
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BootSequence from '../components/BootSequence.svelte';
 import Workspace from '../components/Workspace.svelte';
+import { getCollection } from 'astro:content';
+
+// Fetch blog metadata (HTML rendered separately as fragment pages)
+const blogCollection = await getCollection('blog');
+const blogEntries = blogCollection
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .map((entry) => ({
+    slug: entry.id,
+    title: entry.data.title,
+    date: entry.data.date.getFullYear().toString(),
+    tags: entry.data.tags ?? [],
+  }));
+
+// Fetch project metadata
+const projectCollection = await getCollection('projects');
+const projectEntries = projectCollection.map((entry) => ({
+  slug: entry.id,
+  title: entry.data.title,
+  type: entry.data.type,
+  tech: entry.data.tech ?? [],
+  github: entry.data.github ?? '',
+  link: entry.data.link ?? '',
+  dataFile: entry.data.dataFile ?? '',
+}));
 ---
 
 <BaseLayout title="ewluong.os">
   <BootSequence client:load />
-  <Workspace client:load />
+  <Workspace
+    client:load
+    blogEntries={blogEntries}
+    projectEntries={projectEntries}
+  />
 </BaseLayout>

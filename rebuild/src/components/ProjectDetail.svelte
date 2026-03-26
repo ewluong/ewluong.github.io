@@ -1,11 +1,32 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+
+  export let slug: string = '';
   export let title: string = '';
   export let type: string = '';
-  export let html: string = '';
   export let tech: string[] = [];
   export let github: string = '';
   export let link: string = '';
   export let dataFile: string = '';
+
+  let html = '';
+  let loading = true;
+
+  onMount(async () => {
+    if (!slug) { loading = false; return; }
+    try {
+      const res = await fetch(`/fragments/projects/${slug}/`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'text/html');
+      html = doc.body.innerHTML;
+    } catch {
+      html = '';
+    } finally {
+      loading = false;
+    }
+  });
 </script>
 
 <div class="project-detail">
@@ -23,7 +44,11 @@
   {/if}
 
   <div class="detail-body">
-    {@html html}
+    {#if loading}
+      <span class="loading-text">LOADING...</span>
+    {:else if html}
+      {@html html}
+    {/if}
   </div>
 
   <div class="detail-links">
@@ -59,12 +84,13 @@
   }
 
   .type-badge {
-    font-size: 10px;
+    font-size: var(--text-xs);
     color: var(--accent-dim);
     letter-spacing: 0.1em;
     padding: 2px var(--space-2);
     border: 1px solid var(--accent-dim);
     flex-shrink: 0;
+    animation: glowPulse 3s ease-in-out infinite;
   }
 
   .detail-title {
@@ -81,10 +107,16 @@
   }
 
   .tech-tag {
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--text-dim);
     padding: 1px var(--space-2);
     border: 1px solid var(--border);
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  .tech-tag:hover {
+    color: var(--accent-dim);
+    border-color: var(--accent-dim);
   }
 
   .detail-body {
@@ -96,6 +128,12 @@
 
   .detail-body :global(p) {
     margin-bottom: 1em;
+  }
+
+  .loading-text {
+    color: var(--text-dim);
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
   }
 
   .detail-links {
@@ -113,5 +151,6 @@
 
   .detail-link:hover {
     color: var(--accent);
+    text-shadow: 0 0 8px var(--accent-glow);
   }
 </style>

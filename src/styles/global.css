@@ -23,18 +23,23 @@
   --bg-surface-hover: #1a1a32;
 
   /* Text */
-  --text-primary: #c8cad0;
-  --text-secondary: #6e7185;
-  --text-dim: #3d3f4e;
+  --text-primary: #d4d6dc;
+  --text-secondary: #8a8da2;
+  --text-dim: #525568;
 
   /* Accent */
   --accent: #d4a044;
   --accent-dim: #8a6a2e;
-  --accent-glow: rgba(212, 160, 68, 0.15);
+  --accent-glow: rgba(212, 160, 68, 0.22);
 
   /* Border */
-  --border: #1e1e36;
-  --border-active: #2a2a48;
+  --border: #242440;
+  --border-active: #33335a;
+
+  /* Accent (extended) */
+  --accent-bright: #e8b854;
+  --status-nominal: #4a8;
+  --status-warning: #d4a044;
 
   /* System */
   --scanline-opacity: 0.03;
@@ -44,12 +49,12 @@
   --font-system: 'VT323', monospace;
   --font-reading: 'IBM Plex Mono', 'JetBrains Mono', monospace;
 
-  --text-xs: 13px;
-  --text-sm: 14px;
-  --text-base: 16px;
-  --text-reading: 17px;
-  --text-lg: 20px;
-  --text-xl: 24px;
+  --text-xs: 17px;
+  --text-sm: 20px;
+  --text-base: 22px;
+  --text-reading: 21px;
+  --text-lg: 26px;
+  --text-xl: 34px;
 
   /* Spacing (4px base) */
   --space-1: 4px;
@@ -71,11 +76,13 @@
   --z-background: 0;
   --z-canvas: 1;
   --z-scanlines: 2;
+  --z-ambient: 3;
   --z-windows: 100;
   --z-focused: 200;
   --z-overlay: 300;
   --z-dock: 350;
   --z-system: 400;
+  --z-screensaver: 450;
   --z-boot: 500;
 }
 
@@ -85,12 +92,15 @@
   --bg-secondary: #0f160f;
   --bg-surface: #111a11;
   --bg-surface-hover: #162016;
-  --text-primary: #a8b8a0;
-  --text-secondary: #5a6e52;
-  --text-dim: #2e3a2a;
+  --text-primary: #b8c8b0;
+  --text-secondary: #748c6a;
+  --text-dim: #445840;
   --accent: #c8a84a;
   --accent-dim: #7a6828;
   --accent-glow: rgba(200, 168, 74, 0.12);
+  --accent-bright: #d8bc5e;
+  --status-nominal: #4a8;
+  --status-warning: #c8a84a;
   --border: #1a241a;
   --border-active: #243024;
 }
@@ -101,12 +111,15 @@
   --bg-secondary: #16140f;
   --bg-surface: #1c1914;
   --bg-surface-hover: #24201a;
-  --text-primary: #c8c0b0;
-  --text-secondary: #7a7264;
-  --text-dim: #443e34;
+  --text-primary: #d4ccbc;
+  --text-secondary: #968c7c;
+  --text-dim: #5c5448;
   --accent: #a04030;
   --accent-dim: #6a2a20;
   --accent-glow: rgba(160, 64, 48, 0.12);
+  --accent-bright: #c05040;
+  --status-nominal: #4a8;
+  --status-warning: #a04030;
   --border: #221e18;
   --border-active: #2e2820;
 }
@@ -221,6 +234,33 @@ button {
   background: none;
   color: inherit;
   font-size: inherit;
+}
+
+/* Press feedback for all buttons */
+button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* Shared NERV scan line sweep — apply to hover states */
+@keyframes scanSweep {
+  0% { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Shared glow pulse */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 4px var(--accent-glow); }
+  50% { box-shadow: 0 0 16px var(--accent-glow); }
+}
+
+/* Shared flicker */
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.6; }
+  94% { opacity: 1; }
+  96% { opacity: 0.8; }
+  97% { opacity: 1; }
 }
 
 a {

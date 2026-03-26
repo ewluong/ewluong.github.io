@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(bash setup.sh)"
+      "Bash(bash setup.sh)",
+      "Bash(npx astro:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

@@ -9,6 +9,8 @@
     tags?: string[];
   }> = [];
 
+  let essayCounter = 0;
+
   function openEssay(slug: string, title: string) {
     const winId = `essay-${slug}`;
     const existing = $windowStore.find(w => w.id === winId);
@@ -18,14 +20,16 @@
       return;
     }
 
-    // Register and open a new essay window
-    const centerX = (window.innerWidth - 640) / 2 + Math.random() * 40 - 20;
+    essayCounter++;
+    const dockWidth = 184;
+    const centerX = dockWidth + (window.innerWidth - dockWidth - 640) / 2 + Math.random() * 40 - 20;
     const centerY = 60 + Math.random() * 40;
 
     windowStore.register({
       id: winId,
       title: title,
       module: 'essay',
+      designation: `DOC.${String(essayCounter).padStart(3, '0')}`,
       x: centerX,
       y: centerY,
       width: 640,
@@ -66,11 +70,12 @@
   }
 
   .module-label {
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--accent-dim);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: var(--space-1);
+    animation: flicker 6s linear infinite;
   }
 
   .module-desc {
@@ -95,12 +100,17 @@
     text-align: left;
     padding: var(--space-3) 0;
     color: var(--text-secondary);
-    transition: color var(--transition-fast);
+    transition: color var(--transition-fast), background var(--transition-fast), padding-left var(--transition-fast);
     gap: var(--space-4);
   }
 
   .entry-row:hover {
     color: var(--text-primary);
+    background: var(--bg-surface-hover);
+    padding-left: var(--space-2);
+    background-image: linear-gradient(90deg, transparent 0%, rgba(212, 160, 68, 0.04) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: scanSweep 1.5s linear;
   }
 
   .entry-title {
@@ -120,9 +130,16 @@
   }
 
   .tag {
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--text-dim);
     padding: 1px var(--space-2);
     border: 1px solid var(--border);
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  .entry-row:hover + .entry-tags .tag,
+  li:hover .tag {
+    color: var(--accent-dim);
+    border-color: var(--accent-dim);
   }
 </style>

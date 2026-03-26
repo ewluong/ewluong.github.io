@@ -10,6 +10,8 @@
     link?: string;
   }> = [];
 
+  let projectCounter = 0;
+
   function openProject(slug: string, title: string) {
     const winId = `project-${slug}`;
     const existing = $windowStore.find(w => w.id === winId);
@@ -19,13 +21,16 @@
       return;
     }
 
-    const centerX = (window.innerWidth - 680) / 2 + Math.random() * 60 - 30;
+    projectCounter++;
+    const dockWidth = 184;
+    const centerX = dockWidth + (window.innerWidth - dockWidth - 680) / 2 + Math.random() * 60 - 30;
     const centerY = 60 + Math.random() * 40;
 
     windowStore.register({
       id: winId,
       title: title,
       module: 'project-detail',
+      designation: `PRJ.${String(projectCounter).padStart(3, '0')}`,
       x: centerX,
       y: centerY,
       width: 680,
@@ -84,11 +89,12 @@
   }
 
   .module-label {
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--accent-dim);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: var(--space-1);
+    animation: flicker 6s linear infinite;
   }
 
   .module-desc {
@@ -115,8 +121,9 @@
   }
 
   .project-card:hover {
-    border-color: var(--border-active);
+    border-color: var(--accent-dim);
     background: var(--bg-surface-hover);
+    box-shadow: inset 0 0 16px var(--accent-glow);
   }
 
   .card-header {
@@ -126,12 +133,19 @@
   }
 
   .card-type {
-    font-size: 10px;
+    font-size: var(--text-xs);
     color: var(--accent-dim);
     letter-spacing: 0.1em;
     padding: 1px var(--space-2);
     border: 1px solid var(--border);
     flex-shrink: 0;
+    transition: color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .project-card:hover .card-type {
+    color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 6px var(--accent-glow);
   }
 
   .card-title {
@@ -150,7 +164,7 @@
   }
 
   .tech-tag {
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--text-dim);
   }
 
@@ -160,7 +174,12 @@
   }
 
   .link-indicator {
-    font-size: 11px;
+    font-size: var(--text-xs);
     color: var(--text-dim);
+    transition: color var(--transition-fast);
+  }
+
+  .project-card:hover .link-indicator {
+    color: var(--accent-dim);
   }
 </style>
