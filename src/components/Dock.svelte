@@ -1,6 +1,7 @@
 <script lang="ts">
   import { windowStore } from '../stores/windows';
   import { theme } from '../stores/theme';
+  import { sessionVector, VECTOR_MODULES } from '../stores/temporal';
 
   interface DockItem {
     id: string;
@@ -8,24 +9,37 @@
     designation: string;
   }
 
-  const items: DockItem[] = [
-    { id: 'quick-links', designation: '01', label: 'REFERENCE' },
-    { id: 'writing', designation: '02', label: 'WRITING' },
-    { id: 'projects', designation: '03', label: 'PROJECTS' },
-    { id: 'music', designation: '04', label: 'MUSIC' },
-    { id: 'backrooms', designation: '05', label: 'BACKROOMS' },
-    { id: 'crypto', designation: '06', label: 'RESOURCES' },
-    { id: 'daily-log', designation: '07', label: 'LOG' },
-    { id: 'life-counters', designation: '08', label: 'RUNTIME' },
-    { id: 'chat', designation: '09', label: 'MAGI' },
-    { id: 'system-info', designation: '10', label: 'SYSTEM' },
-    { id: 'habits', designation: '11', label: 'DIAGNOSTICS' },
-    { id: 'tarot', designation: '12', label: 'WORD' },
-    { id: 'signals', designation: '13', label: 'SIGNALS' },
+  // Tier 1: Daily instruments — what you use every session
+  const dailyItems: DockItem[] = [
+    { id: 'daily-log', designation: '01', label: 'LOG' },
+    { id: 'habits', designation: '02', label: 'DIAGNOSTICS' },
+    { id: 'tarot', designation: '03', label: 'WORD' },
+    { id: 'quick-links', designation: '04', label: 'REFERENCE' },
+  ];
+
+  // Tier 2: Creation & research tools
+  const instrumentItems: DockItem[] = [
+    { id: 'writing', designation: '05', label: 'WRITING' },
+    { id: 'projects', designation: '06', label: 'PROJECTS' },
+    { id: 'chat', designation: '07', label: 'MAGI' },
+    { id: 'signals', designation: '08', label: 'SIGNALS' },
+  ];
+
+  // Tier 3: Archive & monitoring
+  const archiveItems: DockItem[] = [
+    { id: 'music', designation: '09', label: 'MUSIC' },
+    { id: 'backrooms', designation: '10', label: 'BACKROOMS' },
+    { id: 'crypto', designation: '11', label: 'RESOURCES' },
+    { id: 'system-info', designation: '12', label: 'SYSTEM' },
+    { id: 'life-counters', designation: '13', label: 'RUNTIME' },
   ];
 
   $: openWindows = $windowStore.filter(w => w.isOpen && !w.isMinimized);
   $: openIds = new Set(openWindows.map(w => w.id));
+
+  // Which modules the current vector emphasizes
+  $: vectorModules = new Set(VECTOR_MODULES[$sessionVector] || []);
+  $: hasVector = $sessionVector !== '';
 
   function handleClick(id: string) {
     windowStore.toggle(id);
@@ -39,13 +53,62 @@
 <nav class="dock" role="navigation" aria-label="System dock">
   <div class="dock-header">
     <span class="dock-system-label">ewluong.os</span>
+    {#if $sessionVector}
+      <span class="dock-vector">{$sessionVector}</span>
+    {/if}
   </div>
 
   <div class="dock-items">
-    {#each items as item}
+    <!-- Tier 1: DAILY -->
+    <div class="tier-label">DAILY</div>
+    {#each dailyItems as item}
       <button
         class="dock-item"
         class:active={openIds.has(item.id)}
+        class:vector-emphasis={hasVector && vectorModules.has(item.id)}
+        class:vector-dim={hasVector && !vectorModules.has(item.id)}
+        on:click={() => handleClick(item.id)}
+        title={item.label}
+      >
+        <span class="dock-designation">{item.designation}</span>
+        {#if openIds.has(item.id)}
+          <span class="dock-label">[{item.label}]</span>
+        {:else}
+          <span class="dock-label">{item.label}</span>
+        {/if}
+      </button>
+    {/each}
+
+    <!-- Tier 2: INSTRUMENTS -->
+    <div class="tier-divider"></div>
+    <div class="tier-label">INSTRUMENTS</div>
+    {#each instrumentItems as item}
+      <button
+        class="dock-item"
+        class:active={openIds.has(item.id)}
+        class:vector-emphasis={hasVector && vectorModules.has(item.id)}
+        class:vector-dim={hasVector && !vectorModules.has(item.id)}
+        on:click={() => handleClick(item.id)}
+        title={item.label}
+      >
+        <span class="dock-designation">{item.designation}</span>
+        {#if openIds.has(item.id)}
+          <span class="dock-label">[{item.label}]</span>
+        {:else}
+          <span class="dock-label">{item.label}</span>
+        {/if}
+      </button>
+    {/each}
+
+    <!-- Tier 3: ARCHIVE -->
+    <div class="tier-divider"></div>
+    <div class="tier-label">ARCHIVE</div>
+    {#each archiveItems as item}
+      <button
+        class="dock-item tier-archive"
+        class:active={openIds.has(item.id)}
+        class:vector-emphasis={hasVector && vectorModules.has(item.id)}
+        class:vector-dim={hasVector && !vectorModules.has(item.id)}
         on:click={() => handleClick(item.id)}
         title={item.label}
       >
@@ -98,6 +161,9 @@
   .dock-header {
     padding: var(--space-4) var(--space-3) var(--space-3);
     border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .dock-system-label {
@@ -108,12 +174,34 @@
     animation: flicker 6s linear infinite;
   }
 
+  .dock-vector {
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    opacity: 0.8;
+  }
+
   .dock-items {
     display: flex;
     flex-direction: column;
-    padding: var(--space-2) 0;
+    padding: var(--space-1) 0;
     flex: 1;
     overflow-y: auto;
+  }
+
+  .tier-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.14em;
+    padding: var(--space-2) var(--space-3) var(--space-1);
+    opacity: 0.5;
+  }
+
+  .tier-divider {
+    height: 1px;
+    background: var(--border);
+    margin: var(--space-2) var(--space-3);
+    opacity: 0.5;
   }
 
   .dock-item {
@@ -124,10 +212,41 @@
     padding: var(--space-3) var(--space-3);
     font-size: var(--text-xs);
     color: var(--text-secondary);
-    transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), padding-left var(--transition-fast);
+    transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast), padding-left var(--transition-fast), opacity var(--transition-fast);
     text-align: left;
     width: 100%;
     border-left: 2px solid transparent;
+  }
+
+  /* Archive tier items are slightly dimmer by default */
+  .dock-item.tier-archive {
+    opacity: 0.7;
+  }
+
+  .dock-item.tier-archive:hover {
+    opacity: 1;
+  }
+
+  /* Vector emphasis: items aligned with current vector glow subtly */
+  .dock-item.vector-emphasis {
+    opacity: 1;
+  }
+
+  .dock-item.vector-emphasis .dock-designation {
+    color: var(--accent-dim);
+  }
+
+  .dock-item.vector-emphasis .dock-label {
+    color: var(--text-primary);
+  }
+
+  /* Vector dim: items not aligned with current vector fade */
+  .dock-item.vector-dim:not(.active) {
+    opacity: 0.45;
+  }
+
+  .dock-item.vector-dim:not(.active):hover {
+    opacity: 0.8;
   }
 
   .dock-item:hover {
@@ -145,6 +264,7 @@
     background: var(--bg-surface);
     border-left: 2px solid var(--accent);
     animation: glowPulse 3s ease-in-out infinite;
+    opacity: 1;
   }
 
   .dock-designation {

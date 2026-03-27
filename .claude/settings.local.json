@@ -3,7 +3,8 @@
     "allow": [
       "Bash(bash setup.sh)",
       "Bash(npx astro:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(wc -l /c/Users/Eric/website/ewluong.github.io/rebuild/src/components/*.svelte)"
     ]
   }
 }

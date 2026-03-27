@@ -3,8 +3,12 @@
   import { windowStore } from '../stores/windows';
   import { theme } from '../stores/theme';
   import { playPaletteOpen } from '../lib/uiSounds';
+  import { sealSession, resetDrift } from '../stores/temporal';
 
   export let visible = false;
+  export let onSeal: (() => void) | undefined = undefined;
+  export let onStatus: (() => void) | undefined = undefined;
+  export let onReorient: (() => void) | undefined = undefined;
 
   const dispatch = createEventDispatcher();
   let inputEl: HTMLInputElement;
@@ -53,6 +57,30 @@
         }
         close();
       },
+    });
+
+    // Session seal
+    cmds.push({
+      id: 'seal',
+      label: 'Seal Session',
+      category: 'THRESHOLD',
+      action: () => { onSeal?.(); close(); },
+    });
+
+    // Show status (re-show morning console)
+    cmds.push({
+      id: 'status',
+      label: 'Show Status',
+      category: 'THRESHOLD',
+      action: () => { onStatus?.(); close(); },
+    });
+
+    // Reorient (reset drift state)
+    cmds.push({
+      id: 'reorient',
+      label: 'Reorient',
+      category: 'THRESHOLD',
+      action: () => { resetDrift(); onReorient?.(); close(); },
     });
 
     return cmds;

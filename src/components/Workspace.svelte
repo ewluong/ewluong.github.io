@@ -5,7 +5,7 @@
   import { isPlaying, rmsLevel } from '../stores/audio';
   import { environmentMode, envModifiers } from '../stores/environment';
   import { fetchWeather } from '../lib/weatherService';
-  import { initSession, saveSessionState, updateTimeOfDay, temporalModifiers } from '../stores/temporal';
+  import { initSession, saveSessionState, updateTimeOfDay, temporalModifiers, vectorModifiers, driftModifiers, sealSession, updateCoherence } from '../stores/temporal';
   import CanvasBackground from './CanvasBackground.svelte';
   import AmbientLayer from './AmbientLayer.svelte';
   import AmbientText from './AmbientText.svelte';
@@ -31,6 +31,7 @@
   import TarotOracle from './TarotOracle.svelte';
   import SignalIntercept from './SignalIntercept.svelte';
   import LoginPanel from './LoginPanel.svelte';
+  import AmbientNudge from './AmbientNudge.svelte';
   import Screensaver from './Screensaver.svelte';
 
   /** Blog entries passed from Astro at build time */
@@ -59,6 +60,7 @@
   let weatherInterval: ReturnType<typeof setInterval>;
   let timeInterval: ReturnType<typeof setInterval>;
   let sessionInterval: ReturnType<typeof setInterval>;
+  let coherenceInterval: ReturnType<typeof setInterval>;
 
   $: visible = $bootPhase === 'ready';
 
@@ -84,8 +86,8 @@
     document.documentElement.style.setProperty('--noise-opacity', String(0.025 + rmsBoost * 0.5));
   }
 
-  // Temporal brightness modulation (combines environment + time-of-day)
-  $: combinedBrightness = $envModifiers.brightness * $temporalModifiers.brightness;
+  // Temporal brightness modulation (combines environment + time-of-day + vector + drift)
+  $: combinedBrightness = $envModifiers.brightness * $temporalModifiers.brightness * $vectorModifiers.canvasBrightness * (1 - $driftModifiers.brightnessReduction);
 
   // Register default windows on mount
   onMount(() => {
@@ -287,6 +289,14 @@
       saveSessionState(openIds, sessionStart);
     }, 30000);
 
+    // Coherence tracking every second
+    coherenceInterval = setInterval(() => {
+      const focused = $windowStore
+        .filter(w => w.isOpen && !w.isMinimized)
+        .sort((a, b) => b.zIndex - a.zIndex)[0];
+      updateCoherence(focused?.module);
+    }, 1000);
+
     // Initialize weather fetch + 30-min refresh
     fetchWeather();
     weatherInterval = setInterval(fetchWeather, 30 * 60 * 1000);
@@ -298,8 +308,19 @@
     };
     window.addEventListener('beforeunload', handleUnload);
 
+    // Session seal on tab blur — quiet closing acknowledgment
+    const handleVisibility = () => {
+      if (document.hidden) {
+        const openIds = $windowStore.filter(w => w.isOpen && !w.isMinimized).map(w => w.id);
+        saveSessionState(openIds, sessionStart);
+        sealSession(sessionStart);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     return () => {
       window.removeEventListener('beforeunload', handleUnload);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   });
 
@@ -307,6 +328,7 @@
     clearInterval(weatherInterval);
     clearInterval(timeInterval);
     clearInterval(sessionInterval);
+    clearInterval(coherenceInterval);
   });
 
   function handleKeydown(e: KeyboardEvent) {
@@ -465,8 +487,19 @@
     {/each}
 
     <Dock />
+    <AmbientNudge scratchpadVisible={scratchpadVisible} />
     <Scratchpad bind:visible={scratchpadVisible} />
-    <CommandPalette visible={paletteVisible} on:close={() => paletteVisible = false} />
+    <CommandPalette
+      visible={paletteVisible}
+      on:close={() => paletteVisible = false}
+      onSeal={() => {
+        const openIds = $windowStore.filter(w => w.isOpen && !w.isMinimized).map(w => w.id);
+        saveSessionState(openIds, sessionStart);
+        sealSession(sessionStart);
+      }}
+      onStatus={() => { showMorningConsole = true; }}
+      onReorient={() => { /* drift already reset by CommandPalette */ }}
+    />
     <Screensaver />
   </div>
 {/if}

@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { bootPhase, bootMessages, statusMessage, bootTime, systemStats } from '../stores/system';
   import { playBoot } from '../lib/uiSounds';
+  import { seededRng } from '../lib/bibleVerses';
 
   let visible = true;
   let lines: Array<{ text: string; type: 'hex' | 'check' | 'clearance' | 'final' }> = [];
@@ -35,7 +36,48 @@
     'CLASSIFICATION: PATTERN BLUE — CONFIRMED',
   ];
 
-  const FINAL_LINE = '> just chasing the wind...';
+  // Grounding phrases — deterministic by date. The same phrase accompanies the same day.
+  const GROUNDING_PHRASES = [
+    'just chasing the wind...',
+    'be still, and know.',
+    'the unexamined life is not worth living.',
+    'existence precedes essence.',
+    'one must imagine Sisyphus happy.',
+    'in the midst of winter — an invincible summer.',
+    'all is vanity. all is grace.',
+    'what has been will be again.',
+    'walk humbly. act justly. love mercy.',
+    'the wind blows where it wishes.',
+    'to live is to be slowly born.',
+    'we are what we repeatedly do.',
+    'fear and trembling.',
+    'not all who wander are lost.',
+    'the center cannot hold.',
+    'there is a crack in everything.',
+    'amor fati.',
+    'faith is the substance of things hoped for.',
+    'the only way out is through.',
+    'I think, therefore I am — therefore I doubt.',
+    'between stimulus and response, there is a space.',
+    'to whom much is given, much is required.',
+    'memento mori.',
+    'he who has ears, let him hear.',
+    'the truth will set you free.',
+    'we see through a glass, darkly.',
+    'selah.',
+    'sufficient unto the day is the evil thereof.',
+    'soli deo gloria.',
+    'this too shall pass — and this too is grace.',
+  ];
+
+  function getDailyPhrase(): string {
+    const today = new Date().toISOString().slice(0, 10);
+    const rng = seededRng(today + '-ewluong-os-boot');
+    const index = Math.floor(rng() * GROUNDING_PHRASES.length);
+    return GROUNDING_PHRASES[index];
+  }
+
+  const FINAL_LINE = '> ' + getDailyPhrase();
 
   const HEX_DELAY = 80;
   const VERIFY_DELAY = 400;
@@ -99,7 +141,7 @@
                     bootPhase.set('ready');
                     bootTime.set(now);
                     systemStats.update(s => ({ ...s, bootTime: now }));
-                    statusMessage.set('just chasing the wind...');
+                    statusMessage.set(getDailyPhrase());
                   }, FADE_DELAY);
                 }, 400);
               }

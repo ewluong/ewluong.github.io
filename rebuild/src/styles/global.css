@@ -23,18 +23,18 @@
   --bg-surface-hover: #1a1a32;
 
   /* Text */
-  --text-primary: #d4d6dc;
-  --text-secondary: #8a8da2;
-  --text-dim: #525568;
+  --text-primary: #e0e2e8;
+  --text-secondary: #a0a3b8;
+  --text-dim: #6a6d82;
 
   /* Accent */
   --accent: #d4a044;
-  --accent-dim: #8a6a2e;
-  --accent-glow: rgba(212, 160, 68, 0.22);
+  --accent-dim: #a07a38;
+  --accent-glow: rgba(212, 160, 68, 0.28);
 
   /* Border */
-  --border: #242440;
-  --border-active: #33335a;
+  --border: #2c2c4a;
+  --border-active: #3d3d66;
 
   /* Accent (extended) */
   --accent-bright: #e8b854;
@@ -49,12 +49,12 @@
   --font-system: 'VT323', monospace;
   --font-reading: 'IBM Plex Mono', 'JetBrains Mono', monospace;
 
-  --text-xs: 17px;
-  --text-sm: 20px;
-  --text-base: 22px;
-  --text-reading: 21px;
-  --text-lg: 26px;
-  --text-xl: 34px;
+  --text-xs: 19px;
+  --text-sm: 22px;
+  --text-base: 24px;
+  --text-reading: 23px;
+  --text-lg: 28px;
+  --text-xl: 36px;
 
   /* Spacing (4px base) */
   --space-1: 4px;
@@ -79,6 +79,7 @@
   --z-ambient: 3;
   --z-windows: 100;
   --z-focused: 200;
+  --z-murmur: 250;
   --z-overlay: 300;
   --z-dock: 350;
   --z-system: 400;

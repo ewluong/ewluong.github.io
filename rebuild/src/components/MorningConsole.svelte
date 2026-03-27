@@ -1,26 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { sessionMemory, getTimeGreeting, formatTimeSince, formatDurationShort } from '../stores/temporal';
-  import { weather } from '../stores/weather';
+  import { sessionMemory, getTimeGreeting, formatTimeSince, formatDurationShort, sessionVector, VECTOR_AUTO_OPEN, type SessionVector } from '../stores/temporal';
+  import { windowStore } from '../stores/windows';
 
   export let blogEntries: Array<{ slug: string; title: string }> = [];
   export let onDismiss: () => void = () => {};
 
   let visible = false;
   let dismissed = false;
-
-  // Daily rotating essay fragment
-  $: dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 1).getTime()) / 86400000);
-  $: dailyEssay = blogEntries.length > 0 ? blogEntries[dayOfYear % blogEntries.length] : null;
-
-  // Habit data from localStorage
-  let habitIntegrity = -1;
-  let habitsTotal = 0;
-  let habitsCompleted = 0;
-
-  // Log data
-  let hasLogToday = false;
-  let lastLogDate = '';
+  let phase: 'question' | 'briefing' = 'question';
+  let selectedVector: SessionVector = '';
 
   // Time data
   $: greeting = getTimeGreeting();
@@ -28,37 +17,164 @@
   $: dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   $: dayNum = String(Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 1).getTime()) / 86400000) + 1).padStart(3, '0');
 
+  // Last session summary line
   $: lastSessionAgo = $sessionMemory.lastVisit > 0
     ? formatTimeSince(Date.now() - $sessionMemory.lastVisit)
     : '';
   $: lastDuration = $sessionMemory.lastSessionDuration > 0
     ? formatDurationShort($sessionMemory.lastSessionDuration)
     : '';
+  $: lastVector = $sessionMemory.lastVector || '';
+  $: lastCoherence = $sessionMemory.lastCoherence;
 
-  function loadHabitData() {
-    try {
-      const stored = localStorage.getItem('ewluong-os-habits');
-      if (!stored) return;
-      const data = JSON.parse(stored);
-      if (!Array.isArray(data.habits)) return;
-      const today = new Date().toISOString().slice(0, 10);
-      habitsTotal = data.habits.length;
-      habitsCompleted = data.habits.filter((h: { history: Record<string, boolean> }) => h.history?.[today]).length;
-      habitIntegrity = habitsTotal > 0 ? Math.round((habitsCompleted / habitsTotal) * 100) : -1;
-    } catch { /* ignore */ }
+  const VECTORS: { id: SessionVector; label: string; desc: string }[] = [
+    { id: 'WRITE', label: 'WRITE', desc: 'compose, log, capture' },
+    { id: 'RESEARCH', label: 'RESEARCH', desc: 'seek, scan, aggregate' },
+    { id: 'READ', label: 'READ', desc: 'essays, archives, depth' },
+    { id: 'REFLECT', label: 'REFLECT', desc: 'word, habits, stillness' },
+    { id: 'BUILD', label: 'BUILD', desc: 'projects, code, systems' },
+    { id: 'BROWSE', label: 'BROWSE', desc: 'no fixed heading' },
+  ];
+
+  // --- Phase 2: Vector-specific briefing data ---
+  interface BriefingLine { label: string; value: string }
+  let briefingLines: BriefingLine[] = [];
+
+  function loadBriefingData(vec: SessionVector): BriefingLine[] {
+    const lines: BriefingLine[] = [];
+
+    switch (vec) {
+      case 'WRITE': {
+        // Log status
+        try {
+          const stored = localStorage.getItem('ewluong-os-log');
+          if (stored) {
+            const entries = JSON.parse(stored);
+            const today = new Date().toISOString().slice(0, 10);
+            const hasToday = Array.isArray(entries) && entries.some((e: { date: string }) => e.date === today);
+            lines.push({ label: 'LOG', value: hasToday ? 'ENTRY RECORDED' : 'NO ENTRY TODAY' });
+
+            // Yesterday's first line
+            const sorted = entries
+              .filter((e: { date: string }) => e.date < today)
+              .sort((a: { date: string }, b: { date: string }) => b.date.localeCompare(a.date));
+            if (sorted.length > 0 && sorted[0].content) {
+              const firstLine = sorted[0].content.trim().split('\n')[0].trim();
+              lines.push({ label: 'YESTERDAY', value: firstLine.length > 60 ? firstLine.slice(0, 60) + '...' : firstLine });
+            }
+
+            // Word count this week
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            const weekStr = weekAgo.toISOString().slice(0, 10);
+            const weekWords = entries
+              .filter((e: { date: string; wordCount?: number }) => e.date >= weekStr)
+              .reduce((sum: number, e: { wordCount?: number }) => sum + (e.wordCount || 0), 0);
+            if (weekWords > 0) lines.push({ label: 'WORDS THIS WEEK', value: String(weekWords) });
+          } else {
+            lines.push({ label: 'LOG', value: 'NO ENTRIES YET' });
+          }
+        } catch { lines.push({ label: 'LOG', value: 'UNAVAILABLE' }); }
+        break;
+      }
+
+      case 'RESEARCH': {
+        try {
+          const cached = localStorage.getItem('ewluong-os-signals-cache');
+          if (cached) {
+            const data = JSON.parse(cached);
+            const signalConfig = localStorage.getItem('ewluong-os-signals');
+            const readIds = signalConfig ? new Set(JSON.parse(signalConfig).readIds || []) : new Set();
+            const total = Array.isArray(data.signals) ? data.signals.length : 0;
+            const unread = total - (Array.isArray(data.signals) ? data.signals.filter((s: { id: string }) => readIds.has(s.id)).length : 0);
+            lines.push({ label: 'SIGNALS', value: `${unread} UNREAD / ${total} TOTAL` });
+            if (data.fetchedAt) {
+              lines.push({ label: 'LAST SCAN', value: formatTimeSince(Date.now() - data.fetchedAt) });
+            }
+          } else {
+            lines.push({ label: 'SIGNALS', value: 'NO SCAN DATA' });
+          }
+        } catch { lines.push({ label: 'SIGNALS', value: 'UNAVAILABLE' }); }
+        break;
+      }
+
+      case 'READ': {
+        // Daily essay from archive
+        const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 1).getTime()) / 86400000);
+        if (blogEntries.length > 0) {
+          const essay = blogEntries[dayOfYear % blogEntries.length];
+          lines.push({ label: 'FROM THE ARCHIVE', value: essay.title });
+        }
+        lines.push({ label: 'BACKROOMS', value: '3 CHAPTERS AVAILABLE' });
+        break;
+      }
+
+      case 'REFLECT': {
+        lines.push({ label: 'DAILY WORD', value: 'VERSE AWAITS' });
+
+        // Habit integrity
+        try {
+          const stored = localStorage.getItem('ewluong-os-habits');
+          if (stored) {
+            const data = JSON.parse(stored);
+            if (Array.isArray(data.habits)) {
+              const today = new Date().toISOString().slice(0, 10);
+              const total = data.habits.length;
+              const completed = data.habits.filter((h: { history: Record<string, boolean> }) => h.history?.[today]).length;
+              const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+              lines.push({ label: 'INTEGRITY', value: `${pct}% (${completed}/${total})` });
+            }
+          }
+        } catch { /* ignore */ }
+
+        // Streak
+        lines.push({ label: 'STREAK', value: `${$sessionMemory.streakDays}d` });
+        break;
+      }
+
+      case 'BUILD': {
+        lines.push({ label: 'PROJECTS', value: `${blogEntries.length > 0 ? '14' : '—'} INDEXED` });
+        // Scratchpad tasks
+        try {
+          const stored = localStorage.getItem('ewluong-os-scratchpad');
+          if (stored) {
+            const pages = JSON.parse(stored);
+            const totalChars = Array.isArray(pages) ? pages.reduce((s: number, p: { content?: string }) => s + (p.content?.length || 0), 0) : 0;
+            if (totalChars > 0) lines.push({ label: 'SCRATCHPAD', value: `${Array.isArray(pages) ? pages.length : 0} PAGES / ${totalChars} CHARS` });
+          }
+        } catch { /* ignore */ }
+        break;
+      }
+
+      case 'BROWSE':
+        lines.push({ label: '', value: 'NO FIXED HEADING — PASS THROUGH WHEN READY' });
+        break;
+    }
+
+    return lines;
   }
 
-  function loadLogData() {
-    try {
-      const stored = localStorage.getItem('ewluong-os-log');
-      if (!stored) return;
-      const entries = JSON.parse(stored);
-      if (!Array.isArray(entries) || entries.length === 0) return;
-      const today = new Date().toISOString().slice(0, 10);
-      hasLogToday = entries.some((e: { date: string }) => e.date === today);
-      const sorted = entries.sort((a: { date: string }, b: { date: string }) => b.date.localeCompare(a.date));
-      lastLogDate = sorted[0]?.date ?? '';
-    } catch { /* ignore */ }
+  function selectVector(v: SessionVector) {
+    selectedVector = v;
+    sessionVector.set(v);
+
+    // Load vector-specific briefing data
+    briefingLines = loadBriefingData(v);
+
+    // Auto-open windows aligned with this vector
+    const toOpen = VECTOR_AUTO_OPEN[v] || [];
+    for (const id of toOpen) {
+      windowStore.open(id);
+    }
+
+    // Transition to Phase 2
+    phase = 'briefing';
+
+    // Auto-dismiss after briefing display
+    setTimeout(() => {
+      dismissed = true;
+      setTimeout(onDismiss, 400);
+    }, 1800);
   }
 
   function dismiss() {
@@ -66,10 +182,16 @@
     setTimeout(onDismiss, 400);
   }
 
+  // Build the last session summary string
+  function lastSessionSummary(): string {
+    const parts: string[] = [];
+    if (lastDuration) parts.push(lastDuration);
+    if (lastVector) parts.push(lastVector);
+    if (lastCoherence >= 0) parts.push(`${lastCoherence}% COHERENT`);
+    return parts.join(' / ');
+  }
+
   onMount(() => {
-    loadHabitData();
-    loadLogData();
-    // Fade in after a brief delay
     setTimeout(() => { visible = true; }, 100);
   });
 </script>
@@ -79,70 +201,75 @@
   class="morning-console"
   class:visible
   class:dismissed
-  on:click={dismiss}
   on:keydown={(e) => e.key === 'Escape' && dismiss()}
 >
-  <div class="console-inner" on:click|stopPropagation>
+  <div class="console-inner">
+    <!-- Always visible: temporal context -->
     <div class="console-greeting">{greeting}</div>
     <div class="console-date">{dateStr}</div>
     <div class="console-daynum">DAY {dayNum}</div>
 
-    <div class="console-divider"></div>
-
-    <!-- Session info -->
+    <!-- Last session summary (single line) -->
     {#if lastSessionAgo}
-      <div class="console-row">
-        <span class="row-label">LAST SESSION</span>
-        <span class="row-value">{lastSessionAgo}{lastDuration ? ` / ${lastDuration}` : ''}</span>
-      </div>
-    {/if}
-
-    {#if $sessionMemory.totalSessions > 1}
-      <div class="console-row">
-        <span class="row-label">SESSIONS</span>
-        <span class="row-value">{$sessionMemory.totalSessions} total / {$sessionMemory.streakDays}d streak</span>
-      </div>
-    {/if}
-
-    <!-- Weather -->
-    {#if $weather.condition !== 'unknown'}
-      <div class="console-row">
-        <span class="row-label">WEATHER</span>
-        <span class="row-value">{$weather.temp}C / {$weather.condition.toUpperCase()}{$weather.location ? ` / ${$weather.location}` : ''}</span>
-      </div>
-    {/if}
-
-    <div class="console-divider"></div>
-
-    <!-- System state -->
-    {#if habitIntegrity >= 0}
-      <div class="console-row">
-        <span class="row-label">SYSTEM INTEGRITY</span>
-        <span class="row-value" class:integrity-high={habitIntegrity > 80} class:integrity-mid={habitIntegrity >= 50 && habitIntegrity <= 80} class:integrity-low={habitIntegrity < 50}>
-          {habitIntegrity}% ({habitsCompleted}/{habitsTotal})
-        </span>
-      </div>
-    {/if}
-
-    <div class="console-row">
-      <span class="row-label">OPERATOR LOG</span>
-      <span class="row-value">{hasLogToday ? 'ENTRY RECORDED' : 'NO ENTRY TODAY'}</span>
-    </div>
-
-    <!-- Daily fragment from essays -->
-    {#if dailyEssay}
       <div class="console-divider"></div>
-      <div class="console-fragment">
-        <span class="fragment-label">FROM THE ARCHIVE</span>
-        <span class="fragment-title">{dailyEssay.title}</span>
+      <div class="console-last-session">
+        <span class="last-label">LAST SESSION</span>
+        <span class="last-value">{lastSessionAgo}{lastSessionSummary() ? ` / ${lastSessionSummary()}` : ''}</span>
       </div>
+      {#if $sessionMemory.totalSessions > 1}
+        <div class="console-sessions">
+          {$sessionMemory.totalSessions} sessions / {$sessionMemory.streakDays}d streak
+        </div>
+      {/if}
     {/if}
 
     <div class="console-divider"></div>
 
-    <button class="console-enter" on:click={dismiss}>
-      ENTER SYSTEM
-    </button>
+    {#if phase === 'question'}
+      <!-- Phase 1: The Question -->
+      <div class="vector-section">
+        <div class="vector-prompt">WHAT ARE YOU HERE FOR?</div>
+        <div class="vector-grid">
+          {#each VECTORS as vec}
+            <button
+              class="vector-btn"
+              on:click={() => selectVector(vec.id)}
+            >
+              <span class="vector-label">{vec.label}</span>
+              <span class="vector-desc">{vec.desc}</span>
+            </button>
+          {/each}
+        </div>
+      </div>
+
+      <button class="console-skip" on:click={dismiss}>
+        skip — enter without vector
+      </button>
+
+    {:else}
+      <!-- Phase 2: Vector Briefing -->
+      <div class="briefing-section">
+        <div class="briefing-header">
+          <span class="briefing-vector">{selectedVector}</span>
+          <span class="briefing-label">VECTOR SET</span>
+        </div>
+
+        {#if briefingLines.length > 0}
+          <div class="briefing-data">
+            {#each briefingLines as line}
+              <div class="briefing-row">
+                {#if line.label}
+                  <span class="briefing-key">{line.label}</span>
+                  <span class="briefing-val">{line.value}</span>
+                {:else}
+                  <span class="briefing-val solo">{line.value}</span>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    {/if}
   </div>
 </div>
 
@@ -158,7 +285,6 @@
     backdrop-filter: blur(20px);
     opacity: 0;
     transition: opacity 500ms var(--ease-out);
-    cursor: pointer;
   }
 
   .morning-console.visible {
@@ -171,7 +297,7 @@
   }
 
   .console-inner {
-    max-width: 480px;
+    max-width: 520px;
     width: 100%;
     padding: var(--space-8) var(--space-8);
     cursor: default;
@@ -216,7 +342,8 @@
     box-shadow: 0 0 6px var(--accent-glow);
   }
 
-  .console-row {
+  /* --- Last session summary --- */
+  .console-last-session {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -224,55 +351,175 @@
     font-size: var(--text-xs);
   }
 
-  .row-label {
+  .last-label {
     color: var(--text-dim);
     letter-spacing: 0.08em;
   }
 
-  .row-value {
+  .last-value {
     color: var(--text-secondary);
     font-variant-numeric: tabular-nums;
   }
 
-  .integrity-high { color: var(--status-nominal); }
-  .integrity-mid { color: var(--accent); }
-  .integrity-low { color: var(--accent-bright); }
-
-  .console-fragment {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
+  .console-sessions {
+    font-size: var(--text-xs);
+    color: var(--text-dim);
+    text-align: right;
+    padding: var(--space-1) 0 0;
+    letter-spacing: 0.04em;
   }
 
-  .fragment-label {
+  /* --- Phase 1: Vector selector --- */
+  .vector-section {
+    margin-bottom: var(--space-4);
+  }
+
+  .vector-prompt {
+    font-size: var(--text-xs);
+    color: var(--accent-dim);
+    letter-spacing: 0.16em;
+    margin-bottom: var(--space-4);
+    text-align: center;
+    animation: flicker 6s linear infinite;
+  }
+
+  .vector-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .vector-btn {
+    background: var(--bg-primary);
+    padding: var(--space-3) var(--space-2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vector-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(212, 160, 68, 0.04) 50%, transparent 100%);
+    background-size: 200% 100%;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+  }
+
+  .vector-btn:hover::before {
+    opacity: 1;
+    animation: scanSweep 2s linear infinite;
+  }
+
+  .vector-btn:hover {
+    background: var(--bg-surface);
+  }
+
+  .vector-btn:hover .vector-label {
+    color: var(--accent);
+    text-shadow: 0 0 8px var(--accent-glow);
+  }
+
+  .vector-label {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    letter-spacing: 0.12em;
+    transition: color var(--transition-fast), text-shadow var(--transition-fast);
+  }
+
+  .vector-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+    opacity: 0.6;
+  }
+
+  .console-skip {
+    display: block;
+    width: 100%;
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    padding: var(--space-2) 0;
+    text-align: center;
+    transition: color var(--transition-fast);
+    opacity: 0.5;
+  }
+
+  .console-skip:hover {
+    color: var(--text-secondary);
+    opacity: 0.8;
+  }
+
+  /* --- Phase 2: Vector Briefing --- */
+  .briefing-section {
+    animation: briefingIn 300ms var(--ease-out) forwards;
+  }
+
+  @keyframes briefingIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .briefing-header {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .briefing-vector {
+    font-size: var(--text-lg);
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  .briefing-label {
     font-size: var(--text-xs);
     color: var(--text-dim);
     letter-spacing: 0.1em;
   }
 
-  .fragment-title {
-    font-family: var(--font-reading);
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    font-style: italic;
+  .briefing-data {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
   }
 
-  .console-enter {
-    display: block;
-    width: 100%;
+  .briefing-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
     font-size: var(--text-xs);
-    color: var(--accent-dim);
-    letter-spacing: 0.15em;
-    padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--accent-dim);
-    text-align: center;
-    transition: all var(--transition-fast);
+    animation: briefingIn 300ms var(--ease-out) forwards;
   }
 
-  .console-enter:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-    box-shadow: 0 0 16px var(--accent-glow);
-    text-shadow: 0 0 8px var(--accent-glow);
+  .briefing-row:nth-child(2) { animation-delay: 80ms; }
+  .briefing-row:nth-child(3) { animation-delay: 160ms; }
+
+  .briefing-key {
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+
+  .briefing-val {
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .briefing-val.solo {
+    width: 100%;
+    text-align: center;
+    color: var(--text-dim);
+    font-style: italic;
+    letter-spacing: 0.06em;
   }
 </style>

@@ -3,6 +3,7 @@
   import { rmsLevel } from '../stores/audio';
   import { bootPhase } from '../stores/system';
   import { weather, type WeatherCondition } from '../stores/weather';
+  import { vectorModifiers, driftModifiers } from '../stores/temporal';
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
@@ -15,6 +16,11 @@
   let textColor = '#c8cad0';
   let dimColor = '#3d3f4e';
   let isReady = false;
+
+  // Vector/drift atmosphere modifiers
+  let vecShapeSpeed = 1.0;
+  let vecParticleDensity = 1.0;
+  let driftPerturbation = 0;
 
   // Weather state
   let weatherCondition: WeatherCondition = 'unknown';
@@ -33,6 +39,17 @@
     weatherTemp = w.temp;
     weatherIsNight = w.isNight;
     weatherLocation = w.location;
+  });
+
+  // Subscribe to vector modifiers
+  const unsubVecMod = vectorModifiers.subscribe(vm => {
+    vecShapeSpeed = vm.shapeSpeed;
+    vecParticleDensity = vm.particleDensity;
+  });
+
+  // Subscribe to drift modifiers
+  const unsubDriftMod = driftModifiers.subscribe(dm => {
+    driftPerturbation = dm.shapePerturbation;
   });
 
   // --- Weather particle systems ---
@@ -353,14 +370,20 @@
         shape.vy += (dy / dist) * force;
       }
 
+      // Drift perturbation: add small random velocity jitter when drifting
+      if (driftPerturbation > 0) {
+        shape.vx += (Math.random() - 0.5) * 0.02 * driftPerturbation;
+        shape.vy += (Math.random() - 0.5) * 0.02 * driftPerturbation;
+      }
+
       // Damping
       shape.vx *= DAMPING;
       shape.vy *= DAMPING;
 
-      // Move
-      shape.x += shape.vx;
-      shape.y += shape.vy;
-      shape.rotation += shape.rotationSpeed;
+      // Move — speed modulated by vector
+      shape.x += shape.vx * vecShapeSpeed;
+      shape.y += shape.vy * vecShapeSpeed;
+      shape.rotation += shape.rotationSpeed * vecShapeSpeed;
 
       // Wrap around edges
       if (shape.x < -shape.radius) shape.x = w + shape.radius;
@@ -547,6 +570,8 @@
     unsubRms();
     unsubBoot();
     unsubWeather();
+    unsubVecMod();
+    unsubDriftMod();
     if (typeof window !== 'undefined') {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);

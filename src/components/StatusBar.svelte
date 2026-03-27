@@ -5,7 +5,7 @@
   import { isPlaying, currentTrack, frequencyData } from '../stores/audio';
   import { focusedWindow } from '../stores/windows';
   import { soundSettings } from '../stores/sound';
-  import { sessionMemory, getTimeOfDay } from '../stores/temporal';
+  import { sessionMemory, getTimeOfDay, sessionVector, sessionSealMessage, driftModifiers } from '../stores/temporal';
 
   function buildStatusMessages(): string[] {
     const base = [
@@ -94,8 +94,13 @@
     interval = setInterval(() => {
       messageFading = true;
       setTimeout(() => {
-        messageIndex = (messageIndex + 1) % STATUS_MESSAGES.length;
-        statusMessage.set(STATUS_MESSAGES[messageIndex]);
+        // At drift level 3, occasionally show drift message instead of normal rotation
+        if ($driftModifiers.driftLevel >= 3 && Math.random() < 0.4) {
+          statusMessage.set('DRIFT DETECTED');
+        } else {
+          messageIndex = (messageIndex + 1) % STATUS_MESSAGES.length;
+          statusMessage.set(STATUS_MESSAGES[messageIndex]);
+        }
         messageFading = false;
       }, 400);
     }, 15000);
@@ -115,13 +120,21 @@
 {#if $bootPhase === 'ready'}
   <div class="status-bar" role="status" aria-live="polite">
     <div class="status-left">
+      {#if $sessionVector}
+        <span class="status-vector">VECTOR: {$sessionVector}</span>
+        <span class="status-sep">|</span>
+      {/if}
       {#if focusDesignation}
         <span class="status-designation">[{focusDesignation}]</span>
       {/if}
       <span class="status-focus">{focusLabel}</span>
     </div>
 
-    <span class="status-message" class:fading={messageFading}>{$statusMessage}</span>
+    {#if $sessionSealMessage}
+      <span class="status-seal">{$sessionSealMessage}</span>
+    {:else}
+      <span class="status-message" class:fading={messageFading}>{$statusMessage}</span>
+    {/if}
 
     <div class="status-right">
       <button class="sound-toggle" on:click={() => soundSettings.toggle()} title={$soundSettings.enabled ? 'Mute UI sounds' : 'Enable UI sounds'}>
@@ -172,6 +185,18 @@
     min-width: 160px;
   }
 
+  .status-vector {
+    font-size: var(--text-xs);
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .status-sep {
+    color: var(--border-active);
+    font-size: var(--text-xs);
+  }
+
   .status-designation {
     font-size: var(--text-xs);
     color: var(--accent-dim);
@@ -199,6 +224,26 @@
 
   .status-message.fading {
     opacity: 0;
+  }
+
+  .status-seal {
+    color: var(--accent);
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 0 8px var(--accent-glow);
+    animation: sealFade 3s ease-out forwards;
+  }
+
+  @keyframes sealFade {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
   }
 
   .status-right {
