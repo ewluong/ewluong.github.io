@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { aggregateSignals, ALL_SOURCES, type Signal, type SourceDef } from '../lib/signalEngine';
+  import { updateLedger } from '../stores/temporal';
 
   const STORAGE_KEY = 'ewluong-os-signals';
   const CACHE_KEY = 'ewluong-os-signals-cache';
@@ -157,7 +158,10 @@
   function markRead(id: string) {
     if (!config.readIds.includes(id)) {
       config.readIds = [...config.readIds, id];
+      // Cap readIds at 500 to prevent unbounded growth
+      if (config.readIds.length > 500) config.readIds = config.readIds.slice(-500);
       saveConfig();
+      updateLedger('signalsRead', 1);
     }
   }
 

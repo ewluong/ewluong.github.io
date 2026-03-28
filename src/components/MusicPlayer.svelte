@@ -24,6 +24,10 @@
   let freqData = new Uint8Array(0);
   let vizMode: 'bars' | 'wave' | 'ring' = 'bars';
 
+  // Cached CSS colors — read once on mount instead of every frame
+  let cssAccent = '#d4a044';
+  let cssAccentDim = '#a07a38';
+
   const unsub = frequencyData.subscribe(d => freqData = d);
 
   $: isFav = $favorites.has($currentTrack.src);
@@ -94,9 +98,8 @@
     const barCount = Math.min(freqData.length, 64);
     const gap = 2;
     const barWidth = (w - gap * barCount) / barCount;
-    const styles = getComputedStyle(document.documentElement);
-    const accent = styles.getPropertyValue('--accent').trim();
-    const accentDim = styles.getPropertyValue('--accent-dim').trim();
+    const accent = cssAccent;
+    const accentDim = cssAccentDim;
 
     for (let i = 0; i < barCount; i++) {
       const val = freqData[i] / 255;
@@ -127,9 +130,8 @@
   }
 
   function drawWave(ctx: CanvasRenderingContext2D, w: number, h: number) {
-    const styles = getComputedStyle(document.documentElement);
-    const accent = styles.getPropertyValue('--accent').trim();
-    const accentDim = styles.getPropertyValue('--accent-dim').trim();
+    const accent = cssAccent;
+    const accentDim = cssAccentDim;
     const count = Math.min(freqData.length, 128);
     const mid = h / 2;
 
@@ -172,9 +174,8 @@
   }
 
   function drawRing(ctx: CanvasRenderingContext2D, w: number, h: number) {
-    const styles = getComputedStyle(document.documentElement);
-    const accent = styles.getPropertyValue('--accent').trim();
-    const accentDim = styles.getPropertyValue('--accent-dim').trim();
+    const accent = cssAccent;
+    const accentDim = cssAccentDim;
     const cx = w / 2;
     const cy = h / 2;
     const baseRadius = Math.min(w, h) * 0.3;
@@ -235,8 +236,7 @@
       else drawRing(vizCtx, w, h);
     } else {
       // Idle state — dim ring
-      const styles = getComputedStyle(document.documentElement);
-      const accentDim = styles.getPropertyValue('--accent-dim').trim();
+      const accentDim = cssAccentDim;
       const cx = w / 2;
       const cy = h / 2;
       const r = Math.min(w, h) * 0.25;
@@ -266,17 +266,30 @@
     }
   }
 
+  function handleVisibility() {
+    if (document.hidden) {
+      cancelAnimationFrame(animId);
+    } else {
+      drawViz();
+    }
+  }
+
   onMount(() => {
     engine.init(audioEl);
-    // Set initial track src so play button works immediately
     audioEl.src = $currentTrack.src;
     audioEl.addEventListener('timeupdate', updateTime);
     audioEl.addEventListener('loadedmetadata', updateTime);
     audioEl.addEventListener('ended', nextTrack);
 
+    // Cache CSS colors once on mount
+    const styles = getComputedStyle(document.documentElement);
+    cssAccent = styles.getPropertyValue('--accent').trim() || cssAccent;
+    cssAccentDim = styles.getPropertyValue('--accent-dim').trim() || cssAccentDim;
+
     vizCtx = vizCanvas.getContext('2d');
     resizeViz();
     window.addEventListener('resize', resizeViz);
+    document.addEventListener('visibilitychange', handleVisibility);
     drawViz();
   });
 
@@ -287,6 +300,7 @@
     cancelAnimationFrame(animId);
     unsub();
     window.removeEventListener('resize', resizeViz);
+    document.removeEventListener('visibilitychange', handleVisibility);
   });
 </script>
 

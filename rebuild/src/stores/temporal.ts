@@ -21,6 +21,16 @@ export interface SessionMemory {
   lastStreakDate: string;   // YYYY-MM-DD
   lastVector: SessionVector; // last session's declared intention
   lastCoherence: number;    // 0-100, last session's coherence ratio
+  lastLedger: SessionLedger; // what the operator actually did last session
+}
+
+export interface SessionLedger {
+  wordsWritten: number;        // delta from log word count at session start
+  signalsRead: number;         // signals marked read this session
+  habitsCompleted: number;     // habits toggled on this session
+  chatMessages: number;        // messages sent in MAGI
+  modulesVisited: string[];    // unique module IDs focused (in order, no consecutive dupes)
+  scratchpadChars: number;     // delta of scratchpad content length
 }
 
 export interface CoherenceState {
@@ -57,6 +67,17 @@ function loadSession(): SessionMemory {
   }
 }
 
+function defaultLedger(): SessionLedger {
+  return {
+    wordsWritten: 0,
+    signalsRead: 0,
+    habitsCompleted: 0,
+    chatMessages: 0,
+    modulesVisited: [],
+    scratchpadChars: 0,
+  };
+}
+
 function defaultSession(): SessionMemory {
   return {
     lastVisit: 0,
@@ -67,6 +88,7 @@ function defaultSession(): SessionMemory {
     lastStreakDate: '',
     lastVector: '',
     lastCoherence: -1,
+    lastLedger: defaultLedger(),
   };
 }
 
@@ -137,7 +159,7 @@ export function formatDurationShort(ms: number): string {
 export const VECTOR_MODULES: Record<SessionVector, string[]> = {
   'WRITE': ['daily-log', 'writing', 'tarot'],
   'RESEARCH': ['quick-links', 'signals', 'chat'],
-  'READ': ['writing', 'backrooms', 'tarot'],
+  'READ': ['writing', 'tarot'],
   'REFLECT': ['tarot', 'daily-log', 'habits'],
   'BUILD': ['projects', 'chat', 'quick-links'],
   'BROWSE': [], // no emphasis — everything equal
@@ -164,6 +186,30 @@ export const coherenceState = writable<CoherenceState>(defaultCoherence());
 
 /** Brief session seal message shown when tab loses focus */
 export const sessionSealMessage = writable<string>('');
+
+/** Current session's activity ledger — tracks what the operator actually did */
+export const sessionLedger = writable<SessionLedger>(defaultLedger());
+
+/** Increment a numeric field in the session ledger */
+export function updateLedger(field: keyof SessionLedger, value: number) {
+  sessionLedger.update(l => {
+    const current = l[field];
+    if (typeof current === 'number') {
+      return { ...l, [field]: current + value };
+    }
+    return l;
+  });
+}
+
+/** Record a module visit (called from Workspace only when focused module changes) */
+export function recordModuleVisit(moduleId: string) {
+  sessionLedger.update(l => {
+    const visited = [...l.modulesVisited, moduleId];
+    // Cap at 100 entries to prevent unbounded growth
+    if (visited.length > 100) visited.splice(0, visited.length - 100);
+    return { ...l, modulesVisited: visited };
+  });
+}
 
 // --- Vector atmosphere modifiers (Move 2: Living Vector) ---
 
@@ -242,17 +288,27 @@ export const driftModifiers = derived(coherenceState, ($cs) => {
   return { brightnessReduction: 0.025, speedReduction: 0.15, shapePerturbation: 0.3, driftLevel: 3 as 0 | 1 | 2 | 3 };
 });
 
-/** Generate the seal message from current session state */
-export function sealSession(sessionStartTime: number) {
-  const duration = formatDurationShort(Date.now() - sessionStartTime);
-  const currentVector = get(sessionVector);
-  const cs = get(coherenceState);
+export interface SealSummary {
+  duration: string;
+  vector: SessionVector;
+  coherencePercent: number; // -1 if insufficient data
+  ledger: SessionLedger;
+  closingPhrase: string;
+  sessionMs: number; // raw milliseconds for threshold check
+}
 
-  const parts = [`SESSION SEALED — ${duration}`];
-  if (currentVector) parts.push(`VECTOR: ${currentVector}`);
-  if (currentVector && currentVector !== 'BROWSE' && cs.totalFocusedMs > 60000) {
-    parts.push(`${Math.round(cs.ratio * 100)}% COHERENT`);
-  }
+/** Build a structured seal summary from current session state */
+export function buildSealSummary(sessionStartTime: number): SealSummary {
+  const now = Date.now();
+  const sessionMs = now - sessionStartTime;
+  const duration = formatDurationShort(sessionMs);
+  const vector = get(sessionVector);
+  const cs = get(coherenceState);
+  const ledger = get(sessionLedger);
+
+  const coherencePercent = (vector && vector !== 'BROWSE' && cs.totalFocusedMs > 60000)
+    ? Math.round(cs.ratio * 100)
+    : -1;
 
   // Deterministic closing line for the day
   const today = new Date().toISOString().slice(0, 10);
@@ -266,7 +322,19 @@ export function sealSession(sessionStartTime: number) {
     'pass through.',
   ];
   const hash = today.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  parts.push(closingPhrases[hash % closingPhrases.length]);
+  const closingPhrase = closingPhrases[hash % closingPhrases.length];
+
+  return { duration, vector, coherencePercent, ledger, closingPhrase, sessionMs };
+}
+
+/** Generate the seal message for status bar (used for passive/auto-seal on tab blur) */
+export function sealSession(sessionStartTime: number) {
+  const summary = buildSealSummary(sessionStartTime);
+
+  const parts = [`SESSION SEALED — ${summary.duration}`];
+  if (summary.vector) parts.push(`VECTOR: ${summary.vector}`);
+  if (summary.coherencePercent >= 0) parts.push(`${summary.coherencePercent}% COHERENT`);
+  parts.push(summary.closingPhrase);
 
   sessionSealMessage.set(parts.join(' / '));
 
@@ -297,7 +365,6 @@ export const temporalModifiers = derived(timeOfDay, ($tod) => {
 /** Update coherence state based on currently focused module. Call every second. */
 export function updateCoherence(focusedModule: string | undefined) {
   const vec = get(sessionVector);
-  // No tracking if no vector or BROWSE
   if (!vec || vec === 'BROWSE') return;
 
   const aligned = VECTOR_MODULES[vec] || [];
@@ -306,12 +373,10 @@ export function updateCoherence(focusedModule: string | undefined) {
   coherenceState.update(cs => {
     const elapsed = now - cs.lastUpdateTime;
     if (elapsed <= 0 || elapsed > 5000) {
-      // Skip if too large a gap (tab was hidden)
       return { ...cs, lastUpdateTime: now };
     }
 
     const isAligned = focusedModule ? aligned.includes(focusedModule) : false;
-    // No focused window = not drifting but not aligned either (idle)
     const isFocused = !!focusedModule;
 
     let { vectorAlignedMs, totalFocusedMs, driftMinutes } = cs;
@@ -320,7 +385,6 @@ export function updateCoherence(focusedModule: string | undefined) {
       totalFocusedMs += elapsed;
       if (isAligned) {
         vectorAlignedMs += elapsed;
-        // Decay drift: halve every 2 minutes of aligned focus
         driftMinutes = Math.max(0, driftMinutes - (elapsed / 120000) * driftMinutes);
       } else {
         driftMinutes += elapsed / 60000;
@@ -328,6 +392,18 @@ export function updateCoherence(focusedModule: string | undefined) {
     }
 
     const ratio = totalFocusedMs > 0 ? vectorAlignedMs / totalFocusedMs : 1;
+
+    // Skip store notification if drift level hasn't crossed a threshold boundary
+    // This prevents driftModifiers derived store from cascading every second
+    const oldDriftLevel = cs.driftMinutes < DRIFT_GRACE_MINUTES ? 0 : cs.driftMinutes < DRIFT_MILD_MINUTES ? 1 : cs.driftMinutes < DRIFT_MODERATE_MINUTES ? 2 : 3;
+    const newDriftLevel = driftMinutes < DRIFT_GRACE_MINUTES ? 0 : driftMinutes < DRIFT_MILD_MINUTES ? 1 : driftMinutes < DRIFT_MODERATE_MINUTES ? 2 : 3;
+    const ratioChanged = Math.abs(ratio - cs.ratio) > 0.01;
+
+    if (!isFocused && oldDriftLevel === newDriftLevel && !ratioChanged) {
+      // Nothing meaningful changed — update timestamp but don't trigger derived stores
+      cs.lastUpdateTime = now;
+      return cs; // Same reference = Svelte skips notification
+    }
 
     return { vectorAlignedMs, totalFocusedMs, ratio, driftMinutes, lastUpdateTime: now };
   });
@@ -397,6 +473,7 @@ export function saveSessionState(openWindowIds: string[], sessionStartTime: numb
   const duration = now - sessionStartTime;
   const currentVector = get(sessionVector);
   const coherencePercent = getCoherencePercent();
+  const ledger = get(sessionLedger);
 
   sessionMemory.update(s => {
     const updated = {
@@ -406,6 +483,7 @@ export function saveSessionState(openWindowIds: string[], sessionStartTime: numb
       lastWindowsOpen: openWindowIds,
       lastVector: currentVector || s.lastVector,
       lastCoherence: coherencePercent >= 0 ? coherencePercent : s.lastCoherence,
+      lastLedger: ledger,
     };
     try {
       localStorage.setItem(SESSION_KEY, JSON.stringify(updated));

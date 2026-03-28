@@ -87,14 +87,12 @@
     }
   });
 
-  onMount(() => {
+  function startIntervals() {
     updateClock();
     clockInterval = setInterval(updateClock, 1000);
-
     interval = setInterval(() => {
       messageFading = true;
       setTimeout(() => {
-        // At drift level 3, occasionally show drift message instead of normal rotation
         if ($driftModifiers.driftLevel >= 3 && Math.random() < 0.4) {
           statusMessage.set('DRIFT DETECTED');
         } else {
@@ -104,12 +102,30 @@
         messageFading = false;
       }, 400);
     }, 15000);
+  }
+
+  function stopIntervals() {
+    clearInterval(interval);
+    clearInterval(clockInterval);
+  }
+
+  function handleVisibility() {
+    if (document.hidden) {
+      stopIntervals();
+    } else {
+      startIntervals();
+    }
+  }
+
+  onMount(() => {
+    startIntervals();
+    document.addEventListener('visibilitychange', handleVisibility);
   });
 
   onDestroy(() => {
-    clearInterval(interval);
-    clearInterval(clockInterval);
+    stopIntervals();
     unsubFreq();
+    document.removeEventListener('visibilitychange', handleVisibility);
   });
 
   $: focusLabel = $focusedWindow ? $focusedWindow.title : 'workspace';

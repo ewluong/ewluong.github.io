@@ -42,6 +42,35 @@
 
   function loadBriefingData(vec: SessionVector): BriefingLine[] {
     const lines: BriefingLine[] = [];
+    const ledger = $sessionMemory.lastLedger;
+
+    // Cross-session memory: show relevant last session activity
+    if (ledger) {
+      switch (vec) {
+        case 'WRITE':
+          if (ledger.wordsWritten > 0) lines.push({ label: 'LAST SESSION', value: `${ledger.wordsWritten} WORDS LOGGED` });
+          break;
+        case 'RESEARCH':
+          if (ledger.signalsRead > 0 || ledger.chatMessages > 0) {
+            const parts = [];
+            if (ledger.signalsRead > 0) parts.push(`${ledger.signalsRead} SIGNALS READ`);
+            if (ledger.chatMessages > 0) parts.push(`${ledger.chatMessages} MAGI EXCHANGES`);
+            lines.push({ label: 'LAST SESSION', value: parts.join(' / ') });
+          }
+          break;
+        case 'REFLECT':
+          if (ledger.habitsCompleted > 0) lines.push({ label: 'LAST SESSION', value: `${ledger.habitsCompleted} HABITS COMPLETED` });
+          break;
+        case 'BUILD':
+          if (ledger.scratchpadChars > 0 || ledger.chatMessages > 0) {
+            const parts = [];
+            if (ledger.scratchpadChars > 0) parts.push(`${ledger.scratchpadChars} CHARS TO SCRATCHPAD`);
+            if (ledger.chatMessages > 0) parts.push(`${ledger.chatMessages} MAGI EXCHANGES`);
+            lines.push({ label: 'LAST SESSION', value: parts.join(' / ') });
+          }
+          break;
+      }
+    }
 
     switch (vec) {
       case 'WRITE': {
@@ -105,7 +134,6 @@
           const essay = blogEntries[dayOfYear % blogEntries.length];
           lines.push({ label: 'FROM THE ARCHIVE', value: essay.title });
         }
-        lines.push({ label: 'BACKROOMS', value: '3 CHAPTERS AVAILABLE' });
         break;
       }
 

@@ -4,7 +4,10 @@
       "Bash(bash setup.sh)",
       "Bash(npx astro:*)",
       "Bash(npm run:*)",
-      "Bash(wc -l /c/Users/Eric/website/ewluong.github.io/rebuild/src/components/*.svelte)"
+      "Bash(wc -l /c/Users/Eric/website/ewluong.github.io/rebuild/src/components/*.svelte)",
+      "Bash(grep -r backrooms /c/Users/Eric/website/ewluong.github.io/rebuild --include=*.ts --include=*.js --include=*.json --include=*.sh)",
+      "Bash(grep -r transition: rebuild/src/components/*.svelte)",
+      "Bash(xargs grep:*)"
     ]
   }
 }

@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { fly } from 'svelte/transition';
+  import { updateLedger } from '../stores/temporal';
 
   export let visible = false;
 
@@ -14,6 +16,7 @@
   let pages: Page[] = [];
   let activePageId = '';
   let saveTimeout: ReturnType<typeof setTimeout>;
+  let lastCharCount = 0;
 
   function loadPages(): Page[] {
     if (typeof window === 'undefined') return [defaultPage()];
@@ -35,6 +38,10 @@
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
+      const totalChars = pages.reduce((sum, p) => sum + p.content.length, 0);
+      const delta = totalChars - lastCharCount;
+      if (delta > 0) updateLedger('scratchpadChars', delta);
+      lastCharCount = totalChars;
     }, 500);
   }
 
@@ -75,13 +82,14 @@
   onMount(() => {
     pages = loadPages();
     activePageId = pages[0]?.id ?? '';
+    lastCharCount = pages.reduce((sum, p) => sum + p.content.length, 0);
   });
 
   $: activePage = pages.find(p => p.id === activePageId);
 </script>
 
 {#if visible}
-  <div class="scratchpad-panel">
+  <div class="scratchpad-panel" out:fly={{ duration: 200, x: 400 }}>
     <div class="scratchpad-header">
       <span class="scratchpad-label">SCRATCHPAD</span>
       <div class="scratchpad-actions">
@@ -201,6 +209,9 @@
   .tab:hover {
     color: var(--text-secondary);
     background: var(--bg-surface-hover);
+    background-image: linear-gradient(90deg, transparent 0%, rgba(212, 160, 68, 0.04) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: scanSweep 1.5s linear;
   }
 
   .tab.active {

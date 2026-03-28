@@ -132,23 +132,21 @@ function createWindowStore() {
 
     move(id: string, x: number, y: number) {
       if (!Number.isFinite(x) || !Number.isFinite(y)) return;
-      update(wins => {
-        const updated = wins.map(w =>
-          w.id === id ? { ...w, x, y } : w
-        );
-        persistLayout(updated);
-        return updated;
-      });
+      update(wins => wins.map(w => w.id === id ? { ...w, x, y } : w));
+      // No persist during drag — persist on pointerup via persistNow()
     },
 
     resize(id: string, width: number, height: number) {
       if (!Number.isFinite(width) || !Number.isFinite(height) || width < 1 || height < 1) return;
+      update(wins => wins.map(w => w.id === id ? { ...w, width, height } : w));
+      // No persist during resize — persist on pointerup via persistNow()
+    },
+
+    /** Persist current layout immediately (call on pointerup after drag/resize) */
+    persistNow() {
       update(wins => {
-        const updated = wins.map(w =>
-          w.id === id ? { ...w, width, height } : w
-        );
-        persistLayout(updated);
-        return updated;
+        persistLayout(wins, true);
+        return wins;
       });
     },
 
@@ -178,8 +176,19 @@ function createWindowStore() {
 
 export const windowStore = createWindowStore();
 
+// Memoized: only emits when the focused window ID changes (not on position/size updates during drag)
+let lastFocusedId: string | null = null;
+let lastFocusedResult: WindowState | null = null;
+
 export const focusedWindow = derived(windowStore, ($windows) => {
   const visible = $windows.filter(w => w.isOpen && !w.isMinimized);
-  if (visible.length === 0) return null;
-  return visible.reduce((a, b) => a.zIndex > b.zIndex ? a : b);
+  if (visible.length === 0) {
+    if (lastFocusedId !== null) { lastFocusedId = null; lastFocusedResult = null; }
+    return null;
+  }
+  const top = visible.reduce((a, b) => a.zIndex > b.zIndex ? a : b);
+  if (top.id === lastFocusedId) return lastFocusedResult;
+  lastFocusedId = top.id;
+  lastFocusedResult = top;
+  return top;
 });

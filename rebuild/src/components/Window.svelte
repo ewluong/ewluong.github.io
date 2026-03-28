@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { scale } from 'svelte/transition';
   import { windowStore, focusedWindow, type WindowState } from '../stores/windows';
 
   export let win: WindowState;
@@ -6,6 +7,9 @@
   let dragging = false;
   let dragOffsetX = 0;
   let dragOffsetY = 0;
+  let pendingX = 0;
+  let pendingY = 0;
+  let dragRaf = 0;
 
   $: isFocused = $focusedWindow?.id === win.id;
 
@@ -21,13 +25,22 @@
   function onPointerMove(e: PointerEvent) {
     if (!dragging) return;
     const dockWidth = 184;
-    const x = Math.max(dockWidth, Math.min(window.innerWidth - 100, e.clientX - dragOffsetX));
-    const y = Math.max(38, Math.min(window.innerHeight - 40, e.clientY - dragOffsetY));
-    windowStore.move(win.id, x, y);
+    pendingX = Math.max(dockWidth, Math.min(window.innerWidth - 100, e.clientX - dragOffsetX));
+    pendingY = Math.max(38, Math.min(window.innerHeight - 40, e.clientY - dragOffsetY));
+    if (!dragRaf) {
+      dragRaf = requestAnimationFrame(() => {
+        windowStore.move(win.id, pendingX, pendingY);
+        dragRaf = 0;
+      });
+    }
   }
 
   function onPointerUp() {
-    dragging = false;
+    if (dragging) {
+      dragging = false;
+      if (dragRaf) { cancelAnimationFrame(dragRaf); dragRaf = 0; }
+      windowStore.persistNow(); // Persist layout once at end of drag
+    }
   }
 
   function handleClose() {
@@ -55,6 +68,7 @@
       z-index: {win.zIndex};
     "
     on:pointerdown={handleFocus}
+    out:scale={{ duration: 180, start: 0.97, opacity: 0 }}
   >
     <!-- Corner brackets (targeting reticle) -->
     <div class="bracket bracket-tl"></div>

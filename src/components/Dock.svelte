@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { windowStore } from '../stores/windows';
+  import { windowStore, focusedWindow } from '../stores/windows';
   import { theme } from '../stores/theme';
   import { sessionVector, VECTOR_MODULES } from '../stores/temporal';
 
@@ -28,14 +28,14 @@
   // Tier 3: Archive & monitoring
   const archiveItems: DockItem[] = [
     { id: 'music', designation: '09', label: 'MUSIC' },
-    { id: 'backrooms', designation: '10', label: 'BACKROOMS' },
-    { id: 'crypto', designation: '11', label: 'RESOURCES' },
-    { id: 'system-info', designation: '12', label: 'SYSTEM' },
-    { id: 'life-counters', designation: '13', label: 'RUNTIME' },
+    { id: 'crypto', designation: '10', label: 'RESOURCES' },
+    { id: 'system-info', designation: '11', label: 'SYSTEM' },
+    { id: 'life-counters', designation: '12', label: 'RUNTIME' },
   ];
 
   $: openWindows = $windowStore.filter(w => w.isOpen && !w.isMinimized);
   $: openIds = new Set(openWindows.map(w => w.id));
+  $: focusedId = $focusedWindow?.id ?? '';
 
   // Which modules the current vector emphasizes
   $: vectorModules = new Set(VECTOR_MODULES[$sessionVector] || []);
@@ -65,6 +65,7 @@
       <button
         class="dock-item"
         class:active={openIds.has(item.id)}
+        class:focused={focusedId === item.id}
         class:vector-emphasis={hasVector && vectorModules.has(item.id)}
         class:vector-dim={hasVector && !vectorModules.has(item.id)}
         on:click={() => handleClick(item.id)}
@@ -86,6 +87,7 @@
       <button
         class="dock-item"
         class:active={openIds.has(item.id)}
+        class:focused={focusedId === item.id}
         class:vector-emphasis={hasVector && vectorModules.has(item.id)}
         class:vector-dim={hasVector && !vectorModules.has(item.id)}
         on:click={() => handleClick(item.id)}
@@ -107,6 +109,7 @@
       <button
         class="dock-item tier-archive"
         class:active={openIds.has(item.id)}
+        class:focused={focusedId === item.id}
         class:vector-emphasis={hasVector && vectorModules.has(item.id)}
         class:vector-dim={hasVector && !vectorModules.has(item.id)}
         on:click={() => handleClick(item.id)}
@@ -259,12 +262,17 @@
     animation: scanSweep 1.5s linear;
   }
 
+  /* Open window — static presence, marked but not breathing */
   .dock-item.active {
     color: var(--accent);
     background: var(--bg-surface);
     border-left: 2px solid var(--accent);
-    animation: glowPulse 3s ease-in-out infinite;
     opacity: 1;
+  }
+
+  /* Focused window — the one that's alive right now */
+  .dock-item.active.focused {
+    animation: glowPulse 3s ease-in-out infinite;
   }
 
   .dock-designation {

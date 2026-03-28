@@ -16,6 +16,7 @@
   let opacity = 0;
   let fadeDir: 'in' | 'out' | null = null;
   let time = 0;
+  let fadeInterval: ReturnType<typeof setInterval> | null = null;
 
   // Matrix columns
   let matrixColumns: number[] = [];
@@ -160,11 +161,12 @@
     fadeDir = 'in';
     opacity = 0;
 
-    // Start fade in
-    const fadeIn = setInterval(() => {
+    // Clear any existing fade before starting new one
+    if (fadeInterval) clearInterval(fadeInterval);
+    fadeInterval = setInterval(() => {
       opacity = Math.min(1, opacity + 0.04);
       if (opacity >= 1) {
-        clearInterval(fadeIn);
+        if (fadeInterval) { clearInterval(fadeInterval); fadeInterval = null; }
         fadeDir = null;
       }
     }, 16);
@@ -187,10 +189,11 @@
 
   function stopScreensaver() {
     fadeDir = 'out';
-    const fadeOut = setInterval(() => {
+    if (fadeInterval) clearInterval(fadeInterval);
+    fadeInterval = setInterval(() => {
       opacity = Math.max(0, opacity - 0.06);
       if (opacity <= 0) {
-        clearInterval(fadeOut);
+        if (fadeInterval) { clearInterval(fadeInterval); fadeInterval = null; }
         fadeDir = null;
         visible = false;
         if (animId) { cancelAnimationFrame(animId); animId = null; }
@@ -214,6 +217,7 @@
   onDestroy(() => {
     destroyIdleDetector();
     if (animId) cancelAnimationFrame(animId);
+    if (fadeInterval) clearInterval(fadeInterval);
     clearInterval(cycleInterval);
   });
 </script>

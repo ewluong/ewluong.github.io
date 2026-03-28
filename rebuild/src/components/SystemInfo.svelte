@@ -3,29 +3,9 @@
   import { get } from 'svelte/store';
   import { bootTime, systemStats } from '../stores/system';
 
-  // MAGI consensus states — atmospheric rotation
-  const MAGI_STATES = [
-    { melchior: 'APPROVE', balthasar: 'APPROVE', casper: 'APPROVE' },
-    { melchior: 'APPROVE', balthasar: 'APPROVE', casper: 'ABSTAIN' },
-    { melchior: 'APPROVE', balthasar: 'ABSTAIN', casper: 'APPROVE' },
-    { melchior: 'APPROVE', balthasar: 'APPROVE', casper: 'APPROVE' },
-    { melchior: 'ABSTAIN', balthasar: 'APPROVE', casper: 'APPROVE' },
-    { melchior: 'APPROVE', balthasar: 'APPROVE', casper: 'APPROVE' },
-  ];
-
-  let magiIndex = 0;
-  let magiInterval: ReturnType<typeof setInterval>;
   let uptime = '00h 00m';
   let uptimeInterval: ReturnType<typeof setInterval>;
   let bootTimeFormatted = '';
-
-  $: magi = MAGI_STATES[magiIndex];
-
-  function statusColor(s: string): string {
-    if (s === 'APPROVE') return 'var(--status-nominal)';
-    if (s === 'ABSTAIN') return 'var(--accent-dim)';
-    return 'var(--accent)';
-  }
 
   function updateUptime() {
     const btVal = get(bootTime);
@@ -44,41 +24,16 @@
   }
 
   onMount(() => {
-    magiInterval = setInterval(() => {
-      magiIndex = (magiIndex + 1) % MAGI_STATES.length;
-    }, 12000);
-
     updateUptime();
     uptimeInterval = setInterval(updateUptime, 1000);
   });
 
   onDestroy(() => {
-    clearInterval(magiInterval);
     clearInterval(uptimeInterval);
   });
 </script>
 
 <div class="system-panel">
-  <!-- MAGI Consensus -->
-  <div class="section-header">MAGI SYSTEM — CONSENSUS</div>
-  <div class="magi-panel">
-    <div class="magi-unit">
-      <span class="magi-label">MELCHIOR-1</span>
-      <span class="magi-dot" style="background: {statusColor(magi.melchior)}"></span>
-      <span class="magi-status" style="color: {statusColor(magi.melchior)}">{magi.melchior}</span>
-    </div>
-    <div class="magi-unit">
-      <span class="magi-label">BALTHASAR-2</span>
-      <span class="magi-dot" style="background: {statusColor(magi.balthasar)}"></span>
-      <span class="magi-status" style="color: {statusColor(magi.balthasar)}">{magi.balthasar}</span>
-    </div>
-    <div class="magi-unit">
-      <span class="magi-label">CASPER-3</span>
-      <span class="magi-dot" style="background: {statusColor(magi.casper)}"></span>
-      <span class="magi-status" style="color: {statusColor(magi.casper)}">{magi.casper}</span>
-    </div>
-  </div>
-
   <!-- System Metrics -->
   <div class="section-header">RUNTIME METRICS</div>
   <div class="metrics">
@@ -155,56 +110,6 @@
     height: 1px;
     background: var(--accent);
     box-shadow: 0 0 6px var(--accent-glow);
-  }
-
-  /* MAGI Panel */
-  .magi-panel {
-    display: flex;
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
-  }
-
-  .magi-unit {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-1);
-    flex: 1;
-    padding: var(--space-3);
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-    cursor: default;
-  }
-
-  .magi-unit:hover {
-    border-color: var(--accent-dim);
-    box-shadow: inset 0 0 16px var(--accent-glow);
-  }
-
-  .magi-label {
-    font-size: var(--text-xs);
-    color: var(--text-dim);
-    letter-spacing: 0.1em;
-  }
-
-  .magi-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    transition: background var(--transition-normal), box-shadow var(--transition-normal);
-    animation: magiPulse 2.5s ease-in-out infinite;
-  }
-
-  @keyframes magiPulse {
-    0%, 100% { box-shadow: 0 0 4px currentColor; }
-    50% { box-shadow: 0 0 12px currentColor, 0 0 20px currentColor; }
-  }
-
-  .magi-status {
-    font-size: var(--text-xs);
-    letter-spacing: 0.08em;
-    transition: color var(--transition-normal);
   }
 
   /* Metrics */

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount, tick } from 'svelte';
+  import { scale } from 'svelte/transition';
   import { windowStore } from '../stores/windows';
   import { theme } from '../stores/theme';
   import { playPaletteOpen } from '../lib/uiSounds';
@@ -155,7 +156,7 @@
 
 {#if visible}
   <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="palette-overlay" on:click|self={close}>
+  <div class="palette-overlay" on:click|self={close} out:scale={{ duration: 150, opacity: 0 }}>
     <div class="palette">
       <div class="palette-input-row">
         <span class="palette-prompt">&gt;</span>

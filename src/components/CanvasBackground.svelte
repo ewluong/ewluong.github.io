@@ -17,6 +17,12 @@
   let dimColor = '#3d3f4e';
   let isReady = false;
 
+  // Grid cache — drawn once to offscreen canvas, composited per frame
+  let gridCanvas: HTMLCanvasElement | null = null;
+
+  // Clock memoization — only recompute when the second changes
+  let lastClockSecond = -1;
+
   // Vector/drift atmosphere modifiers
   let vecShapeSpeed = 1.0;
   let vecParticleDensity = 1.0;
@@ -101,57 +107,70 @@
     if (weatherCondition === 'unknown') return;
     weatherTime += 0.016;
 
-    // Stars — night + clear/cloudy only
+    // Stars — batched: group by quantized alpha (5 bins), single beginPath per bin
     if (weatherIsNight && (weatherCondition === 'clear' || weatherCondition === 'cloudy')) {
+      ctx.fillStyle = '#d4d6dc';
+      // Batch stars into alpha bins for fewer draw calls
+      const bins: Star[][] = [[], [], [], [], []];
       for (const star of stars) {
         const twinkle = star.baseOpacity + Math.sin(weatherTime * star.twinkleSpeed + star.phase) * 0.15;
-        ctx.fillStyle = '#d4d6dc';
-        ctx.globalAlpha = Math.max(0, twinkle);
+        const alpha = Math.max(0, twinkle);
+        const bin = Math.min(4, Math.floor(alpha * 5));
+        bins[bin].push(star);
+      }
+      for (let b = 0; b < 5; b++) {
+        if (bins[b].length === 0) continue;
+        ctx.globalAlpha = (b + 0.5) / 5;
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        for (const star of bins[b]) {
+          ctx.moveTo(star.x + star.radius, star.y);
+          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        }
         ctx.fill();
       }
       ctx.globalAlpha = 1;
     }
 
-    // Rain
+    // Rain — batched: single beginPath, group by quantized opacity
     if (weatherCondition === 'rain' || weatherCondition === 'thunderstorm') {
       ctx.strokeStyle = '#8a8da2';
       ctx.lineWidth = 1;
+      // Group drops by quantized opacity (4 bins)
+      const bins: RainDrop[][] = [[], [], [], []];
       for (const drop of rainDrops) {
-        ctx.globalAlpha = drop.opacity;
-        ctx.beginPath();
-        ctx.moveTo(drop.x, drop.y);
-        ctx.lineTo(drop.x - 2, drop.y + drop.length);
-        ctx.stroke();
-
+        const bin = Math.min(3, Math.floor(drop.opacity * 4));
+        bins[bin].push(drop);
         drop.y += drop.speed;
         drop.x -= 0.5;
-        if (drop.y > h) {
-          drop.y = -drop.length;
-          drop.x = Math.random() * w;
+        if (drop.y > h) { drop.y = -drop.length; drop.x = Math.random() * w; }
+      }
+      for (let b = 0; b < 4; b++) {
+        if (bins[b].length === 0) continue;
+        ctx.globalAlpha = (b + 0.5) / 4;
+        ctx.beginPath();
+        for (const drop of bins[b]) {
+          ctx.moveTo(drop.x, drop.y);
+          ctx.lineTo(drop.x - 2, drop.y + drop.length);
         }
+        ctx.stroke();
       }
       ctx.globalAlpha = 1;
     }
 
-    // Snow
+    // Snow — batched: single beginPath with shared alpha
     if (weatherCondition === 'snow') {
       ctx.fillStyle = '#d4d6dc';
+      // Average alpha is ~0.15 with ±0.08 variation — batch at mean alpha
+      ctx.globalAlpha = 0.15;
+      ctx.beginPath();
       for (const flake of snowflakes) {
-        const alpha = 0.15 + Math.sin(weatherTime + flake.phase) * 0.08;
-        ctx.globalAlpha = alpha;
-        ctx.beginPath();
+        ctx.moveTo(flake.x + flake.radius, flake.y);
         ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
-        ctx.fill();
-
         flake.y += flake.speed;
         flake.x += Math.sin(weatherTime * flake.drift + flake.phase) * 0.5;
-        if (flake.y > h) {
-          flake.y = -flake.radius;
-          flake.x = Math.random() * w;
-        }
+        if (flake.y > h) { flake.y = -flake.radius; flake.x = Math.random() * w; }
       }
+      ctx.fill();
       ctx.globalAlpha = 1;
     }
 
@@ -264,44 +283,52 @@
     };
   }
 
-  function drawGrid(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  function buildGridCache(w: number, h: number) {
+    gridCanvas = document.createElement('canvas');
+    gridCanvas.width = w;
+    gridCanvas.height = h;
+    const gctx = gridCanvas.getContext('2d');
+    if (!gctx) return;
+
     const centerX = w / 2;
     const centerY = h / 2;
-    const maxDist = Math.sqrt(centerX * centerX + centerY * centerY);
 
-    ctx.strokeStyle = accentColor;
-    ctx.lineWidth = 0.5;
+    gctx.strokeStyle = accentColor;
+    gctx.lineWidth = 0.5;
 
-    // Vertical lines
     for (let x = GRID_SPACING; x < w; x += GRID_SPACING) {
       const distFromCenter = Math.abs(x - centerX) / centerX;
       const alpha = 0.035 * (1 - distFromCenter * 0.7);
       if (alpha <= 0) continue;
-      ctx.globalAlpha = alpha;
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, h);
-      ctx.stroke();
+      gctx.globalAlpha = alpha;
+      gctx.beginPath();
+      gctx.moveTo(x, 0);
+      gctx.lineTo(x, h);
+      gctx.stroke();
     }
 
-    // Horizontal lines
     for (let y = GRID_SPACING; y < h; y += GRID_SPACING) {
       const distFromCenter = Math.abs(y - centerY) / centerY;
       const alpha = 0.035 * (1 - distFromCenter * 0.7);
       if (alpha <= 0) continue;
-      ctx.globalAlpha = alpha;
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(w, y);
-      ctx.stroke();
+      gctx.globalAlpha = alpha;
+      gctx.beginPath();
+      gctx.moveTo(0, y);
+      gctx.lineTo(w, y);
+      gctx.stroke();
     }
+  }
 
-    ctx.globalAlpha = 1;
+  function drawGrid(ctx: CanvasRenderingContext2D) {
+    if (gridCanvas) {
+      ctx.drawImage(gridCanvas, 0, 0);
+    }
   }
 
   function drawConnections(ctx: CanvasRenderingContext2D) {
     ctx.strokeStyle = accentColor;
     ctx.lineWidth = 0.5;
+    const maxDistSq = CONNECTION_DIST * CONNECTION_DIST;
 
     for (let i = 0; i < shapes.length; i++) {
       for (let j = i + 1; j < shapes.length; j++) {
@@ -309,9 +336,10 @@
         const b = shapes[j];
         const dx = a.x - b.x;
         const dy = a.y - b.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const distSq = dx * dx + dy * dy;
 
-        if (dist < CONNECTION_DIST) {
+        if (distSq < maxDistSq) {
+          const dist = Math.sqrt(distSq); // sqrt only when drawing (rare)
           ctx.globalAlpha = (1 - dist / CONNECTION_DIST) * 0.08;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
@@ -360,14 +388,18 @@
       // Audio-reactive radius (smooth breathing)
       shape.radius = shape.baseRadius + currentRms * shape.baseRadius * 0.5;
 
-      // Mouse repulsion
-      const dx = shape.x - mouseX;
-      const dy = shape.y - mouseY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < MOUSE_REPEL_RADIUS && dist > 0) {
-        const force = (1 - dist / MOUSE_REPEL_RADIUS) * MOUSE_REPEL_FORCE;
-        shape.vx += (dx / dist) * force;
-        shape.vy += (dy / dist) * force;
+      // Mouse repulsion — skip when mouse is offscreen
+      if (mouseX > -500) {
+        const dx = shape.x - mouseX;
+        const dy = shape.y - mouseY;
+        const distSq = dx * dx + dy * dy;
+        const repelSq = MOUSE_REPEL_RADIUS * MOUSE_REPEL_RADIUS;
+        if (distSq < repelSq && distSq > 0) {
+          const dist = Math.sqrt(distSq);
+          const force = (1 - dist / MOUSE_REPEL_RADIUS) * MOUSE_REPEL_FORCE;
+          shape.vx += (dx / dist) * force;
+          shape.vy += (dy / dist) * force;
+        }
       }
 
       // Drift perturbation: add small random velocity jitter when drifting
@@ -496,8 +528,8 @@
 
     ctx.clearRect(0, 0, w, h);
 
-    // Draw grid first (behind everything)
-    drawGrid(ctx, w, h);
+    // Draw grid first (behind everything) — composited from cached offscreen canvas
+    drawGrid(ctx);
 
     // Draw weather particles (behind clock)
     drawWeather(ctx, w, h);
@@ -528,6 +560,7 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     initWeatherParticles(canvas.width, canvas.height);
+    buildGridCache(canvas.width, canvas.height);
   }
 
   function handleMouseMove(e: MouseEvent) {
@@ -555,8 +588,9 @@
       createShape(canvas.width, canvas.height, i)
     );
 
-    // Initialize weather particles
+    // Initialize weather particles and grid cache
     initWeatherParticles(canvas.width, canvas.height);
+    buildGridCache(canvas.width, canvas.height);
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);

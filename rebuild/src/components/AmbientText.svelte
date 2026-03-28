@@ -1,26 +1,24 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { sessionVector, vectorModifiers, driftModifiers, type AmbientTextPool } from '../stores/temporal';
+  import { sessionVector, vectorModifiers, driftModifiers, coherenceState, sessionLedger, type AmbientTextPool, type SessionLedger } from '../stores/temporal';
+  import { get } from 'svelte/store';
 
   /**
    * Ambient text fragments — whispers from the system's own state.
-   * Draws from essays, projects, logs, and live system data.
-   * Pool biased by current session vector. Speed/density modulated.
+   * Uses direct DOM manipulation for animation (bypasses Svelte reactivity per frame).
    */
 
-  // Base system fragments
+  // Base system fragments — authored for this system
   const SYSTEM_FRAGMENTS = [
-    'SYNC.OK',
-    'PROC.IDLE',
     'ENTROPY: STABLE',
     'OBSERVER: PRESENT',
     'MEMBRANE INTACT',
-    'PATTERN BLUE',
     'SIGNAL/NOISE: 0.94',
     'JUST CHASING THE WIND',
+    'THE THRESHOLD HOLDS',
+    'GATE STATUS: OPEN',
   ];
 
-  // Spiritual/grounding fragments (for REFLECT pool bias)
   const SPIRITUAL_FRAGMENTS = [
     'BE STILL AND KNOW',
     'SELAH',
@@ -32,7 +30,6 @@
     'WALK HUMBLY',
   ];
 
-  // Drift reminder fragments (injected when drifting)
   const DRIFT_FRAGMENTS: string[] = [
     'REMEMBER YOUR HEADING',
     'THE GATE IS BEHIND YOU',
@@ -40,12 +37,24 @@
     'RETURN TO VECTOR',
   ];
 
-  /** Essay titles passed from Workspace */
+  const COHERENCE_HIGH_FRAGMENTS = [
+    'THE CURRENT HOLDS',
+    'ALIGNMENT',
+    'STEADY STATE',
+    'COHERENCE HOLDING',
+    'ON VECTOR',
+  ];
+
+  const COHERENCE_LOW_FRAGMENTS = [
+    'SCATTERED LIGHT',
+    'THE SIGNAL FADES',
+    'DISPERSING',
+    'BETWEEN VECTORS',
+  ];
+
   export let essayTitles: string[] = [];
-  /** Project titles passed from Workspace */
   export let projectTitles: string[] = [];
 
-  // Categorized pools built once on mount
   let pools: Record<string, string[]> = {};
 
   function buildPools(): Record<string, string[]> {
@@ -55,7 +64,6 @@
     const liveData: string[] = [];
 
     if (typeof window !== 'undefined') {
-      // Habit integrity
       try {
         const habits = localStorage.getItem('ewluong-os-habits');
         if (habits) {
@@ -67,9 +75,8 @@
             liveData.push(`INTEGRITY: ${pct}%`);
           }
         }
-      } catch { /* ignore */ }
+      } catch {}
 
-      // Last log entry excerpt
       try {
         const log = localStorage.getItem('ewluong-os-log');
         if (log) {
@@ -86,9 +93,8 @@
             }
           }
         }
-      } catch { /* ignore */ }
+      } catch {}
 
-      // Lifetime data
       try {
         const lifetime = localStorage.getItem('ewluong-os-lifetime');
         if (lifetime) {
@@ -99,16 +105,15 @@
             liveData.push(`RUNTIME: ${hours}h`);
           }
         }
-      } catch { /* ignore */ }
+      } catch {}
 
-      // Location from weather
       try {
         const weather = localStorage.getItem('ewluong-os-weather');
         if (weather) {
           const data = JSON.parse(weather);
           if (data.location) liveData.push(data.location.toUpperCase());
         }
-      } catch { /* ignore */ }
+      } catch {}
     }
 
     const allGeneral = [...base, ...liveData];
@@ -123,18 +128,57 @@
     };
   }
 
+  // --- Session echo ---
+
+  function sessionEchoFragment(): string | null {
+    const ledger = get(sessionLedger);
+    const cs = get(coherenceState);
+    const candidates: string[] = [];
+
+    if (ledger.wordsWritten > 0) {
+      candidates.push(`${ledger.wordsWritten} WORDS`);
+      if (ledger.wordsWritten >= 100) candidates.push('THE LOG GROWS');
+      if (ledger.wordsWritten >= 300) candidates.push('WORDS ACCUMULATING');
+      if (ledger.wordsWritten >= 500) candidates.push('THE PAGE FILLS');
+    }
+
+    if (ledger.habitsCompleted > 0) {
+      candidates.push('SYSTEMS CHECKED');
+      if (ledger.habitsCompleted >= 3) candidates.push('INTEGRITY RISING');
+      if (ledger.habitsCompleted >= 5) candidates.push('DIAGNOSTICS CLEAR');
+    }
+
+    if (ledger.signalsRead > 0) {
+      candidates.push(`${ledger.signalsRead} SIGNALS PROCESSED`);
+      if (ledger.signalsRead >= 5) candidates.push('SIGNAL INTAKE ACTIVE');
+    }
+
+    if (ledger.modulesVisited.length > 4) {
+      candidates.push(`${ledger.modulesVisited.length} MODULES TRAVERSED`);
+    }
+
+    if (cs.totalFocusedMs > 120000) {
+      if (cs.ratio > 0.80) {
+        candidates.push(...COHERENCE_HIGH_FRAGMENTS);
+      } else if (cs.ratio < 0.40 && cs.driftMinutes < 10) {
+        candidates.push(...COHERENCE_LOW_FRAGMENTS);
+      }
+    }
+
+    if (candidates.length === 0) return null;
+    return candidates[Math.floor(Math.random() * candidates.length)];
+  }
+
   function getPooledFragment(pool: AmbientTextPool): string {
     const poolFrags = pools[pool] || pools['default'] || SYSTEM_FRAGMENTS;
 
-    // Check for drift injection: 25% chance to inject a drift fragment
+    // Priority 1: Drift injection (25% when drifting)
     const dm = currentDriftLevel;
     if (dm >= 1 && Math.random() < 0.25) {
       const vec = currentVector;
-      // Add vector-specific reminders
       const driftPool = [...DRIFT_FRAGMENTS];
       if (vec) driftPool.push(`VECTOR: ${vec}`);
 
-      // Check if log is empty (for WRITE drift)
       if (vec === 'WRITE') {
         try {
           const log = localStorage.getItem('ewluong-os-log');
@@ -144,16 +188,24 @@
             const hasToday = Array.isArray(entries) && entries.some((e: { date: string }) => e.date === today);
             if (!hasToday) driftPool.push('THE LOG IS EMPTY');
           }
-        } catch { /* ignore */ }
+        } catch {}
       }
 
       return driftPool[Math.floor(Math.random() * driftPool.length)];
     }
 
+    // Priority 2: Session echo (~20% when ledger has data)
+    if (Math.random() < 0.20) {
+      const echo = sessionEchoFragment();
+      if (echo) return echo;
+    }
+
     return poolFrags[Math.floor(Math.random() * poolFrags.length)];
   }
 
-  interface FloatingFragment {
+  // --- Fragment state (plain objects, NOT reactive) ---
+
+  interface Fragment {
     text: string;
     x: number;
     y: number;
@@ -162,14 +214,14 @@
     opacity: number;
     opacityDir: number;
     fadeSpeed: number;
+    el: HTMLSpanElement | null;
   }
 
-  let fragmentPool: string[] = [];
-  let fragments: FloatingFragment[] = [];
+  let fragments: Fragment[] = [];
+  let container: HTMLDivElement;
   let animationId: number;
   let recycleTimeout: ReturnType<typeof setTimeout>;
 
-  // Reactive modifier values
   let currentTextSpeed = 1.0;
   let currentTextDensity = 1.0;
   let currentPool: AmbientTextPool = 'default';
@@ -190,7 +242,6 @@
     currentVector = v;
   });
 
-  // Opacity range: slightly more visible than before (0.04-0.12 instead of 0.02-0.08)
   const MIN_OPACITY = 0.04;
   const MAX_OPACITY = 0.12;
 
@@ -199,37 +250,34 @@
     const h = typeof window !== 'undefined' ? window.innerHeight : 800;
     const edge = Math.floor(Math.random() * 4);
     const margin = 80;
-    const speedMult = currentTextSpeed;
+    const s = currentTextSpeed;
 
     switch (edge) {
-      case 0: // top
-        return { x: margin + Math.random() * (w - margin * 2), y: margin * 0.5, vx: (Math.random() - 0.5) * 0.15 * speedMult, vy: (0.05 + Math.random() * 0.08) * speedMult };
-      case 1: // right
-        return { x: w - margin, y: margin + Math.random() * (h - margin * 2), vx: -(0.05 + Math.random() * 0.08) * speedMult, vy: (Math.random() - 0.5) * 0.15 * speedMult };
-      case 2: // bottom
-        return { x: margin + Math.random() * (w - margin * 2), y: h - margin, vx: (Math.random() - 0.5) * 0.15 * speedMult, vy: -(0.05 + Math.random() * 0.08) * speedMult };
-      default: // left
-        return { x: margin, y: margin + Math.random() * (h - margin * 2), vx: (0.05 + Math.random() * 0.08) * speedMult, vy: (Math.random() - 0.5) * 0.15 * speedMult };
+      case 0: return { x: margin + Math.random() * (w - margin * 2), y: margin * 0.5, vx: (Math.random() - 0.5) * 0.15 * s, vy: (0.05 + Math.random() * 0.08) * s };
+      case 1: return { x: w - margin, y: margin + Math.random() * (h - margin * 2), vx: -(0.05 + Math.random() * 0.08) * s, vy: (Math.random() - 0.5) * 0.15 * s };
+      case 2: return { x: margin + Math.random() * (w - margin * 2), y: h - margin, vx: (Math.random() - 0.5) * 0.15 * s, vy: -(0.05 + Math.random() * 0.08) * s };
+      default: return { x: margin, y: margin + Math.random() * (h - margin * 2), vx: (0.05 + Math.random() * 0.08) * s, vy: (Math.random() - 0.5) * 0.15 * s };
     }
   }
 
-  function createFragment(): FloatingFragment {
+  function createFragmentEl(): Fragment {
     const pos = randomEdgePosition();
-    return {
-      text: getPooledFragment(currentPool),
-      ...pos,
-      opacity: 0,
-      opacityDir: 1,
-      fadeSpeed: 0.003 + Math.random() * 0.004,
-    };
+    const el = document.createElement('span');
+    el.className = 'ambient-fragment';
+    el.textContent = getPooledFragment(currentPool);
+    el.style.left = pos.x + 'px';
+    el.style.top = pos.y + 'px';
+    el.style.opacity = '0';
+    return { text: el.textContent, ...pos, opacity: 0, opacityDir: 1, fadeSpeed: 0.003 + Math.random() * 0.004, el };
   }
+
+  // --- Animation: direct DOM manipulation, no Svelte reactivity ---
 
   function animate() {
     for (const frag of fragments) {
       frag.x += frag.vx;
       frag.y += frag.vy;
 
-      // Opacity breathing with vector-adjusted range
       frag.opacity += frag.opacityDir * frag.fadeSpeed;
       if (frag.opacity >= MAX_OPACITY) {
         frag.opacity = MAX_OPACITY;
@@ -239,8 +287,14 @@
         frag.opacity = MIN_OPACITY;
         frag.opacityDir = 1;
       }
+
+      // Direct DOM update — no Svelte re-render
+      if (frag.el) {
+        frag.el.style.left = frag.x + 'px';
+        frag.el.style.top = frag.y + 'px';
+        frag.el.style.opacity = String(frag.opacity);
+      }
     }
-    fragments = fragments; // trigger reactivity
     animationId = requestAnimationFrame(animate);
   }
 
@@ -259,12 +313,17 @@
     frag.text = getPooledFragment(currentPool);
     frag.fadeSpeed = 0.003 + Math.random() * 0.004;
 
-    fragments = fragments;
+    if (frag.el) {
+      frag.el.textContent = frag.text;
+      frag.el.style.left = pos.x + 'px';
+      frag.el.style.top = pos.y + 'px';
+      frag.el.style.opacity = '0';
+    }
+
     scheduleRecycle();
   }
 
   function scheduleRecycle() {
-    // Recycle interval affected by density — lower density = longer intervals
     const baseInterval = 20000 + Math.random() * 15000;
     const interval = baseInterval / Math.max(0.3, currentTextDensity);
     recycleTimeout = setTimeout(recycleRandom, interval);
@@ -274,12 +333,18 @@
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     pools = buildPools();
-    // Fragment count modulated by density
     const fragCount = Math.max(3, Math.round(5 * currentTextDensity));
-    fragments = Array.from({ length: fragCount }, createFragment);
-    fragments.forEach((f, i) => {
-      f.opacity = MIN_OPACITY + (i * 0.015);
-    });
+
+    // Create fragment DOM elements directly
+    for (let i = 0; i < fragCount; i++) {
+      const frag = createFragmentEl();
+      frag.opacity = MIN_OPACITY + (i * 0.015);
+      if (frag.el) {
+        frag.el.style.opacity = String(frag.opacity);
+        container.appendChild(frag.el);
+      }
+      fragments.push(frag);
+    }
 
     if (!prefersReduced) {
       animationId = requestAnimationFrame(animate);
@@ -293,23 +358,15 @@
     unsubVec();
     unsubDrift();
     unsubVector();
+    // Clean up DOM elements
+    for (const frag of fragments) {
+      if (frag.el && frag.el.parentNode) frag.el.parentNode.removeChild(frag.el);
+    }
+    fragments = [];
   });
 </script>
 
-<div class="ambient-text-layer">
-  {#each fragments as frag}
-    <span
-      class="ambient-fragment"
-      style="
-        left: {frag.x}px;
-        top: {frag.y}px;
-        opacity: {frag.opacity};
-      "
-    >
-      {frag.text}
-    </span>
-  {/each}
-</div>
+<div class="ambient-text-layer" bind:this={container}></div>
 
 <style>
   .ambient-text-layer {
@@ -320,7 +377,8 @@
     overflow: hidden;
   }
 
-  .ambient-fragment {
+  /* Applied via className in JS */
+  :global(.ambient-fragment) {
     position: absolute;
     font-family: var(--font-system);
     font-size: 13px;

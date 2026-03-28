@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { encrypt, decrypt } from '../lib/crypto';
   import { auth, isAuthenticated, AUTH_STORAGE_KEY } from '../stores/auth';
 
@@ -14,6 +14,8 @@
   // Init sequence
   let initLines: string[] = [];
   let showSuccess = false;
+  let destroyed = false;
+  let pendingTimeouts: ReturnType<typeof setTimeout>[] = [];
 
   function hasStoredKey(): boolean {
     if (typeof window === 'undefined') return false;
@@ -80,11 +82,20 @@
 
     initLines = [];
     for (const line of lines) {
+      if (destroyed) return;
       initLines = [...initLines, line];
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise(r => {
+        const id = setTimeout(r, 100);
+        pendingTimeouts.push(id);
+      });
     }
 
-    await new Promise(r => setTimeout(r, 600));
+    if (destroyed) return;
+    await new Promise(r => {
+      const id = setTimeout(r, 600);
+      pendingTimeouts.push(id);
+    });
+    if (destroyed) return;
     showSuccess = true;
   }
 
@@ -115,6 +126,11 @@
   onMount(() => {
     isFirstTime = !hasStoredKey();
     if (passwordField) passwordField.focus();
+  });
+
+  onDestroy(() => {
+    destroyed = true;
+    pendingTimeouts.forEach(clearTimeout);
   });
 </script>
 

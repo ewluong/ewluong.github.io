@@ -5,7 +5,8 @@
   import { isPlaying, rmsLevel } from '../stores/audio';
   import { environmentMode, envModifiers } from '../stores/environment';
   import { fetchWeather } from '../lib/weatherService';
-  import { initSession, saveSessionState, updateTimeOfDay, temporalModifiers, vectorModifiers, driftModifiers, sealSession, updateCoherence } from '../stores/temporal';
+  import { initSession, saveSessionState, updateTimeOfDay, temporalModifiers, vectorModifiers, driftModifiers, sealSession, buildSealSummary, updateCoherence, recordModuleVisit } from '../stores/temporal';
+  import type { SealSummary } from '../stores/temporal';
   import CanvasBackground from './CanvasBackground.svelte';
   import AmbientLayer from './AmbientLayer.svelte';
   import AmbientText from './AmbientText.svelte';
@@ -32,6 +33,7 @@
   import SignalIntercept from './SignalIntercept.svelte';
   import LoginPanel from './LoginPanel.svelte';
   import AmbientNudge from './AmbientNudge.svelte';
+  import EveningConsole from './EveningConsole.svelte';
   import Screensaver from './Screensaver.svelte';
 
   /** Blog entries passed from Astro at build time */
@@ -56,7 +58,10 @@
   let paletteVisible = false;
   let scratchpadVisible = false;
   let showMorningConsole = true;
+  let sealSummary: SealSummary | null = null;
   let sessionStart = Date.now();
+  let lastRecordedModule = '';
+  let lastEnvMode = '';
   let weatherInterval: ReturnType<typeof setInterval>;
   let timeInterval: ReturnType<typeof setInterval>;
   let sessionInterval: ReturnType<typeof setInterval>;
@@ -64,17 +69,15 @@
 
   $: visible = $bootPhase === 'ready';
 
-  // Environmental influence: set mode based on focused window
+  // Environmental influence: set mode based on focused window (only update when mode actually changes)
   $: {
     const focused = $focusedWindow;
-    if (focused?.module === 'backrooms') {
-      environmentMode.set('backrooms');
-    } else if (focused?.module === 'essay') {
-      environmentMode.set('focus');
-    } else if ($isPlaying && focused?.module === 'music-player') {
-      environmentMode.set('music');
-    } else {
-      environmentMode.set('default');
+    let newMode: 'default' | 'focus' | 'music' = 'default';
+    if (focused?.module === 'essay') newMode = 'focus';
+    else if ($isPlaying && focused?.module === 'music-player') newMode = 'music';
+    if (newMode !== lastEnvMode) {
+      lastEnvMode = newMode;
+      environmentMode.set(newMode);
     }
   }
 
@@ -143,19 +146,6 @@
       y: 50,
       width: 440,
       height: 580,
-      isOpen: false,
-      isMinimized: false,
-    });
-
-    windowStore.register({
-      id: 'backrooms',
-      title: 'Infinite Backrooms',
-      module: 'backrooms',
-      designation: 'DEEP.001',
-      x: centerX - 100,
-      y: 40,
-      width: 720,
-      height: 540,
       isOpen: false,
       isMinimized: false,
     });
@@ -291,10 +281,13 @@
 
     // Coherence tracking every second
     coherenceInterval = setInterval(() => {
-      const focused = $windowStore
-        .filter(w => w.isOpen && !w.isMinimized)
-        .sort((a, b) => b.zIndex - a.zIndex)[0];
-      updateCoherence(focused?.module);
+      const fw = $focusedWindow;
+      updateCoherence(fw?.module);
+      // Only record module visit when module actually changes
+      if (fw?.module && fw.module !== lastRecordedModule) {
+        lastRecordedModule = fw.module;
+        recordModuleVisit(fw.module);
+      }
     }, 1000);
 
     // Initialize weather fetch + 30-min refresh
@@ -436,11 +429,11 @@
         {:else if win.module === 'music-player'}
           <MusicPlayer />
 
-        <!-- Backrooms -->
-        {:else if win.module === 'backrooms'}
+        <!-- Backrooms (opened from Projects) -->
+        {:else if win.module === 'backrooms-detail'}
           <Backrooms />
 
-        <!-- System Info (MAGI Panel) -->
+        <!-- System Info -->
         {:else if win.module === 'system-info'}
           <SystemInfo />
 
@@ -495,11 +488,20 @@
       onSeal={() => {
         const openIds = $windowStore.filter(w => w.isOpen && !w.isMinimized).map(w => w.id);
         saveSessionState(openIds, sessionStart);
-        sealSession(sessionStart);
+        const summary = buildSealSummary(sessionStart);
+        // Short sessions (<5min) get the quick status bar seal; longer ones get the evening console
+        if (summary.sessionMs < 300000) {
+          sealSession(sessionStart);
+        } else {
+          sealSummary = summary;
+        }
       }}
       onStatus={() => { showMorningConsole = true; }}
       onReorient={() => { /* drift already reset by CommandPalette */ }}
     />
+    {#if sealSummary}
+      <EveningConsole summary={sealSummary} onDismiss={() => { sealSummary = null; }} />
+    {/if}
     <Screensaver />
   </div>
 {/if}

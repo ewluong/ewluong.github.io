@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { playClick } from '../lib/uiSounds';
+  import { updateLedger } from '../stores/temporal';
 
   const STORAGE_KEY = 'ewluong-os-habits';
 
@@ -47,12 +48,16 @@
 
   function toggleHabit(id: string) {
     const today = todayKey();
+    let toggled = false;
     habits = habits.map(h => {
       if (h.id !== id) return h;
       const next = { ...h, history: { ...h.history } };
-      next.history[today] = !next.history[today];
+      const wasOn = !!next.history[today];
+      next.history[today] = !wasOn;
+      if (!wasOn) toggled = true;
       return next;
     });
+    if (toggled) updateLedger('habitsCompleted', 1);
     playClick();
     save();
   }

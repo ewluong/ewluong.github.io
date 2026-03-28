@@ -13,6 +13,11 @@
   let projectCounter = 0;
 
   function openProject(slug: string, title: string) {
+    // Backrooms opens as its own module type (not a generic project-detail)
+    if (slug === 'infinite-backrooms') {
+      return openBackrooms();
+    }
+
     const winId = `project-${slug}`;
     const existing = $windowStore.find(w => w.id === winId);
 
@@ -38,6 +43,33 @@
       isOpen: true,
       isMinimized: false,
       data: { slug },
+    });
+  }
+
+  function openBackrooms() {
+    const winId = 'backrooms-detail';
+    const existing = $windowStore.find(w => w.id === winId);
+
+    if (existing) {
+      windowStore.open(winId);
+      return;
+    }
+
+    const dockWidth = 184;
+    const centerX = dockWidth + (window.innerWidth - dockWidth - 720) / 2 + Math.random() * 60 - 30;
+    const centerY = 40 + Math.random() * 40;
+
+    windowStore.register({
+      id: winId,
+      title: 'Infinite Backrooms',
+      module: 'backrooms-detail',
+      designation: 'DEEP.001',
+      x: centerX,
+      y: centerY,
+      width: 720,
+      height: 540,
+      isOpen: true,
+      isMinimized: false,
     });
   }
 

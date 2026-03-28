@@ -2,6 +2,7 @@
   import { onMount, onDestroy, tick } from 'svelte';
   import { isAuthenticated, sessionKey } from '../stores/auth';
   import { windowStore } from '../stores/windows';
+  import { updateLedger } from '../stores/temporal';
 
   let abortController: AbortController | null = null;
 
@@ -43,6 +44,8 @@
   function saveHistory() {
     if (typeof window !== 'undefined') {
       try {
+        // Cap history at 200 messages to prevent unbounded localStorage growth
+        if (history.length > 200) history = history.slice(-200);
         localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
       } catch {
         // Quota exceeded — silently fail
@@ -73,11 +76,14 @@
     selectedModel = MODELS[modelIndex];
   }
 
+  let scrollRaf = 0;
   async function scrollToBottom() {
-    await tick();
-    if (viewport) {
-      viewport.scrollTop = viewport.scrollHeight;
-    }
+    if (scrollRaf) return; // RAF-throttle: max once per frame
+    scrollRaf = requestAnimationFrame(async () => {
+      await tick();
+      if (viewport) viewport.scrollTop = viewport.scrollHeight;
+      scrollRaf = 0;
+    });
   }
 
   function openLogin() {
@@ -89,6 +95,7 @@
     if (!content || isStreaming || !$isAuthenticated) return;
 
     history = [...history, { role: 'user', content, timestamp: Date.now() }];
+    updateLedger('chatMessages', 1);
     inputText = '';
     isStreaming = true;
     streamingContent = '';

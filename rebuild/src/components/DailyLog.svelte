@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { updateLedger } from '../stores/temporal';
 
   const STORAGE_KEY = 'ewluong-os-log';
 
@@ -14,6 +15,7 @@
   let currentContent = '';
   let showPrevious = false;
   let saveTimeout: ReturnType<typeof setTimeout>;
+  let lastSavedWordCount = 0;
 
   function todayKey(): string {
     const now = new Date();
@@ -49,6 +51,10 @@
     }
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+
+    const delta = wordCount - lastSavedWordCount;
+    if (delta > 0) updateLedger('wordsWritten', delta);
+    lastSavedWordCount = wordCount;
   }
 
   function handleInput() {
@@ -77,12 +83,14 @@
     const existing = entries.find(e => e.date === currentDate);
     if (existing) {
       currentContent = existing.content;
+      lastSavedWordCount = existing.wordCount;
     }
   });
 
   onDestroy(() => {
+    // Clear pending debounce to prevent double-save
     clearTimeout(saveTimeout);
-    // Final save
+    // Final save (saveEntries handles ledger delta tracking internally)
     saveEntries();
   });
 
