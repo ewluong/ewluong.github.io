@@ -1,8 +1,10 @@
 ---
 /**
- * Renders each project entry's markdown as a standalone HTML fragment.
- * Accessed at /fragments/projects/{slug} by the ProjectDetail component.
+ * Renders each project entry as a full HTML page with SEO metadata.
+ * Accessed at /fragments/projects/{slug} by the ProjectDetail component
+ * and directly indexable by search engines.
  */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -15,6 +17,128 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await entry.render();
+
+const title = `${entry.data.title} — Eric Luong`;
+const tech = entry.data.tech ?? [];
+const description = entry.data.description
+  ?? `${entry.data.title} — a ${entry.data.type} project by Eric Luong${tech.length > 0 ? ` using ${tech.slice(0, 3).join(', ')}` : ''}.`;
 ---
 
-<Content />
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalPath={`/fragments/projects/${entry.id}/`}
+>
+  <article class="project-page">
+    <header class="project-header">
+      <h1>{entry.data.title}</h1>
+      <p class="project-meta">
+        By <a href="https://ewluong.com">Eric Luong</a> · {entry.data.type.toUpperCase()}
+        {tech.length > 0 && ` · ${tech.join(', ')}`}
+      </p>
+      <div class="project-links">
+        {entry.data.github && <a href={entry.data.github} target="_blank" rel="noopener noreferrer">GitHub</a>}
+        {entry.data.link && <a href={entry.data.link} target="_blank" rel="noopener noreferrer">Live</a>}
+      </div>
+    </header>
+    <div class="project-content">
+      <Content />
+    </div>
+    <footer class="project-footer">
+      <p><a href="https://ewluong.com">← Back to ewluong.os</a></p>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .project-page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #e0e2e8;
+    background: #0a0a14;
+    min-height: 100vh;
+  }
+
+  .project-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #2a2c3a;
+    padding-bottom: 1rem;
+  }
+
+  .project-header h1 {
+    font-size: 1.5rem;
+    color: #d4a044;
+    margin: 0 0 0.5rem;
+    letter-spacing: 0.02em;
+  }
+
+  .project-meta {
+    font-size: 0.85rem;
+    color: #6a6d82;
+    letter-spacing: 0.04em;
+  }
+
+  .project-meta a {
+    color: #a07a38;
+    text-decoration: none;
+  }
+
+  .project-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+  }
+
+  .project-links a {
+    font-size: 0.85rem;
+    color: #a07a38;
+    text-decoration: none;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid #2a2c3a;
+    letter-spacing: 0.06em;
+  }
+
+  .project-links a:hover {
+    color: #d4a044;
+    border-color: #a07a38;
+  }
+
+  .project-content {
+    line-height: 1.8;
+    font-size: 0.95rem;
+    color: #a0a3b8;
+  }
+
+  .project-content :global(h2) {
+    color: #d4a044;
+    font-size: 1.2rem;
+    margin-top: 2rem;
+  }
+
+  .project-content :global(p) {
+    margin-bottom: 1rem;
+  }
+
+  .project-content :global(a) {
+    color: #a07a38;
+  }
+
+  .project-footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid #2a2c3a;
+    font-size: 0.85rem;
+  }
+
+  .project-footer a {
+    color: #6a6d82;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+
+  .project-footer a:hover {
+    color: #d4a044;
+  }
+</style>

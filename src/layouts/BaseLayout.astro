@@ -1,15 +1,29 @@
 ---
 /**
  * BaseLayout — the OS shell frame.
- * Wraps every page with the persistent system elements:
- * canvas background, scanlines (via CSS), dock, status bar.
+ * Provides SEO metadata, structured data, and the HTML shell for all pages.
  */
 
 interface Props {
   title?: string;
+  description?: string;
+  canonicalPath?: string;
+  type?: 'website' | 'article';
+  articleDate?: string;
+  articleTags?: string[];
 }
 
-const { title = 'ewluong.os' } = Astro.props;
+const {
+  title = 'Eric Luong — ewluong.os',
+  description = 'Eric Luong\'s personal operating system — data scientist, writer, and builder. Essays on philosophy, cognition, and technology. Projects in data science, simulation, and interactive systems.',
+  canonicalPath = '',
+  type = 'website',
+  articleDate,
+  articleTags,
+} = Astro.props;
+
+const canonicalUrl = `https://ewluong.com${canonicalPath}`;
+const ogImageUrl = 'https://ewluong.com/og-image.png';
 
 import '../styles/global.css';
 ---
@@ -19,34 +33,80 @@ import '../styles/global.css';
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="ewluong.os — a personal operating system. Music, writing, experiments, and the Infinite Backrooms." />
+    <meta name="description" content={description} />
     <meta name="author" content="Eric Luong" />
-    <link rel="canonical" href="https://ewluong.com" />
+    <link rel="canonical" href={canonicalUrl} />
 
     <!-- OpenGraph -->
-    <meta property="og:title" content="ewluong.os" />
-    <meta property="og:description" content="A personal operating system." />
-    <meta property="og:url" content="https://ewluong.com" />
-    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:type" content={type} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Eric Luong — ewluong.os" />
+    <meta property="og:site_name" content="ewluong.os" />
+    <meta property="og:locale" content="en_US" />
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="ewluong.os" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
 
-    <!-- JSON-LD -->
-    <script type="application/ld+json">
-    {
+    {type === 'article' && articleDate && (
+      <meta property="article:published_time" content={articleDate} />
+      <meta property="article:author" content="Eric Luong" />
+    )}
+    {type === 'article' && articleTags && articleTags.map((tag: string) => (
+      <meta property="article:tag" content={tag} />
+    ))}
+
+    <!-- JSON-LD: Person + WebSite -->
+    <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Eric Luong",
-      "url": "https://ewluong.com",
-      "sameAs": [
-        "https://www.linkedin.com/in/ewluong/",
-        "https://github.com/ewluong"
-      ],
-      "jobTitle": "Data Scientist"
-    }
-    </script>
+      "@graph": [
+        {
+          "@type": "Person",
+          "@id": "https://ewluong.com/#person",
+          "name": "Eric Luong",
+          "url": "https://ewluong.com",
+          "image": ogImageUrl,
+          "description": "Data scientist, writer, and builder exploring cognition, technology, and human interiority.",
+          "jobTitle": "Data Scientist",
+          "worksFor": {
+            "@type": "Organization",
+            "name": "Vanguard"
+          },
+          "alumniOf": [
+            {
+              "@type": "CollegeOrUniversity",
+              "name": "University of California, Berkeley",
+              "department": "Cognitive Science"
+            },
+            {
+              "@type": "CollegeOrUniversity",
+              "name": "Santa Clara University",
+              "department": "Business Analytics"
+            }
+          ],
+          "knowsAbout": ["Data Science", "Machine Learning", "Cognitive Science", "Philosophy", "Web Development"],
+          "sameAs": [
+            "https://www.linkedin.com/in/ewluong/",
+            "https://github.com/ewluong"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://ewluong.com/#website",
+          "name": "ewluong.os",
+          "url": "https://ewluong.com",
+          "description": "Eric Luong's personal operating system — essays, projects, and experiments.",
+          "author": { "@id": "https://ewluong.com/#person" }
+        }
+      ]
+    })} />
 
     <link rel="preload" href="/fonts/VT323-Regular.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />

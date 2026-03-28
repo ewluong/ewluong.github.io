@@ -1,8 +1,10 @@
 ---
 /**
- * Renders each blog entry's markdown as a standalone HTML fragment.
- * Accessed at /fragments/blog/{slug} by the EssayReader component.
+ * Renders each blog entry as a full HTML page with SEO metadata.
+ * Accessed at /fragments/blog/{slug} by the EssayReader component
+ * and directly indexable by search engines.
  */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -15,6 +17,135 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await entry.render();
+
+const title = `${entry.data.title} — Eric Luong`;
+const date = entry.data.date.toISOString().slice(0, 10);
+const tags = entry.data.tags ?? [];
+
+// Use frontmatter description if available, otherwise generate from title/tags
+const description = entry.data.description
+  ?? `${entry.data.title} — an essay by Eric Luong on ${tags.length > 0 ? tags.join(', ') : 'ideas and inquiry'}.`;
 ---
 
-<Content />
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalPath={`/fragments/blog/${entry.id}/`}
+  type="article"
+  articleDate={date}
+  articleTags={tags}
+>
+  <article class="essay-page">
+    <header class="essay-header">
+      <h1>{entry.data.title}</h1>
+      <p class="essay-meta">
+        By <a href="https://ewluong.com">Eric Luong</a> · {date}
+        {tags.length > 0 && ` · ${tags.join(', ')}`}
+      </p>
+    </header>
+    <div class="essay-content">
+      <Content />
+    </div>
+    <footer class="essay-footer">
+      <p><a href="https://ewluong.com">← Back to ewluong.os</a></p>
+    </footer>
+  </article>
+
+  <!-- Article JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": entry.data.title,
+    "author": {
+      "@type": "Person",
+      "@id": "https://ewluong.com/#person",
+      "name": "Eric Luong",
+      "url": "https://ewluong.com"
+    },
+    "datePublished": date,
+    "publisher": {
+      "@type": "Person",
+      "name": "Eric Luong",
+      "url": "https://ewluong.com"
+    },
+    "mainEntityOfPage": `https://ewluong.com/fragments/blog/${entry.id}/`,
+    "keywords": tags
+  })} />
+</BaseLayout>
+
+<style>
+  .essay-page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #e0e2e8;
+    background: #0a0a14;
+    min-height: 100vh;
+  }
+
+  .essay-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #2a2c3a;
+    padding-bottom: 1rem;
+  }
+
+  .essay-header h1 {
+    font-size: 1.5rem;
+    color: #d4a044;
+    margin: 0 0 0.5rem;
+    letter-spacing: 0.02em;
+  }
+
+  .essay-meta {
+    font-size: 0.85rem;
+    color: #6a6d82;
+    letter-spacing: 0.04em;
+  }
+
+  .essay-meta a {
+    color: #a07a38;
+    text-decoration: none;
+  }
+
+  .essay-meta a:hover {
+    color: #e0e2e8;
+  }
+
+  .essay-content {
+    line-height: 1.8;
+    font-size: 0.95rem;
+    color: #a0a3b8;
+  }
+
+  .essay-content :global(h2) {
+    color: #d4a044;
+    font-size: 1.2rem;
+    margin-top: 2rem;
+  }
+
+  .essay-content :global(p) {
+    margin-bottom: 1rem;
+  }
+
+  .essay-content :global(a) {
+    color: #a07a38;
+  }
+
+  .essay-footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid #2a2c3a;
+    font-size: 0.85rem;
+  }
+
+  .essay-footer a {
+    color: #6a6d82;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+
+  .essay-footer a:hover {
+    color: #d4a044;
+  }
+</style>
