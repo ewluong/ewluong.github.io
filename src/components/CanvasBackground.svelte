@@ -4,6 +4,8 @@
   import { bootPhase } from '../stores/system';
   import { weather, type WeatherCondition } from '../stores/weather';
   import { vectorModifiers, driftModifiers } from '../stores/temporal';
+  import { palimpsestDays, liveMarks, setCurrentFrame, type PalimpsestDay, type PalimpsestMark, type LiveMark } from '../stores/palimpsest';
+  import { silenceActive } from '../stores/silence';
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
@@ -19,6 +21,22 @@
 
   // Grid cache — drawn once to offscreen canvas, composited per frame
   let gridCanvas: HTMLCanvasElement | null = null;
+
+  // Desaturated accent color for deep drift (blended toward gray)
+  $: desaturatedAccent = (() => {
+    if (currentDriftLevel < 4) return accentColor;
+    // Parse hex accent and blend toward mid-gray
+    const hex = accentColor.replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const blend = currentDriftLevel >= 5 ? 0.6 : 0.35; // more gray at level 5
+    const gray = Math.round((r + g + b) / 3);
+    const nr = Math.round(r + (gray - r) * blend);
+    const ng = Math.round(g + (gray - g) * blend);
+    const nb = Math.round(b + (gray - b) * blend);
+    return `rgb(${nr}, ${ng}, ${nb})`;
+  })();
 
   // Clock memoization — only recompute when the second changes
   let lastClockSecond = -1;
@@ -54,9 +72,23 @@
   });
 
   // Subscribe to drift modifiers
+  let currentDriftLevel = 0;
   const unsubDriftMod = driftModifiers.subscribe(dm => {
     driftPerturbation = dm.shapePerturbation;
+    currentDriftLevel = dm.driftLevel;
   });
+
+  // Subscribe to palimpsest data (cached locally, no per-frame reads)
+  let archivedDays: PalimpsestDay[] = [];
+  let currentLiveMarks: LiveMark[] = [];
+  let frameCount = 0;
+  const unsubArchive = palimpsestDays.subscribe(days => { archivedDays = days; });
+  const unsubLive = liveMarks.subscribe(marks => { currentLiveMarks = marks; });
+
+  // Subscribe to silence mode
+  let isSilent = false;
+  let silenceFade = 1.0; // 1.0 = fully visible, 0.0 = silent
+  const unsubSilence = silenceActive.subscribe(v => { isSilent = v; });
 
   // --- Weather particle systems ---
 
@@ -326,8 +358,11 @@
   }
 
   function drawConnections(ctx: CanvasRenderingContext2D) {
-    ctx.strokeStyle = accentColor;
-    ctx.lineWidth = 0.5;
+    const strokeColor = currentDriftLevel >= 4 ? desaturatedAccent : accentColor;
+    ctx.strokeStyle = strokeColor;
+    // Connection lines thin out during deep drift
+    ctx.lineWidth = currentDriftLevel >= 5 ? 0.3 : 0.5;
+    const alphaMultiplier = currentDriftLevel >= 5 ? 0.4 : currentDriftLevel >= 4 ? 0.6 : 1.0;
     const maxDistSq = CONNECTION_DIST * CONNECTION_DIST;
 
     for (let i = 0; i < shapes.length; i++) {
@@ -339,8 +374,8 @@
         const distSq = dx * dx + dy * dy;
 
         if (distSq < maxDistSq) {
-          const dist = Math.sqrt(distSq); // sqrt only when drawing (rare)
-          ctx.globalAlpha = (1 - dist / CONNECTION_DIST) * 0.08;
+          const dist = Math.sqrt(distSq);
+          ctx.globalAlpha = (1 - dist / CONNECTION_DIST) * 0.08 * alphaMultiplier;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
@@ -353,17 +388,27 @@
   }
 
   function drawShape(ctx: CanvasRenderingContext2D, shape: Shape) {
+    // Deep drift: occasional glitch skip at level 5
+    let drawX = shape.x;
+    let drawY = shape.y;
+    if (currentDriftLevel >= 5 && Math.random() < 0.008) {
+      drawX += (Math.random() - 0.5) * 10;
+      drawY += (Math.random() - 0.5) * 10;
+    }
+
     ctx.beginPath();
     for (let i = 0; i <= shape.sides; i++) {
       const angle = (i / shape.sides) * Math.PI * 2 + shape.rotation;
-      const x = shape.x + Math.cos(angle) * shape.radius;
-      const y = shape.y + Math.sin(angle) * shape.radius;
+      const x = drawX + Math.cos(angle) * shape.radius;
+      const y = drawY + Math.sin(angle) * shape.radius;
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     }
     ctx.closePath();
 
-    ctx.strokeStyle = accentColor;
+    // Deep drift level 4+: desaturate accent toward grayscale
+    const strokeColor = currentDriftLevel >= 4 ? desaturatedAccent : accentColor;
+    ctx.strokeStyle = strokeColor;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = shape.depth > 1.2 ? 1.5 : 1;
     ctx.stroke();
@@ -371,7 +416,7 @@
     // Coordinate readout for selected shapes
     if (shape.showCoords) {
       ctx.font = '14px monospace';
-      ctx.fillStyle = accentColor;
+      ctx.fillStyle = strokeColor;
       ctx.globalAlpha = 0.12;
       ctx.fillText(
         `${shape.x.toFixed(0)},${shape.y.toFixed(0)}`,
@@ -521,35 +566,171 @@
     ctx.textBaseline = 'alphabetic';
   }
 
+  // Helper: render a single palimpsest mark at given position and alpha
+  function renderMark(ctx: CanvasRenderingContext2D, mark: PalimpsestMark, dx: number, dy: number, alpha: number, w: number, h: number) {
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = accentColor;
+    ctx.fillStyle = accentColor;
+
+    switch (mark.type) {
+      case 'line': {
+        const len = 20 + mark.intensity * 40;
+        const angle = mark.angle ?? 0;
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(dx - Math.cos(angle) * len / 2, dy - Math.sin(angle) * len / 2);
+        ctx.lineTo(dx + Math.cos(angle) * len / 2, dy + Math.sin(angle) * len / 2);
+        ctx.stroke();
+        break;
+      }
+      case 'node': {
+        const r = 2 + mark.intensity * 1.5;
+        ctx.beginPath();
+        ctx.arc(dx, dy, r, 0, Math.PI * 2);
+        ctx.fill();
+        if (mark.intensity > 0.5) {
+          ctx.lineWidth = 0.5;
+          ctx.globalAlpha = alpha * 0.6;
+          const stubAngle = mark.x * Math.PI * 4;
+          ctx.beginPath();
+          ctx.moveTo(dx, dy);
+          ctx.lineTo(dx + Math.cos(stubAngle) * 15, dy + Math.sin(stubAngle) * 15);
+          ctx.stroke();
+        }
+        break;
+      }
+      case 'ripple': {
+        const radius = (mark.radius ?? 0.05) * Math.min(w, h);
+        ctx.lineWidth = 0.6;
+        ctx.beginPath();
+        ctx.arc(dx, dy, radius, 0, Math.PI * 2);
+        ctx.stroke();
+        if (mark.intensity > 0.4) {
+          ctx.globalAlpha = alpha * 0.5;
+          ctx.beginPath();
+          ctx.arc(dx, dy, radius * 0.5, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        break;
+      }
+      case 'dot': {
+        const r = 1.5 + mark.intensity;
+        ctx.beginPath();
+        ctx.arc(dx, dy, r, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
+    }
+  }
+
+  function drawPalimpsest(ctx: CanvasRenderingContext2D, w: number, h: number) {
+    // --- Layer 1: Archived marks (past days, fading with age) ---
+    if (archivedDays.length > 0) {
+      const today = new Date().toISOString().slice(0, 10);
+      const todayMs = new Date(today).getTime();
+
+      for (const day of archivedDays) {
+        const dayMs = new Date(day.date).getTime();
+        const ageInDays = Math.max(0, (todayMs - dayMs) / 86400000);
+        const ageFade = Math.max(0.15, 1 - ageInDays / 7);
+
+        for (const mark of day.marks) {
+          const mx = mark.x * w;
+          const my = mark.y * h;
+          const drift = Math.sin(frameCount * 0.001 + mark.x * 10 + mark.y * 7) * 1.5;
+          const baseAlpha = (0.02 + mark.intensity * 0.04) * ageFade;
+          renderMark(ctx, mark, mx + drift, my + drift * 0.7, baseAlpha, w, h);
+        }
+      }
+    }
+
+    // --- Layer 2: Live marks (this session, flash → settle → archive) ---
+    for (const mark of currentLiveMarks) {
+      const age = frameCount - mark.birthFrame;
+      const mx = mark.x * w;
+      const my = mark.y * h;
+      // Live marks breathe faster than archived ones
+      const drift = Math.sin(frameCount * 0.002 + mark.x * 8 + mark.y * 5) * 1.0;
+
+      // Flash → settle → archive opacity progression
+      let alpha: number;
+      if (age < 30) {
+        // Flash phase: bright burst fading over ~0.5s
+        alpha = 0.12 - (age / 30) * 0.04; // 0.12 → 0.08
+      } else if (age < 3600) {
+        // Settle phase: gradual fade to archive level over ~60s
+        const t = (age - 30) / 3570;
+        alpha = 0.08 * (1 - t) + 0.03 * t;
+      } else {
+        // Fully settled
+        alpha = 0.03;
+      }
+
+      renderMark(ctx, mark, mx + drift, my + drift * 0.7, alpha, w, h);
+    }
+
+    ctx.globalAlpha = 1;
+  }
+
   function render() {
     if (!ctx || !canvas) return;
     const w = canvas.width;
     const h = canvas.height;
+    frameCount++;
+    setCurrentFrame(frameCount);
+
+    // Silence fade: lerp toward target (0 when silent, 1 when active)
+    const silenceTarget = isSilent ? 0 : 1;
+    silenceFade += (silenceTarget - silenceFade) * 0.02; // ~3s ease
 
     ctx.clearRect(0, 0, w, h);
 
-    // Draw grid first (behind everything) — composited from cached offscreen canvas
-    drawGrid(ctx);
+    // Grid — fades during silence
+    if (silenceFade > 0.01) {
+      ctx.globalAlpha = silenceFade;
+      drawGrid(ctx);
+      ctx.globalAlpha = 1;
+    }
 
-    // Draw weather particles (behind clock)
-    drawWeather(ctx, w, h);
+    // Weather particles — fade during silence
+    if (silenceFade > 0.05) {
+      ctx.globalAlpha = silenceFade;
+      drawWeather(ctx, w, h);
+      ctx.globalAlpha = 1;
+    }
 
-    // Draw clock (behind shapes)
+    // Clock — dims during silence but never fully disappears
+    const clockAlpha = isSilent ? Math.max(0.3, silenceFade) : 1;
+    ctx.globalAlpha = clockAlpha;
     drawClock(ctx, w, h);
+    ctx.globalAlpha = 1;
 
-    // Draw weather info below clock
-    drawWeatherInfo(ctx, w, h);
+    // Weather info — fades during silence
+    if (silenceFade > 0.05) {
+      ctx.globalAlpha = silenceFade;
+      drawWeatherInfo(ctx, w, h);
+      ctx.globalAlpha = 1;
+    }
 
-    // Update physics
-    update(w, h);
+    // Palimpsest — always visible (the past persists even in silence)
+    drawPalimpsest(ctx, w, h);
 
-    // Draw connection lines between nearby shapes
-    drawConnections(ctx);
+    // Shapes, connections — fade during silence
+    if (silenceFade > 0.02) {
+      update(w, h);
 
-    // Draw shapes (sorted by depth — far shapes first)
-    const sorted = [...shapes].sort((a, b) => a.depth - b.depth);
-    for (const shape of sorted) {
-      drawShape(ctx, shape);
+      ctx.globalAlpha = silenceFade;
+      drawConnections(ctx);
+      ctx.globalAlpha = 1;
+
+      const sorted = [...shapes].sort((a, b) => a.depth - b.depth);
+      for (const shape of sorted) {
+        // Each shape's opacity is multiplied by silenceFade inside drawShape
+        const origOpacity = shape.opacity;
+        shape.opacity *= silenceFade;
+        drawShape(ctx, shape);
+        shape.opacity = origOpacity;
+      }
     }
 
     animationId = requestAnimationFrame(render);
@@ -606,6 +787,9 @@
     unsubWeather();
     unsubVecMod();
     unsubDriftMod();
+    unsubArchive();
+    unsubLive();
+    unsubSilence();
     if (typeof window !== 'undefined') {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);

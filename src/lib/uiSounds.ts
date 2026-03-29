@@ -132,6 +132,47 @@ export function playError() {
   tone(120, 0.15, 'sawtooth', 0.4);
 }
 
+/** Watcher appearance — contemplative bell, ascending with long fade */
+export function playWatcher() {
+  tone(392, 0.5, 'sine', 0.4, 0);      // G4
+  tone(523, 0.5, 'sine', 0.35, 0.3);   // C5
+  tone(659, 0.7, 'sine', 0.25, 0.6);   // E5 — lingers
+}
+
+/** Deep drift warning — sub-bass pulse, felt more than heard */
+export function playDriftPulse() {
+  tone(80, 0.4, 'sine', 0.3, 0);       // Sub-bass
+  tone(160, 0.3, 'sine', 0.2, 0.2);    // Octave above
+}
+
+/** Seal reflection — single crystalline tone, pure and fading */
+export function playSealReflection() {
+  tone(880, 0.8, 'sine', 0.25, 0);     // A5
+}
+
+/** Vow fulfilled — ascending resolution chord, longer sustain */
+export function playVowComplete() {
+  tone(262, 0.3, 'sine', 0.5, 0);      // C4
+  tone(330, 0.3, 'sine', 0.5, 0.15);   // E4
+  tone(392, 0.3, 'sine', 0.5, 0.30);   // G4
+  tone(523, 0.5, 'sine', 0.6, 0.45);   // C5 — sustained
+  tone(659, 0.6, 'sine', 0.4, 0.60);   // E5 — lingers above
+}
+
+/** Enter silence — descending C octaves, the system exhales */
+export function playSilenceEnter() {
+  tone(523, 0.6, 'sine', 0.3, 0);     // C5 — starts bright
+  tone(262, 0.8, 'sine', 0.25, 0.3);  // C4 — descends, longer sustain
+  tone(131, 1.2, 'sine', 0.15, 0.6);  // C3 — sub-octave, very long fade
+}
+
+/** Exit silence — ascending C octaves, the system wakes */
+export function playSilenceExit() {
+  tone(131, 0.4, 'sine', 0.15, 0);    // C3 — emerges from depth
+  tone(262, 0.4, 'sine', 0.25, 0.2);  // C4
+  tone(523, 0.6, 'sine', 0.3, 0.4);   // C5 — the system wakes
+}
+
 /** Close the AudioContext and release resources */
 export function destroySoundEngine() {
   if (ctx) {

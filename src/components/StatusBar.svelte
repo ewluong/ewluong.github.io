@@ -5,7 +5,8 @@
   import { isPlaying, currentTrack, frequencyData } from '../stores/audio';
   import { focusedWindow } from '../stores/windows';
   import { soundSettings } from '../stores/sound';
-  import { sessionMemory, getTimeOfDay, sessionVector, sessionSealMessage, driftModifiers } from '../stores/temporal';
+  import { sessionMemory, getTimeOfDay, sessionVector, sessionSealMessage, driftModifiers, coherenceState } from '../stores/temporal';
+  import { silenceActive } from '../stores/silence';
 
   function buildStatusMessages(): string[] {
     const base = [
@@ -93,7 +94,14 @@
     interval = setInterval(() => {
       messageFading = true;
       setTimeout(() => {
-        if ($driftModifiers.driftLevel >= 3 && Math.random() < 0.4) {
+        const dl = $driftModifiers.driftLevel;
+        if (dl >= 5) {
+          statusMessage.set('EXTENDED DRIFT — REORIENT OR SEAL');
+        } else if (dl >= 4) {
+          const dm = Math.round($coherenceState.driftMinutes);
+          const vec = $sessionVector || '—';
+          statusMessage.set(`DRIFT: ${dm}m — VECTOR: ${vec}`);
+        } else if (dl >= 3 && Math.random() < 0.4) {
           statusMessage.set('DRIFT DETECTED');
         } else {
           messageIndex = (messageIndex + 1) % STATUS_MESSAGES.length;
@@ -134,44 +142,58 @@
 </script>
 
 {#if $bootPhase === 'ready'}
-  <div class="status-bar" role="status" aria-live="polite">
-    <div class="status-left">
-      {#if $sessionVector}
-        <span class="status-vector">VECTOR: {$sessionVector}</span>
-        <span class="status-sep">|</span>
-      {/if}
-      {#if focusDesignation}
-        <span class="status-designation">[{focusDesignation}]</span>
-      {/if}
-      <span class="status-focus">{focusLabel}</span>
-    </div>
-
-    {#if $sessionSealMessage}
-      <span class="status-seal">{$sessionSealMessage}</span>
+  <div class="status-bar" class:silence={$silenceActive} role="status" aria-live="polite">
+    {#if $silenceActive}
+      <!-- Silence mode: minimal display -->
+      <div class="status-left"></div>
+      <span class="status-message status-silence-label">SILENCE</span>
+      <div class="status-right">
+        <div class="status-metrics">
+          <span class="status-clock">{clock}</span>
+          <span class="status-divider">|</span>
+          <span class="status-uptime">UP {uptime}</span>
+        </div>
+      </div>
     {:else}
-      <span class="status-message" class:fading={messageFading}>{$statusMessage}</span>
-    {/if}
-
-    <div class="status-right">
-      <button class="sound-toggle" on:click={() => soundSettings.toggle()} title={$soundSettings.enabled ? 'Mute UI sounds' : 'Enable UI sounds'}>
-        {$soundSettings.enabled ? 'SND' : 'MUTE'}
-      </button>
-      <div class="status-metrics">
-        <span class="status-clock">{clock}</span>
-        <span class="status-divider">|</span>
-        <span class="status-uptime">UP {uptime}</span>
+      <!-- Normal mode -->
+      <div class="status-left">
+        {#if $sessionVector}
+          <span class="status-vector">VECTOR: {$sessionVector}</span>
+          <span class="status-sep">|</span>
+        {/if}
+        {#if focusDesignation}
+          <span class="status-designation">[{focusDesignation}]</span>
+        {/if}
+        <span class="status-focus">{focusLabel}</span>
       </div>
 
-      {#if $isPlaying}
-        <div class="mini-waveform">
-          {#each bars as height}
-            <div class="wave-bar" style="height: {height}px"></div>
-          {/each}
-        </div>
+      {#if $sessionSealMessage}
+        <span class="status-seal">{$sessionSealMessage}</span>
+      {:else}
+        <span class="status-message" class:fading={messageFading}>{$statusMessage}</span>
       {/if}
 
-      <span class="status-audio">{audioLabel}</span>
-    </div>
+      <div class="status-right">
+        <button class="sound-toggle" on:click={() => soundSettings.toggle()} title={$soundSettings.enabled ? 'Mute UI sounds' : 'Enable UI sounds'}>
+          {$soundSettings.enabled ? 'SND' : 'MUTE'}
+        </button>
+        <div class="status-metrics">
+          <span class="status-clock">{clock}</span>
+          <span class="status-divider">|</span>
+          <span class="status-uptime">UP {uptime}</span>
+        </div>
+
+        {#if $isPlaying}
+          <div class="mini-waveform">
+            {#each bars as height}
+              <div class="wave-bar" style="height: {height}px"></div>
+            {/each}
+          </div>
+        {/if}
+
+        <span class="status-audio">{audioLabel}</span>
+      </div>
+    {/if}
   </div>
 {/if}
 
@@ -192,6 +214,18 @@
     color: var(--text-dim);
     height: 38px;
     gap: var(--space-4);
+    transition: background 3s var(--ease-out), border-color 3s var(--ease-out);
+  }
+
+  .status-bar.silence {
+    background: transparent;
+    border-bottom-color: transparent;
+  }
+
+  .status-silence-label {
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    opacity: 0.5;
   }
 
   .status-left {

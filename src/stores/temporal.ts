@@ -12,6 +12,51 @@ export type SessionVector = 'WRITE' | 'RESEARCH' | 'READ' | 'REFLECT' | 'BUILD' 
 
 export type AmbientTextPool = 'default' | 'writing' | 'signals' | 'archive' | 'spiritual' | 'projects';
 
+// --- Session History (rolling 30-day archive) ---
+
+export interface SessionRecord {
+  date: string;              // YYYY-MM-DD
+  sessionIndex: number;      // nth session that day
+  vector: SessionVector;
+  durationMs: number;
+  coherencePercent: number;  // -1 if insufficient
+  ledger: SessionLedger;
+  driftPeakMinutes: number;  // highest drift reached
+  modulesVisited: string[];  // unique modules only
+}
+
+export interface WatcherEntry {
+  date: string;           // YYYY-MM-DD when Watcher appeared
+  sessionNumber: number;  // which session triggered it
+  question: string;       // the question that was asked
+  response: string;       // user's answer (max 280 chars)
+}
+
+export interface SessionHistory {
+  records: SessionRecord[];        // max 90 entries
+  watcherEntries: WatcherEntry[];  // max 52 entries (~1 year)
+}
+
+export interface WatcherSummary {
+  sessionCount: number;
+  totalDurationMs: number;
+  vectorDistribution: Record<string, number>;  // ms per vector
+  avgCoherence: number;
+  totalWordsWritten: number;
+  totalSignalsRead: number;
+  totalHabitsCompleted: number;
+  mostVisitedModules: string[];  // top 3
+  driftPattern: 'improving' | 'stable' | 'worsening';
+  previousWatcherEntry?: WatcherEntry;
+}
+
+export interface RecentPatterns {
+  vectorDistribution: Record<string, number>;  // total ms per vector, last 7 days
+  averageCoherence: number;                    // last 7 sessions
+  driftTrend: 'improving' | 'stable' | 'worsening';
+  sessionsThisWeek: number;
+}
+
 export interface SessionMemory {
   lastVisit: number;        // timestamp
   lastSessionDuration: number; // ms
@@ -31,6 +76,7 @@ export interface SessionLedger {
   chatMessages: number;        // messages sent in MAGI
   modulesVisited: string[];    // unique module IDs focused (in order, no consecutive dupes)
   scratchpadChars: number;     // delta of scratchpad content length
+  silenceMs: number;           // total milliseconds spent in silence this session
 }
 
 export interface CoherenceState {
@@ -51,11 +97,16 @@ export interface VectorModifiers {
 }
 
 const SESSION_KEY = 'ewluong-os-session';
+const HISTORY_KEY = 'ewluong-os-history';
+const MAX_HISTORY_RECORDS = 90;
+const MAX_WATCHER_ENTRIES = 52;
 
 // --- Drift thresholds ---
 const DRIFT_GRACE_MINUTES = 10;
 const DRIFT_MILD_MINUTES = 20;
 const DRIFT_MODERATE_MINUTES = 30;
+const DRIFT_SEVERE_MINUTES = 45;
+const DRIFT_TERMINAL_MINUTES = 60;
 
 function loadSession(): SessionMemory {
   if (typeof window === 'undefined') return defaultSession();
@@ -75,6 +126,7 @@ function defaultLedger(): SessionLedger {
     chatMessages: 0,
     modulesVisited: [],
     scratchpadChars: 0,
+    silenceMs: 0,
   };
 }
 
@@ -91,6 +143,85 @@ function defaultSession(): SessionMemory {
     lastLedger: defaultLedger(),
   };
 }
+
+// --- Session History ---
+
+function loadHistory(): SessionHistory {
+  if (typeof window === 'undefined') return { records: [], watcherEntries: [] };
+  try {
+    const stored = localStorage.getItem(HISTORY_KEY);
+    if (!stored) return { records: [], watcherEntries: [] };
+    const parsed = JSON.parse(stored);
+    return {
+      records: Array.isArray(parsed.records) ? parsed.records : [],
+      watcherEntries: Array.isArray(parsed.watcherEntries) ? parsed.watcherEntries : [],
+    };
+  } catch {
+    return { records: [], watcherEntries: [] };
+  }
+}
+
+function saveHistory(history: SessionHistory) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch { /* quota */ }
+}
+
+// --- Watcher Questions (examination-of-conscience register) ---
+
+const WATCHER_QUESTIONS: string[] = [
+  'what did you avoid this week?',
+  'what word kept returning?',
+  'are you building or maintaining?',
+  'what would you change about how you entered?',
+  'where did you drift, and was the drift meaningful?',
+  'what did you read that changed something?',
+  'is your vector still the right one?',
+  'what are you not saying in the log?',
+  'who did you write for?',
+  'what question are you circling without asking?',
+  'what habit feels hollow now?',
+  'where is the edge of your attention?',
+  'what would the threshold say about this week?',
+  'are you passing through or settling in?',
+  'what did MAGI help you avoid thinking about?',
+  'what signal did you ignore?',
+  'is this system still serving you, or are you serving it?',
+  'what did you mean to write but didn\'t?',
+  'when were you most coherent, and why?',
+  'what would you tell the operator from last month?',
+  'what are you afraid to start?',
+  'which window do you open first, and why?',
+  'what did you learn that you didn\'t expect?',
+  'where does your attention go when you stop directing it?',
+  'what is the difference between this week and last?',
+  'are you reading to learn or reading to avoid?',
+  'what would you build if no one would see it?',
+  'what does coherence feel like in your body?',
+  'what did you finish?',
+  'what conversation are you postponing?',
+  'which habit actually changes your day?',
+  'what did the silence teach you?',
+  'are you writing toward something or away from something?',
+  'what would you remove from this system?',
+  'when did you last surprise yourself?',
+  'what pattern are you in?',
+  'what is the most honest sentence you could write right now?',
+  'what do you keep coming back to?',
+  'where are you rushing?',
+  'what would rest look like today?',
+  'what did you give your best attention to?',
+  'what are you not measuring that matters?',
+  'is the gate helping or has it become furniture?',
+  'what changed between entering and now?',
+  'what do you owe no one?',
+  'where is the gap between your vector and your action?',
+  'what are you pretending not to know?',
+  'what would you do differently with the same hours?',
+  'what did you carry in that you should have left outside?',
+  'what will you remember from this week?',
+];
 
 function defaultCoherence(): CoherenceState {
   return {
@@ -187,6 +318,9 @@ export const coherenceState = writable<CoherenceState>(defaultCoherence());
 /** Brief session seal message shown when tab loses focus */
 export const sessionSealMessage = writable<string>('');
 
+/** Rolling session history — 30 days of records + watcher entries */
+export const sessionHistory = writable<SessionHistory>(loadHistory());
+
 /** Current session's activity ledger — tracks what the operator actually did */
 export const sessionLedger = writable<SessionLedger>(defaultLedger());
 
@@ -208,6 +342,169 @@ export function recordModuleVisit(moduleId: string) {
     // Cap at 100 entries to prevent unbounded growth
     if (visited.length > 100) visited.splice(0, visited.length - 100);
     return { ...l, modulesVisited: visited };
+  });
+}
+
+// --- Recent patterns derived from session history ---
+
+export const recentPatterns = derived(sessionHistory, ($history): RecentPatterns | null => {
+  const records = $history.records;
+  if (records.length < 2) return null;
+
+  const now = Date.now();
+  const weekAgo = now - 7 * 86400000;
+  const twoWeeksAgo = now - 14 * 86400000;
+
+  const recentRecords = records.filter(r => new Date(r.date).getTime() >= weekAgo);
+  const priorRecords = records.filter(r => {
+    const t = new Date(r.date).getTime();
+    return t >= twoWeeksAgo && t < weekAgo;
+  });
+
+  // Vector distribution (ms per vector, last 7 days)
+  const vectorDistribution: Record<string, number> = {};
+  for (const r of recentRecords) {
+    if (r.vector) {
+      vectorDistribution[r.vector] = (vectorDistribution[r.vector] || 0) + r.durationMs;
+    }
+  }
+
+  // Average coherence (last 7 sessions with valid data)
+  const validCoherence = records
+    .filter(r => r.coherencePercent >= 0)
+    .slice(-7);
+  const averageCoherence = validCoherence.length > 0
+    ? Math.round(validCoherence.reduce((s, r) => s + r.coherencePercent, 0) / validCoherence.length)
+    : -1;
+
+  // Drift trend: compare recent vs prior coherence averages
+  const recentCoherence = recentRecords.filter(r => r.coherencePercent >= 0);
+  const priorCoherence = priorRecords.filter(r => r.coherencePercent >= 0);
+  let driftTrend: 'improving' | 'stable' | 'worsening' = 'stable';
+  if (recentCoherence.length >= 2 && priorCoherence.length >= 2) {
+    const recentAvg = recentCoherence.reduce((s, r) => s + r.coherencePercent, 0) / recentCoherence.length;
+    const priorAvg = priorCoherence.reduce((s, r) => s + r.coherencePercent, 0) / priorCoherence.length;
+    if (recentAvg - priorAvg > 5) driftTrend = 'improving';
+    else if (priorAvg - recentAvg > 5) driftTrend = 'worsening';
+  }
+
+  return {
+    vectorDistribution,
+    averageCoherence,
+    driftTrend,
+    sessionsThisWeek: recentRecords.length,
+  };
+});
+
+// --- Watcher functions ---
+
+/** Check if the Watcher should appear this session */
+export function shouldShowWatcher(): boolean {
+  const mem = get(sessionMemory);
+  if (mem.totalSessions < 7) return false;
+  if (mem.totalSessions % 7 !== 0) return false;
+  const history = get(sessionHistory);
+  const today = todayStr();
+  return !history.watcherEntries.some(e => e.date === today);
+}
+
+/** Get the Watcher question for this session (deterministic by totalSessions) */
+export function getWatcherQuestion(): string {
+  const mem = get(sessionMemory);
+  return WATCHER_QUESTIONS[Math.floor(mem.totalSessions / 7) % WATCHER_QUESTIONS.length];
+}
+
+/** Build a compressed summary of recent sessions for the Watcher display */
+export function getWatcherSummary(): WatcherSummary {
+  const history = get(sessionHistory);
+  const recent = history.records.slice(-7);
+
+  const totalDurationMs = recent.reduce((s, r) => s + r.durationMs, 0);
+  const vectorDist: Record<string, number> = {};
+  let totalWords = 0, totalSignals = 0, totalHabits = 0;
+  const moduleCount: Record<string, number> = {};
+
+  for (const r of recent) {
+    if (r.vector) vectorDist[r.vector] = (vectorDist[r.vector] || 0) + r.durationMs;
+    if (r.ledger) {
+      totalWords += r.ledger.wordsWritten || 0;
+      totalSignals += r.ledger.signalsRead || 0;
+      totalHabits += r.ledger.habitsCompleted || 0;
+    }
+    for (const m of r.modulesVisited || []) {
+      moduleCount[m] = (moduleCount[m] || 0) + 1;
+    }
+  }
+
+  const validCoherence = recent.filter(r => r.coherencePercent >= 0);
+  const avgCoherence = validCoherence.length > 0
+    ? Math.round(validCoherence.reduce((s, r) => s + r.coherencePercent, 0) / validCoherence.length)
+    : -1;
+
+  const mostVisited = Object.entries(moduleCount)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 3)
+    .map(([m]) => m);
+
+  // Drift pattern from recentPatterns
+  const patterns = get(recentPatterns);
+  const driftPattern = patterns?.driftTrend || 'stable';
+
+  // Previous watcher entry
+  const previousWatcherEntry = history.watcherEntries.length > 0
+    ? history.watcherEntries[history.watcherEntries.length - 1]
+    : undefined;
+
+  return {
+    sessionCount: recent.length,
+    totalDurationMs,
+    vectorDistribution: vectorDist,
+    avgCoherence,
+    totalWordsWritten: totalWords,
+    totalSignalsRead: totalSignals,
+    totalHabitsCompleted: totalHabits,
+    mostVisitedModules: mostVisited,
+    driftPattern,
+    previousWatcherEntry,
+  };
+}
+
+/** Save a Watcher entry */
+export function saveWatcherEntry(question: string, response: string) {
+  sessionHistory.update(h => {
+    const entry: WatcherEntry = {
+      date: todayStr(),
+      sessionNumber: get(sessionMemory).totalSessions,
+      question,
+      response: response.slice(0, 280),
+    };
+    const entries = [...h.watcherEntries, entry];
+    if (entries.length > MAX_WATCHER_ENTRIES) entries.splice(0, entries.length - MAX_WATCHER_ENTRIES);
+    const updated = { ...h, watcherEntries: entries };
+    saveHistory(updated);
+    return updated;
+  });
+}
+
+/** Append a session record to history (called from saveSessionState) */
+export function appendSessionRecord(record: SessionRecord) {
+  sessionHistory.update(h => {
+    // Dedupe: don't add if same date + sessionIndex exists
+    const exists = h.records.some(r => r.date === record.date && r.sessionIndex === record.sessionIndex);
+    if (exists) {
+      // Update existing record
+      const records = h.records.map(r =>
+        r.date === record.date && r.sessionIndex === record.sessionIndex ? record : r
+      );
+      const updated = { ...h, records };
+      saveHistory(updated);
+      return updated;
+    }
+    const records = [...h.records, record];
+    if (records.length > MAX_HISTORY_RECORDS) records.splice(0, records.length - MAX_HISTORY_RECORDS);
+    const updated = { ...h, records };
+    saveHistory(updated);
+    return updated;
   });
 }
 
@@ -277,15 +574,21 @@ export const vectorModifiers = derived(sessionVector, ($vec): VectorModifiers =>
 export const driftModifiers = derived(coherenceState, ($cs) => {
   const dm = $cs.driftMinutes;
   if (dm < DRIFT_GRACE_MINUTES) {
-    return { brightnessReduction: 0, speedReduction: 0, shapePerturbation: 0, driftLevel: 0 as 0 | 1 | 2 | 3 };
+    return { brightnessReduction: 0, speedReduction: 0, shapePerturbation: 0, driftLevel: 0 as 0 | 1 | 2 | 3 | 4 | 5 };
   }
   if (dm < DRIFT_MILD_MINUTES) {
-    return { brightnessReduction: 0, speedReduction: 0, shapePerturbation: 0, driftLevel: 1 as 0 | 1 | 2 | 3 };
+    return { brightnessReduction: 0, speedReduction: 0, shapePerturbation: 0, driftLevel: 1 as 0 | 1 | 2 | 3 | 4 | 5 };
   }
   if (dm < DRIFT_MODERATE_MINUTES) {
-    return { brightnessReduction: 0.025, speedReduction: 0.15, shapePerturbation: 0.3, driftLevel: 2 as 0 | 1 | 2 | 3 };
+    return { brightnessReduction: 0.025, speedReduction: 0.15, shapePerturbation: 0.3, driftLevel: 2 as 0 | 1 | 2 | 3 | 4 | 5 };
   }
-  return { brightnessReduction: 0.025, speedReduction: 0.15, shapePerturbation: 0.3, driftLevel: 3 as 0 | 1 | 2 | 3 };
+  if (dm < DRIFT_SEVERE_MINUTES) {
+    return { brightnessReduction: 0.025, speedReduction: 0.15, shapePerturbation: 0.3, driftLevel: 3 as 0 | 1 | 2 | 3 | 4 | 5 };
+  }
+  if (dm < DRIFT_TERMINAL_MINUTES) {
+    return { brightnessReduction: 0.05, speedReduction: 0.25, shapePerturbation: 0.6, driftLevel: 4 as 0 | 1 | 2 | 3 | 4 | 5 };
+  }
+  return { brightnessReduction: 0.07, speedReduction: 0.35, shapePerturbation: 0.8, driftLevel: 5 as 0 | 1 | 2 | 3 | 4 | 5 };
 });
 
 export interface SealSummary {
@@ -395,8 +698,8 @@ export function updateCoherence(focusedModule: string | undefined) {
 
     // Skip store notification if drift level hasn't crossed a threshold boundary
     // This prevents driftModifiers derived store from cascading every second
-    const oldDriftLevel = cs.driftMinutes < DRIFT_GRACE_MINUTES ? 0 : cs.driftMinutes < DRIFT_MILD_MINUTES ? 1 : cs.driftMinutes < DRIFT_MODERATE_MINUTES ? 2 : 3;
-    const newDriftLevel = driftMinutes < DRIFT_GRACE_MINUTES ? 0 : driftMinutes < DRIFT_MILD_MINUTES ? 1 : driftMinutes < DRIFT_MODERATE_MINUTES ? 2 : 3;
+    const oldDriftLevel = cs.driftMinutes < DRIFT_GRACE_MINUTES ? 0 : cs.driftMinutes < DRIFT_MILD_MINUTES ? 1 : cs.driftMinutes < DRIFT_MODERATE_MINUTES ? 2 : cs.driftMinutes < DRIFT_SEVERE_MINUTES ? 3 : cs.driftMinutes < DRIFT_TERMINAL_MINUTES ? 4 : 5;
+    const newDriftLevel = driftMinutes < DRIFT_GRACE_MINUTES ? 0 : driftMinutes < DRIFT_MILD_MINUTES ? 1 : driftMinutes < DRIFT_MODERATE_MINUTES ? 2 : driftMinutes < DRIFT_SEVERE_MINUTES ? 3 : driftMinutes < DRIFT_TERMINAL_MINUTES ? 4 : 5;
     const ratioChanged = Math.abs(ratio - cs.ratio) > 0.01;
 
     if (!isFocused && oldDriftLevel === newDriftLevel && !ratioChanged) {
@@ -426,6 +729,7 @@ export function getCoherencePercent(): number {
 
 /** Initialize session tracking — call on mount */
 export function initSession() {
+  sessionPeakDrift = 0;
   const prev = loadSession();
   const now = Date.now();
   const today = todayStr();
@@ -452,6 +756,7 @@ export function initSession() {
     lastStreakDate: today,
     lastVector: prev.lastVector,
     lastCoherence: prev.lastCoherence,
+    lastLedger: prev.lastLedger || defaultLedger(),
   };
 
   sessionMemory.set(updated);
@@ -467,6 +772,9 @@ export function initSession() {
   } catch { /* quota */ }
 }
 
+/** Track peak drift for session records */
+let sessionPeakDrift = 0;
+
 /** Save current session state (call periodically and on unload) */
 export function saveSessionState(openWindowIds: string[], sessionStartTime: number) {
   const now = Date.now();
@@ -474,6 +782,12 @@ export function saveSessionState(openWindowIds: string[], sessionStartTime: numb
   const currentVector = get(sessionVector);
   const coherencePercent = getCoherencePercent();
   const ledger = get(sessionLedger);
+  const cs = get(coherenceState);
+
+  // Track peak drift
+  if (cs.driftMinutes > sessionPeakDrift) {
+    sessionPeakDrift = cs.driftMinutes;
+  }
 
   sessionMemory.update(s => {
     const updated = {
@@ -490,6 +804,30 @@ export function saveSessionState(openWindowIds: string[], sessionStartTime: numb
     } catch { /* quota */ }
     return updated;
   });
+
+  // Append to session history (only for sessions > 60 seconds)
+  if (duration > 60000) {
+    const today = todayStr();
+    const history = get(sessionHistory);
+    const todayRecords = history.records.filter(r => r.date === today);
+    const sessionIndex = todayRecords.length;
+
+    // Dedupe unique modules
+    const uniqueModules = ledger.modulesVisited
+      .filter((m, i, arr) => i === 0 || arr[i - 1] !== m)
+      .filter((m, i, arr) => arr.indexOf(m) === i);
+
+    appendSessionRecord({
+      date: today,
+      sessionIndex,
+      vector: currentVector,
+      durationMs: duration,
+      coherencePercent,
+      ledger: { ...ledger },
+      driftPeakMinutes: Math.round(sessionPeakDrift * 10) / 10,
+      modulesVisited: uniqueModules.slice(0, 20),
+    });
+  }
 }
 
 /** Update time of day (call on a 1-minute interval) */

@@ -7,7 +7,8 @@
       "Bash(wc -l /c/Users/Eric/website/ewluong.github.io/rebuild/src/components/*.svelte)",
       "Bash(grep -r backrooms /c/Users/Eric/website/ewluong.github.io/rebuild --include=*.ts --include=*.js --include=*.json --include=*.sh)",
       "Bash(grep -r transition: rebuild/src/components/*.svelte)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(node node_modules/.bin/astro build)"
     ]
   }
 }

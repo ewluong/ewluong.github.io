@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { sessionVector, vectorModifiers, driftModifiers, coherenceState, sessionLedger, type AmbientTextPool, type SessionLedger } from '../stores/temporal';
+  import { silenceActive } from '../stores/silence';
   import { get } from 'svelte/store';
 
   /**
@@ -35,6 +36,18 @@
     'THE GATE IS BEHIND YOU',
     'PASS THROUGH',
     'RETURN TO VECTOR',
+  ];
+
+  const DEEP_DRIFT_FRAGMENTS: string[] = [
+    'THE THRESHOLD IS PATIENT',
+    'YOU HAVE BEEN HERE AN HOUR',
+    'WHAT WERE YOU HERE FOR?',
+    'THE GATE DOES NOT CLOSE',
+    'REORIENT OR DEPART',
+    'THE CURRENT HAS CARRIED YOU',
+    'THIS IS NOT WHERE YOU SAID YOU WOULD BE',
+    'THE SYSTEM REMEMBERS YOUR WORD',
+    'DRIFT IS A CHOICE NOW',
   ];
 
   const COHERENCE_HIGH_FRAGMENTS = [
@@ -160,7 +173,7 @@
     if (cs.totalFocusedMs > 120000) {
       if (cs.ratio > 0.80) {
         candidates.push(...COHERENCE_HIGH_FRAGMENTS);
-      } else if (cs.ratio < 0.40 && cs.driftMinutes < 10) {
+      } else if (cs.ratio < 0.40) {
         candidates.push(...COHERENCE_LOW_FRAGMENTS);
       }
     }
@@ -172,12 +185,15 @@
   function getPooledFragment(pool: AmbientTextPool): string {
     const poolFrags = pools[pool] || pools['default'] || SYSTEM_FRAGMENTS;
 
-    // Priority 1: Drift injection (25% when drifting)
+    // Priority 1: Drift injection (escalating by drift level)
     const dm = currentDriftLevel;
-    if (dm >= 1 && Math.random() < 0.25) {
+    // Level 1-3: 25%, Level 4: 50%, Level 5: 75%
+    const driftChance = dm >= 5 ? 0.75 : dm >= 4 ? 0.50 : 0.25;
+    if (dm >= 1 && Math.random() < driftChance) {
       const vec = currentVector;
-      const driftPool = [...DRIFT_FRAGMENTS];
-      if (vec) driftPool.push(`VECTOR: ${vec}`);
+      // Deep drift uses more insistent fragments
+      const baseDriftPool = dm >= 4 ? [...DRIFT_FRAGMENTS, ...DEEP_DRIFT_FRAGMENTS] : [...DRIFT_FRAGMENTS];
+      if (vec) baseDriftPool.push(`VECTOR: ${vec}`);
 
       if (vec === 'WRITE') {
         try {
@@ -186,12 +202,12 @@
             const entries = JSON.parse(log);
             const today = new Date().toISOString().slice(0, 10);
             const hasToday = Array.isArray(entries) && entries.some((e: { date: string }) => e.date === today);
-            if (!hasToday) driftPool.push('THE LOG IS EMPTY');
+            if (!hasToday) baseDriftPool.push('THE LOG IS EMPTY');
           }
         } catch {}
       }
 
-      return driftPool[Math.floor(Math.random() * driftPool.length)];
+      return baseDriftPool[Math.floor(Math.random() * baseDriftPool.length)];
     }
 
     // Priority 2: Session echo (~20% when ledger has data)
@@ -242,6 +258,9 @@
     currentVector = v;
   });
 
+  let isSilent = false;
+  const unsubSilence = silenceActive.subscribe(v => { isSilent = v; });
+
   const MIN_OPACITY = 0.04;
   const MAX_OPACITY = 0.12;
 
@@ -278,14 +297,19 @@
       frag.x += frag.vx;
       frag.y += frag.vy;
 
-      frag.opacity += frag.opacityDir * frag.fadeSpeed;
-      if (frag.opacity >= MAX_OPACITY) {
-        frag.opacity = MAX_OPACITY;
-        frag.opacityDir = -1;
-      }
-      if (frag.opacity <= MIN_OPACITY) {
-        frag.opacity = MIN_OPACITY;
-        frag.opacityDir = 1;
+      if (isSilent) {
+        // During silence: fade all fragments toward 0
+        frag.opacity = Math.max(0, frag.opacity - 0.002);
+      } else {
+        frag.opacity += frag.opacityDir * frag.fadeSpeed;
+        if (frag.opacity >= MAX_OPACITY) {
+          frag.opacity = MAX_OPACITY;
+          frag.opacityDir = -1;
+        }
+        if (frag.opacity <= MIN_OPACITY) {
+          frag.opacity = MIN_OPACITY;
+          frag.opacityDir = 1;
+        }
       }
 
       // Direct DOM update — no Svelte re-render
@@ -299,7 +323,7 @@
   }
 
   function recycleRandom() {
-    if (fragments.length === 0) return;
+    if (fragments.length === 0 || isSilent) { scheduleRecycle(); return; }
     const idx = Math.floor(Math.random() * fragments.length);
     const frag = fragments[idx];
 
@@ -358,6 +382,7 @@
     unsubVec();
     unsubDrift();
     unsubVector();
+    unsubSilence();
     // Clean up DOM elements
     for (const frag of fragments) {
       if (frag.el && frag.el.parentNode) frag.el.parentNode.removeChild(frag.el);

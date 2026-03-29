@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { isAuthenticated, sessionKey } from '../stores/auth';
-  import { sessionVector, getTimeOfDay, coherenceState, sessionMemory } from '../stores/temporal';
+  import { sessionVector, getTimeOfDay, coherenceState, sessionMemory, recentPatterns, sessionHistory } from '../stores/temporal';
   import { focusedWindow } from '../stores/windows';
+  import { silenceActive } from '../stores/silence';
+  import { get } from 'svelte/store';
 
   export let scratchpadVisible = false;
 
@@ -29,7 +31,10 @@ Rules:
 - You may occasionally trail off with "..." as if falling back asleep.
 - Match the time of day — late night messages are drowsier, morning ones slightly more alert.
 - Never repeat a thought you've already said. Each murmur is unique.
-- When context mentions a focused window, you may reference what the operator is looking at — obliquely, as if half-noticing through closed eyes. Never name the window literally.`;
+- When context mentions a focused window, you may reference what the operator is looking at — obliquely, as if half-noticing through closed eyes. Never name the window literally.
+- If context mentions a watcher reflection, you may reference it obliquely — as if you half-remember something the operator once said to themselves.
+- If context mentions coherence trends, you may gently notice the direction without prescribing.
+- If context mentions the operator's usual vector differs from today, you may wonder about the change — sleepily, not critically.`;
 
   // --- State ---
   let currentMessage = '';
@@ -52,13 +57,28 @@ Rules:
   const MAX_HISTORY = 3;
   const CHAR_DELAY = 35;
 
-  $: active = $isAuthenticated && !isStopped;
+  $: active = $isAuthenticated && !isStopped && !$silenceActive;
 
-  // Start the cycle when active becomes true (handles login after mount)
+  // Start the cycle when active becomes true (handles login after mount or silence exit)
   $: if (active && !started && typeof window !== 'undefined') {
     started = true;
     const initialDelay = 3000 + Math.random() * 5000; // 3-8 seconds
     cycleTimeout = setTimeout(cycle, initialDelay);
+  }
+
+  // When entering silence: clear message and pause scheduling
+  $: if ($silenceActive && typeof window !== 'undefined') {
+    clearTimeout(cycleTimeout);
+    cancelAnimationFrame(typewriterRaf);
+    clearTimeout(flickerTimeout);
+    currentMessage = '';
+    isTyping = false;
+    isBreathing = false;
+  }
+
+  // When exiting silence: restart with a gentle delay (MURMUR wakes slowly)
+  $: if (!$silenceActive && $isAuthenticated && !isStopped && started && typeof window !== 'undefined') {
+    scheduleNext(10000 + Math.random() * 5000); // 10-15s delay
   }
 
   // --- Mode selection ---
@@ -141,6 +161,34 @@ Rules:
       lines.push(`coherence: ${coherence}%`);
       if (cs.driftMinutes >= 10) {
         lines.push(`drift: ${Math.round(cs.driftMinutes)} minutes off-vector`);
+      }
+    }
+
+    // Longitudinal patterns (from session history)
+    const patterns = get(recentPatterns);
+    if (patterns) {
+      const topVector = Object.entries(patterns.vectorDistribution)
+        .sort(([, a], [, b]) => b - a)[0];
+      if (topVector && topVector[0] !== $sessionVector && $sessionVector) {
+        lines.push(`usual vector: ${topVector[0]} — today: ${$sessionVector}`);
+      }
+
+      if (patterns.driftTrend === 'worsening') {
+        lines.push('coherence has been declining over recent sessions');
+      } else if (patterns.driftTrend === 'improving') {
+        lines.push('coherence has been improving');
+      }
+    }
+
+    // Watcher reference (if recent entry exists)
+    const history = get(sessionHistory);
+    if (history?.watcherEntries?.length > 0) {
+      const lastWatcher = history.watcherEntries[history.watcherEntries.length - 1];
+      if (lastWatcher.response) {
+        const daysSince = Math.floor((Date.now() - new Date(lastWatcher.date).getTime()) / 86400000);
+        if (daysSince <= 14) {
+          lines.push(`watcher reflection ${daysSince}d ago: "${lastWatcher.response.slice(0, 80)}"`);
+        }
       }
     }
 

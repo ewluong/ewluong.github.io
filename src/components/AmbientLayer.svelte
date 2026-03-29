@@ -1,12 +1,16 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { silenceActive } from '../stores/silence';
 
   let pinging = false;
   let pingTimeout: ReturnType<typeof setTimeout>;
 
+  $: isSilent = $silenceActive;
+
   function schedulePing() {
     const delay = 30000 + Math.random() * 30000; // 30-60s
     pingTimeout = setTimeout(() => {
+      if (isSilent) { schedulePing(); return; } // skip ping during silence
       pinging = true;
       setTimeout(() => {
         pinging = false;
@@ -25,7 +29,7 @@
 </script>
 
 <div class="ambient-layer">
-  <div class="grid-overlay" class:pinging></div>
+  <div class="grid-overlay" class:pinging class:silenced={isSilent}></div>
   <div class="vignette"></div>
 </div>
 
@@ -58,6 +62,11 @@
     mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.6) 20%, rgba(0,0,0,0.1) 70%, transparent 100%);
     -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.6) 20%, rgba(0,0,0,0.1) 70%, transparent 100%);
     transition: opacity 150ms;
+  }
+
+  .grid-overlay.silenced {
+    opacity: 0;
+    transition: opacity 3s var(--ease-out);
   }
 
   .grid-overlay.pinging {

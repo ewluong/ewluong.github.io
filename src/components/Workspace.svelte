@@ -5,7 +5,11 @@
   import { isPlaying, rmsLevel } from '../stores/audio';
   import { environmentMode, envModifiers } from '../stores/environment';
   import { fetchWeather } from '../lib/weatherService';
-  import { initSession, saveSessionState, updateTimeOfDay, temporalModifiers, vectorModifiers, driftModifiers, sealSession, buildSealSummary, updateCoherence, recordModuleVisit } from '../stores/temporal';
+  import { initSession, saveSessionState, updateTimeOfDay, temporalModifiers, vectorModifiers, driftModifiers, sealSession, buildSealSummary, updateCoherence, recordModuleVisit, updateLedger } from '../stores/temporal';
+  import { settleLiveMarks, resetLiveMarks } from '../stores/palimpsest';
+  import { sessionKey } from '../stores/auth';
+  import { silenceActive, toggleSilence, exitSilence } from '../stores/silence';
+  import { playDriftPulse } from '../lib/uiSounds';
   import type { SealSummary } from '../stores/temporal';
   import CanvasBackground from './CanvasBackground.svelte';
   import AmbientLayer from './AmbientLayer.svelte';
@@ -62,6 +66,7 @@
   let sessionStart = Date.now();
   let lastRecordedModule = '';
   let lastEnvMode = '';
+  let lastDriftLevel = 0;
   let weatherInterval: ReturnType<typeof setInterval>;
   let timeInterval: ReturnType<typeof setInterval>;
   let sessionInterval: ReturnType<typeof setInterval>;
@@ -194,10 +199,10 @@
       title: 'Operator Log',
       module: 'daily-log',
       designation: 'LOG.001',
-      x: centerX - 80,
-      y: centerY + 20,
-      width: 560,
-      height: 480,
+      x: centerX - 100,
+      y: centerY - 20,
+      width: 680,
+      height: 560,
       isOpen: false,
       isMinimized: false,
     });
@@ -279,7 +284,10 @@
       saveSessionState(openIds, sessionStart);
     }, 30000);
 
-    // Coherence tracking every second
+    // Reset live palimpsest marks for new session
+    resetLiveMarks();
+
+    // Coherence tracking every second + drift pulse + silence time
     coherenceInterval = setInterval(() => {
       const fw = $focusedWindow;
       updateCoherence(fw?.module);
@@ -287,6 +295,18 @@
       if (fw?.module && fw.module !== lastRecordedModule) {
         lastRecordedModule = fw.module;
         recordModuleVisit(fw.module);
+      }
+
+      // Drift pulse: play sub-bass when crossing from level 3 to 4
+      const currentDL = $driftModifiers.driftLevel;
+      if (currentDL >= 4 && lastDriftLevel < 4) {
+        playDriftPulse();
+      }
+      lastDriftLevel = currentDL;
+
+      // Silence time accumulation — write to ledger
+      if ($silenceActive) {
+        updateLedger('silenceMs', 1000);
       }
     }, 1000);
 
@@ -298,6 +318,7 @@
     const handleUnload = () => {
       const openIds = $windowStore.filter(w => w.isOpen && !w.isMinimized).map(w => w.id);
       saveSessionState(openIds, sessionStart);
+      settleLiveMarks(Date.now() - sessionStart);
     };
     window.addEventListener('beforeunload', handleUnload);
 
@@ -324,7 +345,27 @@
     clearInterval(coherenceInterval);
   });
 
+  function handleWorkspaceClick(e: MouseEvent) {
+    // Click-to-exit silence: only on the workspace background itself
+    if ($silenceActive && e.target === e.currentTarget) {
+      exitSilence();
+    }
+  }
+
   function handleKeydown(e: KeyboardEvent) {
+    // Silence toggle: Ctrl+0
+    if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+      e.preventDefault();
+      toggleSilence();
+      return;
+    }
+
+    // Escape exits silence
+    if (e.key === 'Escape' && $silenceActive) {
+      exitSilence();
+      return;
+    }
+
     // Command palette: / key (when not typing in an input)
     if (e.key === '/' && !paletteVisible) {
       const tag = (e.target as HTMLElement)?.tagName;
@@ -378,8 +419,15 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 {#if visible}
-  <div class="workspace" style="filter: brightness({combinedBrightness})">
+  <div
+    class="workspace"
+    class:silence={$silenceActive}
+    style="filter: brightness({combinedBrightness})"
+    on:click={handleWorkspaceClick}
+  >
     <CanvasBackground />
     <AmbientLayer />
     <AmbientText
@@ -498,9 +546,10 @@
       }}
       onStatus={() => { showMorningConsole = true; }}
       onReorient={() => { /* drift already reset by CommandPalette */ }}
+      onSilence={() => { toggleSilence(); }}
     />
     {#if sealSummary}
-      <EveningConsole summary={sealSummary} onDismiss={() => { sealSummary = null; }} />
+      <EveningConsole summary={sealSummary} onDismiss={() => { sealSummary = null; }} sessionKey={$sessionKey} />
     {/if}
     <Screensaver />
   </div>
@@ -512,5 +561,12 @@
     inset: 0;
     overflow: hidden;
     transition: filter var(--transition-slow) var(--ease-out);
+  }
+
+  /* During silence: ghost all windows */
+  .workspace.silence :global(.window) {
+    opacity: 0.04 !important;
+    pointer-events: none !important;
+    transition: opacity 3s var(--ease-out) !important;
   }
 </style>

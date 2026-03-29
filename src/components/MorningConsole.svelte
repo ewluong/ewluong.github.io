@@ -1,15 +1,22 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { sessionMemory, getTimeGreeting, formatTimeSince, formatDurationShort, sessionVector, VECTOR_AUTO_OPEN, type SessionVector } from '../stores/temporal';
+  import { sessionMemory, getTimeGreeting, formatTimeSince, formatDurationShort, sessionVector, VECTOR_AUTO_OPEN, type SessionVector, shouldShowWatcher, getWatcherQuestion, getWatcherSummary, saveWatcherEntry, type WatcherSummary } from '../stores/temporal';
   import { windowStore } from '../stores/windows';
+  import { playWatcher } from '../lib/uiSounds';
 
   export let blogEntries: Array<{ slug: string; title: string }> = [];
   export let onDismiss: () => void = () => {};
 
   let visible = false;
   let dismissed = false;
-  let phase: 'question' | 'briefing' = 'question';
+  let phase: 'watcher' | 'question' | 'briefing' = 'question';
   let selectedVector: SessionVector = '';
+
+  // Watcher state
+  let watcherQuestion = '';
+  let watcherSummary: WatcherSummary | null = null;
+  let watcherResponse = '';
+  const WATCHER_MAX_CHARS = 280;
 
   // Time data
   $: greeting = getTimeGreeting();
@@ -219,7 +226,43 @@
     return parts.join(' / ');
   }
 
+  function submitWatcher() {
+    if (watcherResponse.trim()) {
+      saveWatcherEntry(watcherQuestion, watcherResponse.trim());
+    }
+    phase = 'question';
+  }
+
+  function dismissWatcher() {
+    phase = 'question';
+  }
+
+  // Format duration for watcher display
+  function formatWatcherDuration(ms: number): string {
+    const hours = Math.floor(ms / 3600000);
+    const mins = Math.floor((ms % 3600000) / 60000);
+    if (hours > 0) return `${hours}h ${mins}m`;
+    return `${mins}m`;
+  }
+
+  // Build vector distribution bar for watcher
+  function vectorBar(dist: Record<string, number>): Array<{ label: string; pct: number }> {
+    const total = Object.values(dist).reduce((s, v) => s + v, 0);
+    if (total === 0) return [];
+    return Object.entries(dist)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
+      .map(([label, ms]) => ({ label, pct: Math.round((ms / total) * 100) }));
+  }
+
   onMount(() => {
+    // Check if Watcher should appear
+    if (shouldShowWatcher()) {
+      phase = 'watcher';
+      watcherQuestion = getWatcherQuestion();
+      watcherSummary = getWatcherSummary();
+      playWatcher();
+    }
     setTimeout(() => { visible = true; }, 100);
   });
 </script>
@@ -253,7 +296,75 @@
 
     <div class="console-divider"></div>
 
-    {#if phase === 'question'}
+    {#if phase === 'watcher'}
+      <!-- Phase 0: The Watcher -->
+      <div class="watcher-section">
+        <div class="watcher-title">THE WATCHER</div>
+
+        {#if watcherSummary}
+          <div class="watcher-summary">
+            <div class="watcher-stat">
+              {watcherSummary.sessionCount} SESSIONS / {formatWatcherDuration(watcherSummary.totalDurationMs)} TOTAL
+            </div>
+
+            {#if vectorBar(watcherSummary.vectorDistribution).length > 0}
+              <div class="watcher-vectors">
+                {#each vectorBar(watcherSummary.vectorDistribution) as v}
+                  <span class="watcher-vector-item">
+                    {v.label}
+                    <span class="watcher-bar">{'█'.repeat(Math.max(1, Math.round(v.pct / 15)))}</span>
+                    {v.pct}%
+                  </span>
+                {/each}
+              </div>
+            {/if}
+
+            {#if watcherSummary.avgCoherence >= 0}
+              <div class="watcher-stat">
+                COHERENCE: {watcherSummary.avgCoherence}% AVG
+                {#if watcherSummary.driftPattern === 'improving'}
+                  <span class="watcher-trend up">↑</span>
+                {:else if watcherSummary.driftPattern === 'worsening'}
+                  <span class="watcher-trend down">↓</span>
+                {/if}
+              </div>
+            {/if}
+
+            {#if watcherSummary.mostVisitedModules.length > 0}
+              <div class="watcher-stat">
+                MOST VISITED: {watcherSummary.mostVisitedModules.map(m => m.replace(/-/g, ' ').toUpperCase()).join(', ')}
+              </div>
+            {/if}
+          </div>
+
+          {#if watcherSummary.previousWatcherEntry}
+            <div class="watcher-previous">
+              <div class="watcher-prev-label">LAST RESPONSE ({Math.floor((Date.now() - new Date(watcherSummary.previousWatcherEntry.date).getTime()) / 86400000)}d ago):</div>
+              <div class="watcher-prev-text">"{watcherSummary.previousWatcherEntry.response}"</div>
+            </div>
+          {/if}
+        {/if}
+
+        <div class="console-divider"></div>
+
+        <div class="watcher-question">"{watcherQuestion}"</div>
+
+        <textarea
+          class="watcher-input"
+          bind:value={watcherResponse}
+          maxlength={WATCHER_MAX_CHARS}
+          placeholder="..."
+          rows="3"
+        ></textarea>
+        <div class="watcher-charcount">{watcherResponse.length}/{WATCHER_MAX_CHARS}</div>
+
+        <div class="watcher-actions">
+          <button class="watcher-submit" on:click={submitWatcher}>SUBMIT</button>
+          <button class="watcher-dismiss" on:click={dismissWatcher}>DISMISS</button>
+        </div>
+      </div>
+
+    {:else if phase === 'question'}
       <!-- Phase 1: The Question -->
       <div class="vector-section">
         <div class="vector-prompt">WHAT ARE YOU HERE FOR?</div>
@@ -549,5 +660,164 @@
     color: var(--text-dim);
     font-style: italic;
     letter-spacing: 0.06em;
+  }
+
+  /* --- Watcher Phase --- */
+  .watcher-section {
+    animation: briefingIn 500ms var(--ease-out) forwards;
+  }
+
+  .watcher-title {
+    font-size: var(--text-xs);
+    color: var(--accent-dim);
+    letter-spacing: 0.2em;
+    text-align: center;
+    margin-bottom: var(--space-5);
+    animation: flicker 6s linear infinite;
+  }
+
+  .watcher-summary {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  .watcher-stat {
+    font-size: var(--text-xs);
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    text-align: center;
+  }
+
+  .watcher-vectors {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  .watcher-vector-item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1);
+  }
+
+  .watcher-bar {
+    color: var(--accent-dim);
+    font-size: 10px;
+    letter-spacing: -0.05em;
+  }
+
+  .watcher-trend {
+    margin-left: var(--space-1);
+    font-weight: bold;
+  }
+
+  .watcher-trend.up { color: var(--accent); }
+  .watcher-trend.down { color: var(--text-dim); opacity: 0.6; }
+
+  .watcher-previous {
+    margin: var(--space-3) 0;
+    padding: var(--space-2) var(--space-3);
+    border-left: 1px solid var(--border);
+    opacity: 0.5;
+  }
+
+  .watcher-prev-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-bottom: var(--space-1);
+  }
+
+  .watcher-prev-text {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .watcher-question {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    font-style: italic;
+    text-align: center;
+    margin: var(--space-5) 0 var(--space-4);
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+  }
+
+  .watcher-input {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-family: var(--font-system);
+    font-size: var(--text-xs);
+    padding: var(--space-3);
+    resize: none;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    transition: border-color var(--transition-fast);
+  }
+
+  .watcher-input:focus {
+    outline: none;
+    border-color: var(--accent-dim);
+  }
+
+  .watcher-input::placeholder {
+    color: var(--text-dim);
+    opacity: 0.4;
+  }
+
+  .watcher-charcount {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: right;
+    margin-top: var(--space-1);
+    opacity: 0.5;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .watcher-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+
+  .watcher-submit,
+  .watcher-dismiss {
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    padding: var(--space-2) var(--space-4);
+    transition: all var(--transition-fast);
+  }
+
+  .watcher-submit {
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    background: transparent;
+  }
+
+  .watcher-submit:hover {
+    background: rgba(212, 160, 68, 0.08);
+    text-shadow: 0 0 8px var(--accent-glow);
+  }
+
+  .watcher-dismiss {
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    background: transparent;
+    opacity: 0.5;
+  }
+
+  .watcher-dismiss:hover {
+    opacity: 0.8;
+    color: var(--text-secondary);
   }
 </style>

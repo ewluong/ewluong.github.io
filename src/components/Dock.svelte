@@ -1,7 +1,8 @@
 <script lang="ts">
   import { windowStore, focusedWindow } from '../stores/windows';
   import { theme } from '../stores/theme';
-  import { sessionVector, VECTOR_MODULES } from '../stores/temporal';
+  import { sessionVector, VECTOR_MODULES, driftModifiers } from '../stores/temporal';
+  import { silenceActive } from '../stores/silence';
 
   interface DockItem {
     id: string;
@@ -40,6 +41,7 @@
   // Which modules the current vector emphasizes
   $: vectorModules = new Set(VECTOR_MODULES[$sessionVector] || []);
   $: hasVector = $sessionVector !== '';
+  $: deepDrift = $driftModifiers.driftLevel >= 4;
 
   function handleClick(id: string) {
     windowStore.toggle(id);
@@ -50,7 +52,7 @@
   }
 </script>
 
-<nav class="dock" role="navigation" aria-label="System dock">
+<nav class="dock" class:silence={$silenceActive} role="navigation" aria-label="System dock">
   <div class="dock-header">
     <span class="dock-system-label">ewluong.os</span>
     {#if $sessionVector}
@@ -68,6 +70,8 @@
         class:focused={focusedId === item.id}
         class:vector-emphasis={hasVector && vectorModules.has(item.id)}
         class:vector-dim={hasVector && !vectorModules.has(item.id)}
+        class:drift-severe={deepDrift && hasVector && !vectorModules.has(item.id)}
+        class:drift-return={deepDrift && hasVector && vectorModules.has(item.id)}
         on:click={() => handleClick(item.id)}
         title={item.label}
       >
@@ -90,6 +94,8 @@
         class:focused={focusedId === item.id}
         class:vector-emphasis={hasVector && vectorModules.has(item.id)}
         class:vector-dim={hasVector && !vectorModules.has(item.id)}
+        class:drift-severe={deepDrift && hasVector && !vectorModules.has(item.id)}
+        class:drift-return={deepDrift && hasVector && vectorModules.has(item.id)}
         on:click={() => handleClick(item.id)}
         title={item.label}
       >
@@ -112,6 +118,8 @@
         class:focused={focusedId === item.id}
         class:vector-emphasis={hasVector && vectorModules.has(item.id)}
         class:vector-dim={hasVector && !vectorModules.has(item.id)}
+        class:drift-severe={deepDrift && hasVector && !vectorModules.has(item.id)}
+        class:drift-return={deepDrift && hasVector && vectorModules.has(item.id)}
         on:click={() => handleClick(item.id)}
         title={item.label}
       >
@@ -159,6 +167,18 @@
     flex-direction: column;
     background: var(--bg-secondary);
     border-right: 1px solid var(--border);
+    transition: opacity 3s var(--ease-out), background 3s var(--ease-out), border-color 3s var(--ease-out);
+  }
+
+  .dock.silence {
+    opacity: 0.08;
+    background: transparent;
+    border-right-color: transparent;
+  }
+
+  .dock.silence:hover {
+    opacity: 0.4;
+    transition: opacity 0.3s var(--ease-out);
   }
 
   .dock-header {
@@ -250,6 +270,25 @@
 
   .dock-item.vector-dim:not(.active):hover {
     opacity: 0.8;
+  }
+
+  /* Deep drift: non-aligned items nearly invisible */
+  .dock-item.drift-severe:not(.active) {
+    opacity: 0.2;
+  }
+
+  .dock-item.drift-severe:not(.active):hover {
+    opacity: 0.5;
+  }
+
+  /* Deep drift: aligned items pulse gently, encouraging return */
+  .dock-item.drift-return {
+    animation: driftReturnPulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes driftReturnPulse {
+    0%, 100% { opacity: 0.85; }
+    50% { opacity: 1; border-left-color: var(--accent-dim); }
   }
 
   .dock-item:hover {

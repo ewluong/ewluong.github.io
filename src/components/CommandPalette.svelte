@@ -10,6 +10,7 @@
   export let onSeal: (() => void) | undefined = undefined;
   export let onStatus: (() => void) | undefined = undefined;
   export let onReorient: (() => void) | undefined = undefined;
+  export let onSilence: (() => void) | undefined = undefined;
 
   const dispatch = createEventDispatcher();
   let inputEl: HTMLInputElement;
@@ -82,6 +83,14 @@
       label: 'Reorient',
       category: 'THRESHOLD',
       action: () => { resetDrift(); onReorient?.(); close(); },
+    });
+
+    // Silence mode
+    cmds.push({
+      id: 'silence',
+      label: 'Enter Silence',
+      category: 'THRESHOLD',
+      action: () => { onSilence?.(); close(); },
     });
 
     return cmds;
