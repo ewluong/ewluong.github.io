@@ -199,10 +199,11 @@
       title: 'Operator Log',
       module: 'daily-log',
       designation: 'LOG.001',
-      x: centerX - 100,
-      y: centerY - 20,
-      width: 680,
-      height: 560,
+      forceSize: true,
+      x: dockWidth + 6,
+      y: 40,
+      width: Math.floor((window.innerWidth - dockWidth) / 2),
+      height: window.innerHeight - 44,
       isOpen: false,
       isMinimized: false,
     });
@@ -278,8 +279,9 @@
     updateTimeOfDay();
     timeInterval = setInterval(updateTimeOfDay, 60000); // check every minute
 
-    // Save session state every 30 seconds
+    // Save session state every 30 seconds (skip during morning console)
     sessionInterval = setInterval(() => {
+      if (showMorningConsole) return;
       const openIds = $windowStore.filter(w => w.isOpen && !w.isMinimized).map(w => w.id);
       saveSessionState(openIds, sessionStart);
     }, 30000);
@@ -287,8 +289,9 @@
     // Reset live palimpsest marks for new session
     resetLiveMarks();
 
-    // Coherence tracking every second + drift pulse + silence time
+    // Coherence tracking every second + drift pulse + silence time (skip during morning console)
     coherenceInterval = setInterval(() => {
+      if (showMorningConsole) return;
       const fw = $focusedWindow;
       updateCoherence(fw?.module);
       // Only record module visit when module actually changes
@@ -310,9 +313,11 @@
       }
     }, 1000);
 
-    // Initialize weather fetch + 30-min refresh
-    fetchWeather();
-    weatherInterval = setInterval(fetchWeather, 30 * 60 * 1000);
+    // Defer weather fetch until after morning console (not needed during overlay)
+    setTimeout(() => {
+      fetchWeather();
+      weatherInterval = setInterval(fetchWeather, 30 * 60 * 1000);
+    }, 5000);
 
     // Save session on page unload
     const handleUnload = () => {
@@ -428,130 +433,100 @@
     style="filter: brightness({combinedBrightness})"
     on:click={handleWorkspaceClick}
   >
-    <CanvasBackground />
-    <AmbientLayer />
-    <AmbientText
-      essayTitles={blogEntries.map(e => e.title)}
-      projectTitles={projectEntries.map(e => e.title)}
-    />
+    <!-- Lightweight shell: always mounted for structure -->
     <StatusBar />
+    <Dock />
 
     {#if showMorningConsole}
       <MorningConsole
         {blogEntries}
         onDismiss={() => { showMorningConsole = false; }}
       />
+    {:else}
+      <!-- Heavy components: mount AFTER morning console dismisses -->
+      <CanvasBackground />
+      <AmbientLayer />
+      <AmbientText
+        essayTitles={blogEntries.map(e => e.title)}
+        projectTitles={projectEntries.map(e => e.title)}
+      />
+
+      {#each $windowStore as win (win.id)}
+        <Window {win}>
+          {#if win.module === 'blog-list'}
+            <BlogList entries={blogEntries} />
+          {:else if win.module === 'essay'}
+            <EssayReader
+              slug={win.data?.slug?.toString() ?? ''}
+              title={win.title}
+            />
+          {:else if win.module === 'project-list'}
+            <ProjectList entries={projectEntries} />
+          {:else if win.module === 'project-detail'}
+            {@const proj = projectEntries.find(p => p.slug === win.data?.slug)}
+            <ProjectDetail
+              slug={win.data?.slug?.toString() ?? ''}
+              title={win.title}
+              type={proj?.type ?? 'paper'}
+              tech={proj?.tech ?? []}
+              github={proj?.github ?? ''}
+              link={proj?.link ?? ''}
+              dataFile={proj?.dataFile ?? ''}
+            />
+          {:else if win.module === 'music-player'}
+            <MusicPlayer />
+          {:else if win.module === 'backrooms-detail'}
+            <Backrooms />
+          {:else if win.module === 'system-info'}
+            <SystemInfo />
+          {:else if win.module === 'quick-links'}
+            <QuickLinks />
+          {:else if win.module === 'crypto-ticker'}
+            <CryptoTicker />
+          {:else if win.module === 'daily-log'}
+            <DailyLog />
+          {:else if win.module === 'life-counters'}
+            <LifeCounters />
+          {:else if win.module === 'chat'}
+            <ChatWindow />
+          {:else if win.module === 'habit-tracker'}
+            <HabitTracker />
+          {:else if win.module === 'tarot'}
+            <TarotOracle />
+          {:else if win.module === 'signal-intercept'}
+            <SignalIntercept />
+          {:else if win.module === 'login'}
+            <LoginPanel />
+          {:else}
+            <p style="color: var(--text-dim)">Module not found: {win.module}</p>
+          {/if}
+        </Window>
+      {/each}
+
+      <AmbientNudge scratchpadVisible={scratchpadVisible} />
+      <Scratchpad bind:visible={scratchpadVisible} />
+      <CommandPalette
+        visible={paletteVisible}
+        on:close={() => paletteVisible = false}
+        onSeal={() => {
+          const openIds = $windowStore.filter(w => w.isOpen && !w.isMinimized).map(w => w.id);
+          saveSessionState(openIds, sessionStart);
+          const summary = buildSealSummary(sessionStart);
+          if (summary.sessionMs < 300000) {
+            sealSession(sessionStart);
+          } else {
+            sealSummary = summary;
+          }
+        }}
+        onStatus={() => { showMorningConsole = true; }}
+        onReorient={() => { /* drift already reset by CommandPalette */ }}
+        onSilence={() => { toggleSilence(); }}
+      />
+      {#if sealSummary}
+        <EveningConsole summary={sealSummary} onDismiss={() => { sealSummary = null; }} sessionKey={$sessionKey} />
+      {/if}
+      <Screensaver />
     {/if}
-
-    {#each $windowStore as win (win.id)}
-      <Window {win}>
-        <!-- Blog list -->
-        {#if win.module === 'blog-list'}
-          <BlogList entries={blogEntries} />
-
-        <!-- Individual essay reader -->
-        {:else if win.module === 'essay'}
-          <EssayReader
-            slug={win.data?.slug?.toString() ?? ''}
-            title={win.title}
-          />
-
-        <!-- Project list -->
-        {:else if win.module === 'project-list'}
-          <ProjectList entries={projectEntries} />
-
-        <!-- Individual project detail -->
-        {:else if win.module === 'project-detail'}
-          {@const proj = projectEntries.find(p => p.slug === win.data?.slug)}
-          <ProjectDetail
-            slug={win.data?.slug?.toString() ?? ''}
-            title={win.title}
-            type={proj?.type ?? 'paper'}
-            tech={proj?.tech ?? []}
-            github={proj?.github ?? ''}
-            link={proj?.link ?? ''}
-            dataFile={proj?.dataFile ?? ''}
-          />
-
-        <!-- Music player -->
-        {:else if win.module === 'music-player'}
-          <MusicPlayer />
-
-        <!-- Backrooms (opened from Projects) -->
-        {:else if win.module === 'backrooms-detail'}
-          <Backrooms />
-
-        <!-- System Info -->
-        {:else if win.module === 'system-info'}
-          <SystemInfo />
-
-        <!-- Quick Links -->
-        {:else if win.module === 'quick-links'}
-          <QuickLinks />
-
-        <!-- Crypto Ticker -->
-        {:else if win.module === 'crypto-ticker'}
-          <CryptoTicker />
-
-        <!-- Daily Log -->
-        {:else if win.module === 'daily-log'}
-          <DailyLog />
-
-        <!-- Life Counters -->
-        {:else if win.module === 'life-counters'}
-          <LifeCounters />
-
-        <!-- MAGI Chat -->
-        {:else if win.module === 'chat'}
-          <ChatWindow />
-
-        <!-- Habit Tracker -->
-        {:else if win.module === 'habit-tracker'}
-          <HabitTracker />
-
-        <!-- Daily Word -->
-        {:else if win.module === 'tarot'}
-          <TarotOracle />
-
-        <!-- Signal Intercept -->
-        {:else if win.module === 'signal-intercept'}
-          <SignalIntercept />
-
-        <!-- Login / Access Terminal -->
-        {:else if win.module === 'login'}
-          <LoginPanel />
-
-        {:else}
-          <p style="color: var(--text-dim)">Module not found: {win.module}</p>
-        {/if}
-      </Window>
-    {/each}
-
-    <Dock />
-    <AmbientNudge scratchpadVisible={scratchpadVisible} />
-    <Scratchpad bind:visible={scratchpadVisible} />
-    <CommandPalette
-      visible={paletteVisible}
-      on:close={() => paletteVisible = false}
-      onSeal={() => {
-        const openIds = $windowStore.filter(w => w.isOpen && !w.isMinimized).map(w => w.id);
-        saveSessionState(openIds, sessionStart);
-        const summary = buildSealSummary(sessionStart);
-        // Short sessions (<5min) get the quick status bar seal; longer ones get the evening console
-        if (summary.sessionMs < 300000) {
-          sealSession(sessionStart);
-        } else {
-          sealSummary = summary;
-        }
-      }}
-      onStatus={() => { showMorningConsole = true; }}
-      onReorient={() => { /* drift already reset by CommandPalette */ }}
-      onSilence={() => { toggleSilence(); }}
-    />
-    {#if sealSummary}
-      <EveningConsole summary={sealSummary} onDismiss={() => { sealSummary = null; }} sessionKey={$sessionKey} />
-    {/if}
-    <Screensaver />
   </div>
 {/if}
 

@@ -85,12 +85,15 @@ export const liveMarks = writable<LiveMark[]>([]);
 
 type MarkQuality = 'clean' | 'normal' | 'scattered';
 
-function getCoherenceQuality(): MarkQuality {
+// Cached coherence quality — refreshed by ledger debounce, not per emitter
+let cachedQuality: MarkQuality = 'normal';
+
+function refreshCoherenceQuality() {
   const cs = get(coherenceState);
-  if (cs.totalFocusedMs < 60000) return 'normal';
-  if (cs.ratio > 0.75) return 'clean';
-  if (cs.ratio < 0.40) return 'scattered';
-  return 'normal';
+  if (cs.totalFocusedMs < 60000) { cachedQuality = 'normal'; return; }
+  if (cs.ratio > 0.75) { cachedQuality = 'clean'; return; }
+  if (cs.ratio < 0.40) { cachedQuality = 'scattered'; return; }
+  cachedQuality = 'normal';
 }
 
 // --- Word mark Y progression (fills page-like) ---
@@ -105,16 +108,32 @@ export function resetLiveMarks() {
 
 // --- Pulse emitters (one per activity type) ---
 
+// Batch live marks: collect during a frame, flush once via microtask
+let pendingMarks: LiveMark[] = [];
+let flushScheduled = false;
+
 function addLiveMark(mark: PalimpsestMark) {
+  pendingMarks.push({ ...mark, birthFrame: currentFrame });
+  if (!flushScheduled) {
+    flushScheduled = true;
+    queueMicrotask(flushPendingMarks);
+  }
+}
+
+function flushPendingMarks() {
+  flushScheduled = false;
+  if (pendingMarks.length === 0) return;
+  const batch = pendingMarks;
+  pendingMarks = [];
   liveMarks.update(marks => {
-    const next = [...marks, { ...mark, birthFrame: currentFrame }];
-    // Cap to prevent unbounded growth
-    return next.length > MAX_LIVE_MARKS ? next.slice(-MAX_LIVE_MARKS) : next;
+    // Push in place instead of spreading
+    const combined = marks.concat(batch);
+    return combined.length > MAX_LIVE_MARKS ? combined.slice(-MAX_LIVE_MARKS) : combined;
   });
 }
 
 function emitWordPulse(count: number) {
-  const quality = getCoherenceQuality();
+  const quality = cachedQuality;
   const markCount = Math.min(3, Math.ceil(count / 20));
 
   for (let i = 0; i < markCount; i++) {
@@ -132,7 +151,7 @@ function emitWordPulse(count: number) {
 }
 
 function emitSignalPulse() {
-  const quality = getCoherenceQuality();
+  const quality = cachedQuality;
   const spread = quality === 'clean' ? 0.3 : quality === 'scattered' ? 0.7 : 0.5;
   const cx = quality === 'clean' ? 0.5 : 0.15 + Math.random() * 0.7;
   const cy = quality === 'clean' ? 0.5 : 0.15 + Math.random() * 0.7;
@@ -157,7 +176,7 @@ function emitHabitPulse() {
 }
 
 function emitChatPulse() {
-  const quality = getCoherenceQuality();
+  const quality = cachedQuality;
   const baseX = quality === 'scattered' ? 0.2 + Math.random() * 0.6 : 0.55 + Math.random() * 0.25;
 
   addLiveMark({
@@ -185,35 +204,45 @@ function defaultSnapshot(): SessionLedger {
 
 let lastLedgerSnapshot: SessionLedger = defaultSnapshot();
 let ledgerSubInitialized = false;
+let ledgerDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+let latestLedger: SessionLedger = defaultSnapshot();
 
 if (typeof window !== 'undefined') {
   sessionLedger.subscribe(ledger => {
-    // Skip the initial subscription call (store initialization)
     if (!ledgerSubInitialized) {
       lastLedgerSnapshot = { ...ledger };
+      latestLedger = ledger;
       ledgerSubInitialized = true;
       return;
     }
 
-    // Don't emit marks during silence
-    if (get(silenceActive)) {
-      lastLedgerSnapshot = { ...ledger };
-      return;
-    }
+    // Store latest but debounce processing (600ms) to avoid per-keystroke cascades
+    latestLedger = ledger;
+    if (ledgerDebounceTimer) return;
+    ledgerDebounceTimer = setTimeout(() => {
+      ledgerDebounceTimer = null;
+      const l = latestLedger;
+      refreshCoherenceQuality();
 
-    const wordDelta = ledger.wordsWritten - lastLedgerSnapshot.wordsWritten;
-    const signalDelta = ledger.signalsRead - lastLedgerSnapshot.signalsRead;
-    const habitDelta = ledger.habitsCompleted - lastLedgerSnapshot.habitsCompleted;
-    const chatDelta = ledger.chatMessages - lastLedgerSnapshot.chatMessages;
-    const scratchDelta = ledger.scratchpadChars - lastLedgerSnapshot.scratchpadChars;
+      if (get(silenceActive)) {
+        lastLedgerSnapshot = { ...l };
+        return;
+      }
 
-    if (wordDelta > 0) emitWordPulse(wordDelta);
-    if (signalDelta > 0) emitSignalPulse();
-    if (habitDelta > 0) emitHabitPulse();
-    if (chatDelta > 0) emitChatPulse();
-    if (scratchDelta > 0) emitScratchPulse();
+      const wordDelta = l.wordsWritten - lastLedgerSnapshot.wordsWritten;
+      const signalDelta = l.signalsRead - lastLedgerSnapshot.signalsRead;
+      const habitDelta = l.habitsCompleted - lastLedgerSnapshot.habitsCompleted;
+      const chatDelta = l.chatMessages - lastLedgerSnapshot.chatMessages;
+      const scratchDelta = l.scratchpadChars - lastLedgerSnapshot.scratchpadChars;
 
-    lastLedgerSnapshot = { ...ledger };
+      if (wordDelta > 0) emitWordPulse(wordDelta);
+      if (signalDelta > 0) emitSignalPulse();
+      if (habitDelta > 0) emitHabitPulse();
+      if (chatDelta > 0) emitChatPulse();
+      if (scratchDelta > 0) emitScratchPulse();
+
+      lastLedgerSnapshot = { ...l };
+    }, 600);
   });
 }
 

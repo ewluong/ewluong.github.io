@@ -284,9 +284,9 @@
     const el = document.createElement('span');
     el.className = 'ambient-fragment';
     el.textContent = getPooledFragment(currentPool);
-    el.style.left = pos.x + 'px';
-    el.style.top = pos.y + 'px';
+    el.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
     el.style.opacity = '0';
+    el.style.willChange = 'transform, opacity';
     return { text: el.textContent, ...pos, opacity: 0, opacityDir: 1, fadeSpeed: 0.003 + Math.random() * 0.004, el };
   }
 
@@ -312,10 +312,9 @@
         }
       }
 
-      // Direct DOM update — no Svelte re-render
+      // Direct DOM update — use transform for GPU compositing (avoids layout thrash)
       if (frag.el) {
-        frag.el.style.left = frag.x + 'px';
-        frag.el.style.top = frag.y + 'px';
+        frag.el.style.transform = `translate(${frag.x}px, ${frag.y}px)`;
         frag.el.style.opacity = String(frag.opacity);
       }
     }
@@ -339,8 +338,7 @@
 
     if (frag.el) {
       frag.el.textContent = frag.text;
-      frag.el.style.left = pos.x + 'px';
-      frag.el.style.top = pos.y + 'px';
+      frag.el.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
       frag.el.style.opacity = '0';
     }
 

@@ -24,6 +24,7 @@
   let searchQuery = '';
   let searchInputEl: HTMLInputElement;
   let focusMode = false;
+  let contentDirty = false;
   let saveState: 'idle' | 'saving' | 'saved' = 'idle';
   let saveIndicatorTimeout: ReturnType<typeof setTimeout>;
   let lastMilestone = 0;
@@ -106,6 +107,8 @@
       lastSavedWordCount = wc;
     }
 
+    contentDirty = false;
+
     // Save indicator
     saveState = 'saving';
     clearTimeout(saveIndicatorTimeout);
@@ -114,23 +117,19 @@
   }
 
   function handleInput() {
-    // Sync content from contenteditable
+    // Sync content from contenteditable — lightweight, no string processing
     if (editorEl) {
       currentContent = editorEl.innerText;
     }
+    contentDirty = true;
 
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(saveEntries, 500);
 
-    // Writing line: show and extend while typing
+    // Writing line: show while typing (uses cached wordCount from reactive, not recalculated here)
     writingLineVisible = true;
-    const wc = countWords(currentContent);
-    writingLineHeight = Math.min(100, wc * 0.4); // grows with word count, caps at 100%
     clearTimeout(writingLineTimeout);
     writingLineTimeout = setTimeout(() => { writingLineVisible = false; }, 5000);
-
-    // Word count milestones
-    checkMilestone(wc);
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -353,12 +352,13 @@
       }
     });
 
-    // 10-second backup save
+    // 10-second backup save — only if content changed since last save
     backupInterval = setInterval(() => {
-      if (editorEl) {
-        currentContent = editorEl.innerText;
+      if (contentDirty) {
+        if (editorEl) currentContent = editorEl.innerText;
+        saveEntries();
+        contentDirty = false;
       }
-      if (currentContent.trim()) saveEntries();
     }, 10000);
 
     // Clock for focus mode
@@ -396,6 +396,8 @@
     ? sortedEntries.filter(e => e.content.toLowerCase().includes(searchQuery.toLowerCase()))
     : sortedEntries;
   $: wordCount = countWords(currentContent);
+  $: writingLineHeight = Math.min(100, wordCount * 0.4);
+  $: checkMilestone(wordCount);
   $: entryNumber = String(dayOfYear(activeDate)).padStart(3, '0');
   $: totalEntries = entries.length;
   $: isToday = activeDate === todayKey();
@@ -578,6 +580,7 @@
     flex: 1;
     min-height: 0;
     gap: 0;
+    overflow: hidden;
   }
 
   /* --- Sidebar --- */
@@ -746,14 +749,14 @@
   /* --- The writing surface --- */
   .log-editor {
     flex: 1;
-    min-height: 200px;
+    min-height: 0;
     font-family: var(--font-reading);
-    font-size: var(--text-reading);
+    font-size: 16px;
     color: var(--text-primary);
     background: var(--bg-primary);
     padding: var(--space-4) var(--space-6);
     line-height: 1.8;
-    max-width: 65ch;
+    width: 100%;
     caret-color: var(--accent);
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -899,7 +902,7 @@
     width: 100%;
     max-width: 65ch;
     font-family: var(--font-reading);
-    font-size: var(--text-reading);
+    font-size: 16px;
     color: var(--text-primary);
     background: transparent;
     padding: var(--space-8) var(--space-6) var(--space-16);

@@ -65,6 +65,7 @@
       left: {win.x}px;
       top: {win.y}px;
       width: {win.width}px;
+      height: {win.height}px;
       z-index: {win.zIndex};
     "
     on:pointerdown={handleFocus}
@@ -118,7 +119,7 @@
     opacity: 0;
     transform: scale(0.97);
     animation: windowOpen var(--transition-normal) var(--ease-out) forwards;
-    max-height: calc(100vh - 80px);
+    max-height: calc(100vh - 42px);
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   }
 

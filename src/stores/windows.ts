@@ -67,14 +67,15 @@ function createWindowStore() {
     subscribe,
 
     /** Register a window. Merges persisted position if available. */
-    register(defaults: Omit<WindowState, 'zIndex'>) {
+    register(defaults: Omit<WindowState, 'zIndex'> & { forceSize?: boolean }) {
       const saved = persisted[defaults.id];
+      const useDefaults = defaults.forceSize;
       const state: WindowState = {
         ...defaults,
-        x: saved?.x ?? defaults.x,
-        y: saved?.y ?? defaults.y,
-        width: saved?.width ?? defaults.width,
-        height: saved?.height ?? defaults.height,
+        x: useDefaults ? defaults.x : (saved?.x ?? defaults.x),
+        y: useDefaults ? defaults.y : (saved?.y ?? defaults.y),
+        width: useDefaults ? defaults.width : (saved?.width ?? defaults.width),
+        height: useDefaults ? defaults.height : (saved?.height ?? defaults.height),
         isOpen: saved?.isOpen ?? defaults.isOpen,
         isMinimized: saved?.isMinimized ?? defaults.isMinimized,
         zIndex: topZ++,

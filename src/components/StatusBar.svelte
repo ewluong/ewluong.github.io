@@ -214,12 +214,12 @@
     color: var(--text-dim);
     height: 38px;
     gap: var(--space-4);
-    transition: background 3s var(--ease-out), border-color 3s var(--ease-out);
   }
 
   .status-bar.silence {
     background: transparent;
     border-bottom-color: transparent;
+    transition: background 3s var(--ease-out), border-color 3s var(--ease-out);
   }
 
   .status-silence-label {

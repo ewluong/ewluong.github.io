@@ -167,13 +167,13 @@
     flex-direction: column;
     background: var(--bg-secondary);
     border-right: 1px solid var(--border);
-    transition: opacity 3s var(--ease-out), background 3s var(--ease-out), border-color 3s var(--ease-out);
   }
 
   .dock.silence {
     opacity: 0.08;
     background: transparent;
     border-right-color: transparent;
+    transition: opacity 3s var(--ease-out), background 3s var(--ease-out), border-color 3s var(--ease-out);
   }
 
   .dock.silence:hover {

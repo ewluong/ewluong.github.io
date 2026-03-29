@@ -355,11 +355,12 @@ export const recentPatterns = derived(sessionHistory, ($history): RecentPatterns
   const weekAgo = now - 7 * 86400000;
   const twoWeeksAgo = now - 14 * 86400000;
 
-  const recentRecords = records.filter(r => new Date(r.date).getTime() >= weekAgo);
-  const priorRecords = records.filter(r => {
-    const t = new Date(r.date).getTime();
-    return t >= twoWeeksAgo && t < weekAgo;
-  });
+  // Use string comparison instead of Date construction (dates are YYYY-MM-DD, lexicographic = chronological)
+  const weekAgoStr = new Date(weekAgo).toISOString().slice(0, 10);
+  const twoWeeksAgoStr = new Date(twoWeeksAgo).toISOString().slice(0, 10);
+
+  const recentRecords = records.filter(r => r.date >= weekAgoStr);
+  const priorRecords = records.filter(r => r.date >= twoWeeksAgoStr && r.date < weekAgoStr);
 
   // Vector distribution (ms per vector, last 7 days)
   const vectorDistribution: Record<string, number> = {};

@@ -470,16 +470,40 @@
     }
   }
 
+  // Clock string cache — only recompute when second changes
+  let cachedClockSecond = -1;
+  let cachedTimeStr = '';
+  let cachedDateStr = '';
+  let cachedProgressStr = '';
+  let cachedYearProgress = 0;
+
   function drawClock(ctx: CanvasRenderingContext2D, w: number, h: number) {
     if (!isReady) return;
 
     const now = new Date();
+    const currentSecond = now.getSeconds();
     const dockOffset = 184;
     const centerX = dockOffset + (w - dockOffset) / 2;
     const centerY = h / 2 - 30;
 
     const secondFrac = now.getMilliseconds() / 1000;
     const pulse = 0.45 + Math.sin(secondFrac * Math.PI * 2) * 0.08;
+
+    // Only recompute strings when the second changes
+    if (currentSecond !== cachedClockSecond) {
+      cachedClockSecond = currentSecond;
+      cachedTimeStr = now.toTimeString().slice(0, 8);
+      const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const date = String(now.getDate()).padStart(2, '0');
+      cachedDateStr = `${days[now.getDay()]} — ${year}.${month}.${date}`;
+      const startOfYear = new Date(year, 0, 1);
+      const dayOfYear = Math.floor((now.getTime() - startOfYear.getTime()) / 86400000) + 1;
+      const totalDays = ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 366 : 365;
+      cachedYearProgress = dayOfYear / totalDays;
+      cachedProgressStr = `DAY ${String(dayOfYear).padStart(3, '0')} OF ${totalDays} — ${(cachedYearProgress * 100).toFixed(1)}%`;
+    }
 
     // Horizontal rule above clock
     const ruleWidth = 360;
@@ -491,7 +515,6 @@
     ctx.lineTo(centerX + ruleWidth / 2, centerY - 60);
     ctx.stroke();
 
-    // Small NERV-style label above time
     ctx.font = '18px VT323, monospace';
     ctx.fillStyle = accentColor;
     ctx.globalAlpha = 0.25;
@@ -499,37 +522,20 @@
     ctx.textBaseline = 'middle';
     ctx.fillText('— SYSTEM TIME —', centerX, centerY - 42);
 
-    // Time — large and visible
-    const timeStr = now.toTimeString().slice(0, 8);
     ctx.font = '96px VT323, monospace';
     ctx.fillStyle = textColor;
     ctx.globalAlpha = pulse;
-    ctx.fillText(timeStr, centerX, centerY + 10);
-
-    // Day and date
-    const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-    const dayName = days[now.getDay()];
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const date = String(now.getDate()).padStart(2, '0');
-    const dateStr = `${dayName} — ${year}.${month}.${date}`;
+    ctx.fillText(cachedTimeStr, centerX, centerY + 10);
 
     ctx.font = '26px VT323, monospace';
     ctx.fillStyle = textColor;
     ctx.globalAlpha = pulse * 0.6;
-    ctx.fillText(dateStr, centerX, centerY + 62);
-
-    // Day of year progress
-    const startOfYear = new Date(year, 0, 1);
-    const dayOfYear = Math.floor((now.getTime() - startOfYear.getTime()) / 86400000) + 1;
-    const totalDays = ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 366 : 365;
-    const yearProgress = dayOfYear / totalDays;
-    const progressStr = `DAY ${String(dayOfYear).padStart(3, '0')} OF ${totalDays} — ${(yearProgress * 100).toFixed(1)}%`;
+    ctx.fillText(cachedDateStr, centerX, centerY + 62);
 
     ctx.font = '20px VT323, monospace';
     ctx.fillStyle = accentColor;
     ctx.globalAlpha = pulse * 0.55;
-    ctx.fillText(progressStr, centerX, centerY + 94);
+    ctx.fillText(cachedProgressStr, centerX, centerY + 94);
 
     // Progress bar — wider and taller
     const barWidth = 340;
@@ -545,12 +551,12 @@
     // Filled bar
     ctx.fillStyle = accentColor;
     ctx.globalAlpha = pulse * 0.7;
-    ctx.fillRect(barX, barY, barWidth * yearProgress, barHeight);
+    ctx.fillRect(barX, barY, barWidth * cachedYearProgress, barHeight);
 
     // Tick mark at current position
     ctx.fillStyle = textColor;
     ctx.globalAlpha = pulse * 0.9;
-    ctx.fillRect(barX + barWidth * yearProgress - 1, barY - 3, 2, barHeight + 6);
+    ctx.fillRect(barX + barWidth * cachedYearProgress - 1, barY - 3, 2, barHeight + 6);
 
     // Horizontal rule below
     ctx.strokeStyle = accentColor;
@@ -623,23 +629,39 @@
     }
   }
 
+  // Cached date values for palimpsest — refreshed once per second, not per frame
+  let palimpsestTodayMs = 0;
+  let palimpsestLastSecond = -1;
+
   function drawPalimpsest(ctx: CanvasRenderingContext2D, w: number, h: number) {
+    // Early exit if nothing to draw
+    if (archivedDays.length === 0 && currentLiveMarks.length === 0) return;
+
+    // Refresh date cache once per second (not per frame)
+    const nowSecond = Math.floor(Date.now() / 1000);
+    if (nowSecond !== palimpsestLastSecond) {
+      palimpsestLastSecond = nowSecond;
+      const today = new Date();
+      palimpsestTodayMs = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+    }
+
     // --- Layer 1: Archived marks (past days, fading with age) ---
     if (archivedDays.length > 0) {
-      const today = new Date().toISOString().slice(0, 10);
-      const todayMs = new Date(today).getTime();
+      // Only render every 3rd frame for archived marks (they barely move)
+      if (frameCount % 3 === 0 || frameCount < 10) {
+        for (const day of archivedDays) {
+          const dayMs = new Date(day.date + 'T00:00:00').getTime();
+          const ageInDays = Math.max(0, (palimpsestTodayMs - dayMs) / 86400000);
+          const ageFade = Math.max(0.15, 1 - ageInDays / 7);
 
-      for (const day of archivedDays) {
-        const dayMs = new Date(day.date).getTime();
-        const ageInDays = Math.max(0, (todayMs - dayMs) / 86400000);
-        const ageFade = Math.max(0.15, 1 - ageInDays / 7);
-
-        for (const mark of day.marks) {
-          const mx = mark.x * w;
-          const my = mark.y * h;
-          const drift = Math.sin(frameCount * 0.001 + mark.x * 10 + mark.y * 7) * 1.5;
-          const baseAlpha = (0.02 + mark.intensity * 0.04) * ageFade;
-          renderMark(ctx, mark, mx + drift, my + drift * 0.7, baseAlpha, w, h);
+          for (const mark of day.marks) {
+            const baseAlpha = (0.02 + mark.intensity * 0.04) * ageFade;
+            if (baseAlpha < 0.005) continue; // Skip invisible marks
+            const mx = mark.x * w;
+            const my = mark.y * h;
+            const drift = Math.sin(frameCount * 0.001 + mark.x * 10 + mark.y * 7) * 1.5;
+            renderMark(ctx, mark, mx + drift, my + drift * 0.7, baseAlpha, w, h);
+          }
         }
       }
     }
@@ -647,89 +669,94 @@
     // --- Layer 2: Live marks (this session, flash → settle → archive) ---
     for (const mark of currentLiveMarks) {
       const age = frameCount - mark.birthFrame;
-      const mx = mark.x * w;
-      const my = mark.y * h;
-      // Live marks breathe faster than archived ones
-      const drift = Math.sin(frameCount * 0.002 + mark.x * 8 + mark.y * 5) * 1.0;
 
-      // Flash → settle → archive opacity progression
       let alpha: number;
       if (age < 30) {
-        // Flash phase: bright burst fading over ~0.5s
-        alpha = 0.12 - (age / 30) * 0.04; // 0.12 → 0.08
+        alpha = 0.12 - (age / 30) * 0.04;
       } else if (age < 3600) {
-        // Settle phase: gradual fade to archive level over ~60s
         const t = (age - 30) / 3570;
         alpha = 0.08 * (1 - t) + 0.03 * t;
       } else {
-        // Fully settled
         alpha = 0.03;
       }
 
+      if (alpha < 0.005) continue; // Skip invisible marks
+
+      const mx = mark.x * w;
+      const my = mark.y * h;
+      const drift = Math.sin(frameCount * 0.002 + mark.x * 8 + mark.y * 5) * 1.0;
       renderMark(ctx, mark, mx + drift, my + drift * 0.7, alpha, w, h);
     }
 
     ctx.globalAlpha = 1;
   }
 
+  // Pre-sorted shape array — depth never changes, sort once
+  let sortedShapes: Shape[] = [];
+
   function render() {
     if (!ctx || !canvas) return;
-    const w = canvas.width;
-    const h = canvas.height;
     frameCount++;
     setCurrentFrame(frameCount);
+    const w = canvas.width;
+    const h = canvas.height;
 
-    // Silence fade: lerp toward target (0 when silent, 1 when active)
-    const silenceTarget = isSilent ? 0 : 1;
-    silenceFade += (silenceTarget - silenceFade) * 0.02; // ~3s ease
+    const transitioning = isSilent || silenceFade < 0.99;
+
+    // Only compute silence fade when actually transitioning
+    if (transitioning) {
+      const silenceTarget = isSilent ? 0 : 1;
+      silenceFade += (silenceTarget - silenceFade) * 0.02;
+      if (Math.abs(silenceFade - silenceTarget) < 0.005) silenceFade = silenceTarget;
+    }
 
     ctx.clearRect(0, 0, w, h);
 
-    // Grid — fades during silence
-    if (silenceFade > 0.01) {
-      ctx.globalAlpha = silenceFade;
+    if (transitioning) {
+      // Silence transition path — apply globalAlpha wrapping
+      if (silenceFade > 0.01) {
+        ctx.globalAlpha = silenceFade;
+        drawGrid(ctx);
+        drawWeather(ctx, w, h);
+        ctx.globalAlpha = 1;
+      }
+
+      ctx.globalAlpha = Math.max(0.3, silenceFade);
+      drawClock(ctx, w, h);
+      ctx.globalAlpha = 1;
+
+      if (silenceFade > 0.05) {
+        ctx.globalAlpha = silenceFade;
+        drawWeatherInfo(ctx, w, h);
+        ctx.globalAlpha = 1;
+      }
+    } else {
+      // Normal fast path — no globalAlpha wrapping needed
       drawGrid(ctx);
-      ctx.globalAlpha = 1;
-    }
-
-    // Weather particles — fade during silence
-    if (silenceFade > 0.05) {
-      ctx.globalAlpha = silenceFade;
       drawWeather(ctx, w, h);
-      ctx.globalAlpha = 1;
-    }
-
-    // Clock — dims during silence but never fully disappears
-    const clockAlpha = isSilent ? Math.max(0.3, silenceFade) : 1;
-    ctx.globalAlpha = clockAlpha;
-    drawClock(ctx, w, h);
-    ctx.globalAlpha = 1;
-
-    // Weather info — fades during silence
-    if (silenceFade > 0.05) {
-      ctx.globalAlpha = silenceFade;
+      drawClock(ctx, w, h);
       drawWeatherInfo(ctx, w, h);
-      ctx.globalAlpha = 1;
     }
 
-    // Palimpsest — always visible (the past persists even in silence)
+    // Palimpsest — always visible
     drawPalimpsest(ctx, w, h);
 
-    // Shapes, connections — fade during silence
-    if (silenceFade > 0.02) {
+    // Shapes and connections
+    if (!transitioning || silenceFade > 0.02) {
       update(w, h);
-
-      ctx.globalAlpha = silenceFade;
       drawConnections(ctx);
-      ctx.globalAlpha = 1;
 
-      const sorted = [...shapes].sort((a, b) => a.depth - b.depth);
-      for (const shape of sorted) {
-        // Each shape's opacity is multiplied by silenceFade inside drawShape
-        const origOpacity = shape.opacity;
-        shape.opacity *= silenceFade;
-        drawShape(ctx, shape);
-        shape.opacity = origOpacity;
+      if (transitioning) {
+        for (const shape of sortedShapes) {
+          const origOpacity = shape.opacity;
+          shape.opacity *= silenceFade;
+          drawShape(ctx, shape);
+          shape.opacity = origOpacity;
+        }
+      } else {
+        for (const shape of sortedShapes) {
+          drawShape(ctx, shape);
+        }
       }
     }
 
@@ -764,10 +791,11 @@
     textColor = styles.getPropertyValue('--text-primary').trim() || '#c8cad0';
     dimColor = styles.getPropertyValue('--text-dim').trim() || '#525568';
 
-    // Create shapes with depth variation
+    // Create shapes with depth variation — sort once by depth (never changes)
     shapes = Array.from({ length: SHAPE_COUNT }, (_, i) =>
       createShape(canvas.width, canvas.height, i)
     );
+    sortedShapes = [...shapes].sort((a, b) => a.depth - b.depth);
 
     // Initialize weather particles and grid cache
     initWeatherParticles(canvas.width, canvas.height);

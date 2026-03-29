@@ -59,26 +59,30 @@ Rules:
 
   $: active = $isAuthenticated && !isStopped && !$silenceActive;
 
-  // Start the cycle when active becomes true (handles login after mount or silence exit)
-  $: if (active && !started && typeof window !== 'undefined') {
-    started = true;
-    const initialDelay = 3000 + Math.random() * 5000; // 3-8 seconds
-    cycleTimeout = setTimeout(cycle, initialDelay);
-  }
-
-  // When entering silence: clear message and pause scheduling
-  $: if ($silenceActive && typeof window !== 'undefined') {
-    clearTimeout(cycleTimeout);
-    cancelAnimationFrame(typewriterRaf);
-    clearTimeout(flickerTimeout);
-    currentMessage = '';
-    isTyping = false;
-    isBreathing = false;
-  }
-
-  // When exiting silence: restart with a gentle delay (MURMUR wakes slowly)
-  $: if (!$silenceActive && $isAuthenticated && !isStopped && started && typeof window !== 'undefined') {
-    scheduleNext(10000 + Math.random() * 5000); // 10-15s delay
+  // Single reactive block: respond to active state changes
+  let wasActive = false;
+  $: if (typeof window !== 'undefined') {
+    if (active && !wasActive) {
+      // Became active (login, silence exit, or first start)
+      wasActive = true;
+      if (!started) {
+        started = true;
+        const initialDelay = 3000 + Math.random() * 5000;
+        cycleTimeout = setTimeout(cycle, initialDelay);
+      } else {
+        // Resuming (e.g. after silence) — gentle delay
+        scheduleNext(10000 + Math.random() * 5000);
+      }
+    } else if (!active && wasActive) {
+      // Became inactive (silence entered, logout)
+      wasActive = false;
+      clearTimeout(cycleTimeout);
+      cancelAnimationFrame(typewriterRaf);
+      clearTimeout(flickerTimeout);
+      currentMessage = '';
+      isTyping = false;
+      isBreathing = false;
+    }
   }
 
   // --- Mode selection ---
