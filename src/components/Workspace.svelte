@@ -199,6 +199,7 @@
       title: 'Operator Log',
       module: 'daily-log',
       designation: 'LOG.001',
+      data: { forceHeight: true },
       forceSize: true,
       x: dockWidth + 6,
       y: 40,
